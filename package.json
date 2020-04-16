@@ -2,14 +2,21 @@
   "name": "@microbusiness/dms-api-gateway",
   "version": "0.1.0",
   "description": "Digital Management System API Gateway",
-  "main": "dist/index.js",
   "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
     "build": "babel src --out-dir dist",
     "test": "jest",
     "generate-graphql-schema": "babel-node script/GenerateGraphqlSchema.js",
     "lint": "eslint --ext .jsx --ext .js src",
     "fixlint": "eslint --fix --ext .jsx --ext .js src",
     "format": "prettier --write --single-quote true --trailing-comma all --print-width 150 ./src && npm run fixlint"
+  },
+  "engines": {
+    "node": "8"
   },
   "repository": {
     "type": "git",
@@ -22,8 +29,17 @@
   },
   "homepage": "https://github.com/digital-management-system/api-gateway#readme",
   "dependencies": {
+    "core-js": "^3.6.5",
+    "cors": "^2.8.5",
+    "cuid": "^2.1.8",
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "firebase-admin": "^8.10.0",
+    "firebase-functions": "^3.6.0",
     "graphql": "^15.0.0",
-    "graphql-relay": "^0.6.0"
+    "graphql-relay": "^0.6.0",
+    "immutable": "^4.0.0-rc.12",
+    "regenerator-runtime": "^0.13.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -33,7 +49,9 @@
     "@babel/preset-typescript": "^7.9.0",
     "@typescript-eslint/eslint-plugin": "^2.28.0",
     "@typescript-eslint/parser": "^2.28.0",
+    "chance": "^1.1.4",
     "eslint": "^6.8.0",
+    "firebase-test": "^0.3.2",
     "husky": "^4.2.5",
     "jest": "^25.3.0",
     "lint-staged": "^10.1.3",

@@ -4,7 +4,7 @@ import { NodeInterface } from '../interface';
 export default new GraphQLObjectType({
 	name: 'User',
 	fields: {
-		id: { type: new GraphQLNonNull(GraphQLID), resolve: () => 'User ID' },
+		id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
 	},
 	interfaces: [NodeInterface],
 });
