@@ -1,0 +1,9 @@
+mode: ContinuousDeployment
+branches:
+  master: {}
+  release: {}
+  feature: {}
+  hotfix: {}
+ignore:
+  sha: []
+merge-message-formats: {}
