@@ -1,0 +1,13 @@
+type Query {
+  user: User
+}
+
+type User implements Node {
+  id: ID!
+}
+
+"""An object with an ID"""
+interface Node {
+  """The id of the object."""
+  id: ID!
+}

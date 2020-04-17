@@ -1,0 +1,81 @@
+trigger:
+  tags:
+    include:
+      - v*
+  branches:
+    include:
+      - master
+      - release/*
+      - feature/*
+      - hotfix/*
+  paths:
+    exclude:
+      - README.md
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  DOCKER_CONTAINER_REGISTRY: 'Digital Management System Docker Hub'
+  DOCKER_REPOSITORY_NAME: 'digitalmanagementsystem/api-gateway'
+
+steps:
+- task: GitVersion@5
+  displayName: "Extracting versioning details"
+  inputs:
+    runtime: 'core'
+    configFilePath: './GitVersion.yml'
+
+- task: Docker@2
+  displayName: "Prepare, download and install deps and build an optimized version"
+  inputs:
+    repository: $(DOCKER_REPOSITORY_NAME)
+    command: 'build'
+    Dockerfile: '$(system.defaultWorkingDirectory)/docker/Dockerfile.build'
+    buildContext: '$(system.defaultWorkingDirectory)'
+    arguments: '--build-arg VERSION=$(GitVersion.SemVer)'
+    tags: $(GitVersion.SemVer)
+
+- task: Docker@2
+  displayName: "Run unit tests and publish test coverage report"
+  inputs:
+    command: 'build'
+    Dockerfile: '$(system.defaultWorkingDirectory)/docker/Dockerfile.testAndCoverage'
+    buildContext: '$(system.defaultWorkingDirectory)'
+    arguments: '--build-arg COVERALLS_SERVICE_NAME=$(COVERALLS_SERVICE_NAME) --build-arg COVERALLS_REPO_TOKEN=$(COVERALLS_REPO_TOKEN)'
+
+- task: Docker@2
+  displayName: "Docker Login"
+  inputs:
+    containerRegistry: $(DOCKER_CONTAINER_REGISTRY)
+    command: 'login'
+
+- task: Docker@2
+  displayName: "Push docker image"
+  inputs:
+    containerRegistry: $(DOCKER_CONTAINER_REGISTRY)
+    repository: $(DOCKER_REPOSITORY_NAME)
+    command: 'push'
+    buildContext: '$(system.defaultWorkingDirectory)'
+    tags: $(GitVersion.SemVer)
+
+- task: Docker@2
+  displayName: "Docker Logout"
+  inputs:
+    containerRegistry: $(DOCKER_CONTAINER_REGISTRY)
+    command: 'logout'
+
+- task: Bash@3
+  displayName: "Prepare to publish pipeline artifact details"
+  inputs:
+    targetType: 'inline'
+    script: |
+      mkdir -p "$(system.defaultWorkingDirectory)/artifact_details"
+      echo $(jq -n --arg docker_image_tag "$(DOCKER_REPOSITORY_NAME):$(GitVersion.SemVer)" '{docker_image_tag: $docker_image_tag}') > "$(system.defaultWorkingDirectory)/artifact_details/build_details.json"
+
+- task: PublishPipelineArtifact@1
+  displayName: "Publish artifact details"
+  inputs:
+    targetPath: '$(system.defaultWorkingDirectory)/artifact_details'
+    artifact: 'artifact_details'
+    publishLocation: 'pipeline'

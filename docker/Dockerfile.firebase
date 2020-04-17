@@ -1,0 +1,12 @@
+ARG BASE_IMAGE
+
+FROM $BASE_IMAGE
+LABEL maintainer="morteza.alizadeh@gmail.com"
+
+FROM microbusiness/firebase-toolset:0.1.1
+
+ARG FIREBASE_TOKEN
+ARG FIREBASE_PROJECT_ID
+
+WORKDIR /src
+RUN firebase deploy --only functions --token $FIREBASE_TOKEN --project $FIREBASE_PROJECT_ID

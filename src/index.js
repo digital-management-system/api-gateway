@@ -26,3 +26,5 @@ graphqlServer.use('*', async (request, response) => {
 		},
 	})(request, response);
 });
+
+export { getRootSchema };

@@ -1,0 +1,8 @@
+FROM node:12.16.2-alpine
+LABEL maintainer="morteza.alizadeh@gmail.com"
+
+ADD . /src
+WORKDIR /src
+RUN npm install
+RUN npm run build
+RUN npm run generate-graphql-schema

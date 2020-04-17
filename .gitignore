@@ -55,5 +55,6 @@ fastlane/screenshots
 .exponent
 
 dist/
+coverage/
 /logs
 package-lock.json

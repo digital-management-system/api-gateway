@@ -1,18 +1,10 @@
-SHELL = /bin/bash
-OS = $(shell uname -s | tr '[:upper:]' '[:lower:]')
-CURRENT_DIRECTORY = $(shell pwd)
-
-# Build variables
-BUILD_DIR ?= dist
-REACT_APP_COMMIT ?= $(shell git rev-parse HEAD 2>/dev/null)
-REACT_APP_BUILD_DATE ?= $(shell date +%FT%T%z)
-
 .PHONY: all
 all: dep build generate-graphql-schema ## Get all dependecies, build and generate GraphQL schema
 
 .PHONY: clean
 clean: ## Clean the working area and the project
-	@rm -rf $(BUILD_DIR)/
+	@rm -rf ./coverage/
+	@rm -rf ./dist/
 
 .PHONY: dep
 dep: ## Install dependencies
@@ -32,7 +24,7 @@ format: ## Run code formatter
 
 .PHONY: generate-graphql-schema
 generate-graphql-schema: ## Generate GraphQL schema
-	@npm run format
+	@npm run generate-graphql-schema
 
 .PHONY: list
 list: ## List all make targets
