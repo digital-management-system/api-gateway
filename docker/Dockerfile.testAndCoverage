@@ -7,4 +7,5 @@ ARG COVERALLS_REPO_TOKEN
 ADD . /src
 WORKDIR /src
 RUN npm install
+RUN npm run build
 RUN npm run test:ci:publish
