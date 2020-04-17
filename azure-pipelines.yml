@@ -72,6 +72,8 @@ steps:
     script: |
       mkdir -p "$(system.defaultWorkingDirectory)/artifact_details"
       echo $(jq -n --arg docker_image_tag "$(DOCKER_REPOSITORY_NAME):$(GitVersion.SemVer)" '{docker_image_tag: $docker_image_tag}') > "$(system.defaultWorkingDirectory)/artifact_details/build_details.json"
+      cp "$(system.defaultWorkingDirectory)/docker/Dockerfile.firebase" "$(system.defaultWorkingDirectory)/artifact_details/"
+      cp "$(system.defaultWorkingDirectory)/script/publish_to_firebase.sh" "$(system.defaultWorkingDirectory)/artifact_details/"
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact details"
