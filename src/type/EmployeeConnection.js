@@ -6,6 +6,11 @@ import Employee from './Employee';
 
 export const getEmployees = async (searchArgs, { employeeLoaderById }) => {
 	const { employeeIds } = searchArgs;
+
+	if (employeeIds && employeeIds.length === 0) {
+		return Common.getEmptyResult();
+	}
+
 	const employees = await employeeLoaderById.loadMany(employeeIds);
 	const totalCount = employees.length;
 
