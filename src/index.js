@@ -2,6 +2,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import express from 'express';
 import GraphQLHTTP from 'express-graphql';
+import cors from 'cors';
 import getRootSchema from './RootSchema';
 import { createDepartmentLoaderById, createEmployeeLoaderById } from './loaders';
 
@@ -9,6 +10,7 @@ export const graphqlServer = express();
 
 const schema = getRootSchema();
 
+graphqlServer.use(cors());
 graphqlServer.use('*', async (request, response) => {
 	return GraphQLHTTP({
 		schema,
