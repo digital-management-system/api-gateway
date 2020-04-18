@@ -101,3 +101,85 @@ type EmployeeTypeEdge {
   """A cursor for use in pagination"""
   cursor: String!
 }
+
+type Mutation {
+  addDepartment(input: AddDepartmentInput!): AddDepartmentPayload
+  updateDepartment(input: UpdateDepartmentInput!): UpdateDepartmentPayload
+  deleteDepartment(input: DeleteDepartmentInput!): DeleteDepartmentPayload
+  addEmployee(input: AddEmployeeInput!): AddEmployeePayload
+  updateEmployee(input: UpdateEmployeeInput!): UpdateEmployeePayload
+  deleteEmployee(input: DeleteEmployeeInput!): DeleteEmployeePayload
+}
+
+type AddDepartmentPayload {
+  department: DepartmentTypeEdge
+  clientMutationId: String
+}
+
+input AddDepartmentInput {
+  name: String!
+  description: String
+  clientMutationId: String
+}
+
+type UpdateDepartmentPayload {
+  department: DepartmentTypeEdge
+  clientMutationId: String
+}
+
+input UpdateDepartmentInput {
+  id: ID!
+  name: String!
+  description: String
+  clientMutationId: String
+}
+
+type DeleteDepartmentPayload {
+  deletedDepartmentId: ID!
+  clientMutationId: String
+}
+
+input DeleteDepartmentInput {
+  id: ID!
+  clientMutationId: String
+}
+
+type AddEmployeePayload {
+  employee: EmployeeTypeEdge
+  clientMutationId: String
+}
+
+input AddEmployeeInput {
+  name: InputName!
+  departmentIds: [ID!]
+  clientMutationId: String
+}
+
+input InputName {
+  firstName: String!
+  middleName: String
+  lastName: String!
+  preferredName: String
+}
+
+type UpdateEmployeePayload {
+  employee: EmployeeTypeEdge
+  clientMutationId: String
+}
+
+input UpdateEmployeeInput {
+  id: ID!
+  name: InputName!
+  departmentIds: [ID!]
+  clientMutationId: String
+}
+
+type DeleteEmployeePayload {
+  deletedEmployeeId: ID!
+  clientMutationId: String
+}
+
+input DeleteEmployeeInput {
+  id: ID!
+  clientMutationId: String
+}
