@@ -1,8 +1,11 @@
 import { GraphQLSchema } from 'graphql';
 import { RootQuery } from './type';
+import { RootMutation } from './mutation';
 
-export default function getRootSchema() {
-	return new GraphQLSchema({
+const getRootSchema = () =>
+	new GraphQLSchema({
 		query: RootQuery,
+		mutation: RootMutation,
 	});
-}
+
+export default getRootSchema;
