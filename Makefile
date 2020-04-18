@@ -20,7 +20,7 @@ test: ## Run unit tests
 
 .PHONY: format
 format: ## Run code formatter
-	@npm run format
+	@npm run fixlint
 
 .PHONY: generate-graphql-schema
 generate-graphql-schema: ## Generate GraphQL schema

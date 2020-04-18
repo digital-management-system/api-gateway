@@ -2,7 +2,7 @@ import { nodeDefinitions } from 'graphql-relay';
 
 const { nodeInterface, nodeField } = nodeDefinitions(
 	() => null,
-	() => null,
+	() => null
 );
 
 export const NodeInterface = nodeInterface;

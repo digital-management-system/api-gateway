@@ -4,6 +4,6 @@ import UserType from './User';
 export default new GraphQLObjectType({
 	name: 'Query',
 	fields: {
-		user: { type: UserType, resolve: () => ({ id: 'User ID' }) },
+		user: { type: UserType, resolve: () => ({ id: 'User ID', email: 'morteza.alizadeh@gmail.com' }) },
 	},
 });
