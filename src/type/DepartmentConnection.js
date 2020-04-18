@@ -7,7 +7,7 @@ import Department from './Department';
 export const getDepartments = async (searchArgs, { departmentLoaderById }) => {
 	const { departmentIds } = searchArgs;
 
-	if (departmentIds && departmentIds.length === 0) {
+	if (!departmentIds || departmentIds.length === 0) {
 		return Common.getEmptyResult();
 	}
 
