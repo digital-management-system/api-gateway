@@ -4,10 +4,100 @@ type Query {
 
 type User implements Node {
   id: ID!
+  department(departmentId: ID!): Department
+  departments(after: String, first: Int, before: String, last: Int, departmentIds: [ID!], sortingOptions: [SortingOptionPair!]): DepartmentTypeConnection
+  employee(employeeId: ID!): Employee
+  employees(after: String, first: Int, before: String, last: Int, employeeIds: [ID!], sortingOptions: [SortingOptionPair!]): EmployeeTypeConnection
 }
 
 """An object with an ID"""
 interface Node {
   """The id of the object."""
   id: ID!
+}
+
+type Department implements Node {
+  id: ID!
+  name: String!
+  description: String
+}
+
+"""A connection to a list of items."""
+type DepartmentTypeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [DepartmentTypeEdge]
+
+  """Total number of departments"""
+  totalCount: Int
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
+"""An edge in a connection."""
+type DepartmentTypeEdge {
+  """The item at the end of the edge"""
+  node: Department
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+input SortingOptionPair {
+  name: String!
+  direction: SortingDirection!
+}
+
+enum SortingDirection {
+  ASCENDING
+  DESCENDING
+}
+
+type Employee implements Node {
+  id: ID!
+  name: Name!
+  departments(after: String, first: Int, before: String, last: Int, departmentIds: [ID!], sortingOptions: [SortingOptionPair!]): DepartmentTypeConnection
+}
+
+type Name {
+  firstName: String!
+  middleName: String
+  lastName: String!
+  preferredName: String
+}
+
+"""A connection to a list of items."""
+type EmployeeTypeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [EmployeeTypeEdge]
+
+  """Total number of employees"""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type EmployeeTypeEdge {
+  """The item at the end of the edge"""
+  node: Employee
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }

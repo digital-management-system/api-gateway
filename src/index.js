@@ -3,6 +3,7 @@ import 'regenerator-runtime/runtime';
 import express from 'express';
 import GraphQLHTTP from 'express-graphql';
 import getRootSchema from './RootSchema';
+import { createDepartmentLoaderById, createEmployeeLoaderById } from './loaders';
 
 export const graphqlServer = express();
 
@@ -23,6 +24,10 @@ graphqlServer.use('*', async (request, response) => {
 		context: {
 			request,
 			sessionToken: request.headers.authorization,
+			dataLoaders: {
+				departmentLoaderById: createDepartmentLoaderById(),
+				employeeLoaderById: createEmployeeLoaderById(),
+			},
 		},
 	})(request, response);
 });
