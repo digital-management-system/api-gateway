@@ -103,20 +103,20 @@ type EmployeeTypeEdge {
 }
 
 type Mutation {
-  addDepartment(input: AddDepartmentInput!): AddDepartmentPayload
+  createDepartment(input: CreateDepartmentInput!): CreateDepartmentPayload
   updateDepartment(input: UpdateDepartmentInput!): UpdateDepartmentPayload
   deleteDepartment(input: DeleteDepartmentInput!): DeleteDepartmentPayload
-  addEmployee(input: AddEmployeeInput!): AddEmployeePayload
+  createEmployee(input: CreateEmployeeInput!): CreateEmployeePayload
   updateEmployee(input: UpdateEmployeeInput!): UpdateEmployeePayload
   deleteEmployee(input: DeleteEmployeeInput!): DeleteEmployeePayload
 }
 
-type AddDepartmentPayload {
+type CreateDepartmentPayload {
   department: DepartmentTypeEdge
   clientMutationId: String
 }
 
-input AddDepartmentInput {
+input CreateDepartmentInput {
   name: String!
   description: String
   clientMutationId: String
@@ -144,12 +144,12 @@ input DeleteDepartmentInput {
   clientMutationId: String
 }
 
-type AddEmployeePayload {
+type CreateEmployeePayload {
   employee: EmployeeTypeEdge
   clientMutationId: String
 }
 
-input AddEmployeeInput {
+input CreateEmployeeInput {
   name: InputName!
   departmentIds: [ID!]
   clientMutationId: String

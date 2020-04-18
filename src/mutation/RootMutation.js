@@ -1,18 +1,18 @@
 import { GraphQLObjectType } from 'graphql';
-import addDepartment from './AddDepartment';
+import createDepartment from './CreateDepartment';
 import updateDepartment from './UpdateDepartment';
 import deleteDepartment from './DeleteDepartment';
-import addEmployee from './AddEmployee';
+import createEmployee from './CreateEmployee';
 import updateEmployee from './UpdateEmployee';
 import deleteEmployee from './DeleteEmployee';
 
 export default new GraphQLObjectType({
 	name: 'Mutation',
 	fields: {
-		addDepartment,
+		createDepartment,
 		updateDepartment,
 		deleteDepartment,
-		addEmployee,
+		createEmployee,
 		updateEmployee,
 		deleteEmployee,
 	},

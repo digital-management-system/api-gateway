@@ -4,7 +4,7 @@ import cuid from 'cuid';
 import { DepartmentConnectionDefinitions, getDepartments } from '../type';
 
 export default mutationWithClientMutationId({
-	name: 'AddDepartment',
+	name: 'CreateDepartment',
 	inputFields: {
 		name: { type: new GraphQLNonNull(GraphQLString) },
 		description: { type: GraphQLString },

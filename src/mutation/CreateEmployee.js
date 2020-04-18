@@ -5,7 +5,7 @@ import { EmployeeConnectionDefinitions, getEmployees } from '../type';
 import Name from './Name';
 
 export default mutationWithClientMutationId({
-	name: 'AddEmployee',
+	name: 'CreateEmployee',
 	inputFields: {
 		name: { type: new GraphQLNonNull(Name) },
 		departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
