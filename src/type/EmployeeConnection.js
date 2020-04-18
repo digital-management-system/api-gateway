@@ -7,7 +7,7 @@ import Employee from './Employee';
 export const getEmployees = async (searchArgs, { employeeLoaderById }) => {
 	const { employeeIds } = searchArgs;
 
-	if (employeeIds && employeeIds.length === 0) {
+	if (!employeeIds || employeeIds.length === 0) {
 		return Common.getEmptyResult();
 	}
 
