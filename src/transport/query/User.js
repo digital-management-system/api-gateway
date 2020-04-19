@@ -3,7 +3,7 @@ import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
 
-const getUserType = ({ departmentTypeResolver, employeeTypeResolver }) =>
+const getUserType = ({ departmentTypeResolver, employeeTypeResolver, departmentLoaderById, employeeLoaderById }) =>
 	new GraphQLObjectType({
 		name: 'User',
 		fields: {
@@ -13,8 +13,7 @@ const getUserType = ({ departmentTypeResolver, employeeTypeResolver }) =>
 				args: {
 					departmentId: { type: new GraphQLNonNull(GraphQLID) },
 				},
-				resolve: async (_, { departmentId }, { dataLoaders: { departmentLoaderById } }) =>
-					departmentId ? departmentLoaderById.load(departmentId) : null,
+				resolve: async (_, { departmentId }) => (departmentId ? departmentLoaderById.load(departmentId) : null),
 			},
 			departments: {
 				type: departmentTypeResolver.getConnectionDefinitionType().connectionType,
@@ -30,8 +29,7 @@ const getUserType = ({ departmentTypeResolver, employeeTypeResolver }) =>
 				args: {
 					employeeId: { type: new GraphQLNonNull(GraphQLID) },
 				},
-				resolve: async (_, { employeeId }, { dataLoaders: { employeeLoaderById } }) =>
-					employeeId ? employeeLoaderById.load(employeeId) : null,
+				resolve: async (_, { employeeId }) => (employeeId ? employeeLoaderById.load(employeeId) : null),
 			},
 			employees: {
 				type: employeeTypeResolver.getConnectionDefinitionType().connectionType,

@@ -1,4 +1,4 @@
-export default class UserService {
+export default class UserBusinessService {
 	constructor({ logger }) {
 		this.logger = logger;
 	}

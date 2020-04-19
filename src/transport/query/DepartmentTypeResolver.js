@@ -5,7 +5,9 @@ import Common from './Common';
 import { NodeInterface } from '../interface';
 
 export default class DepartmentTypeResolver {
-	constructor() {
+	constructor({ departmentBusinessService }) {
+		this.departmentBusinessService = departmentBusinessService;
+
 		this.departmentType = new GraphQLObjectType({
 			name: 'Department',
 			fields: {
@@ -32,14 +34,9 @@ export default class DepartmentTypeResolver {
 
 	getConnectionDefinitionType = () => this.departmentConnectionType;
 
-	getDepartments = async (searchArgs, { departmentLoaderById }) => {
+	getDepartments = async (searchArgs) => {
 		const { departmentIds } = searchArgs;
-
-		if (!departmentIds || departmentIds.length === 0) {
-			return Common.getEmptyResult();
-		}
-
-		const departments = await departmentLoaderById.loadMany(departmentIds);
+		const departments = await this.departmentBusinessService.search({ departmentIds });
 		const totalCount = departments.length;
 
 		if (totalCount === 0) {

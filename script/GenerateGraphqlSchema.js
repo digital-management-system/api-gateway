@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { graphql, printSchema } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
-import { container } from '../src';
+import { setupContainer } from '../src';
 
-const getRootSchema = container.resolve('getRootSchema');
+const getRootSchema = setupContainer().resolve('getRootSchema');
 
 fs.writeFileSync(path.resolve(__dirname, '../schema/schema.graphql'), printSchema(getRootSchema));
 

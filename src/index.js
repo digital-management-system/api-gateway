@@ -6,7 +6,8 @@ import cors from 'cors';
 import { asValue, asFunction, asClass, createContainer } from 'awilix';
 
 import logger from './Logger';
-import { UserService as UserBusinessService, DepartmentService as DepartmentBusinessService } from './business';
+import { UserBusinessService, DepartmentBusinessService, EmployeeBusinessService } from './business';
+import { DepartmentRepositoryService, EmployeeRepositoryService } from './repository';
 import { getRootQuery, getUserType, DepartmentTypeResolver, EmployeeTypeResolver } from './transport/query';
 import {
 	getRootMutation,
@@ -21,30 +22,39 @@ import { getRootSchema } from './transport';
 import { createDepartmentLoaderById, createEmployeeLoaderById } from './transport/loaders';
 
 const loggingWinston = require('@google-cloud/logging-winston');
-const container = createContainer();
 
-container.register({
-	logger: asValue(logger),
-	createDepartmentLoaderById: asFunction(createDepartmentLoaderById).scoped(),
-	createEmployeeLoaderById: asFunction(createEmployeeLoaderById).scoped(),
-	userBusinessService: asClass(UserBusinessService).scoped(),
-	departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
-	getRootSchema: asFunction(getRootSchema).scoped(),
-	getRootQuery: asFunction(getRootQuery).scoped(),
-	getRootMutation: asFunction(getRootMutation).scoped(),
-	getUserType: asFunction(getUserType).scoped(),
-	departmentTypeResolver: asClass(DepartmentTypeResolver).scoped(),
-	employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
-	createDepartment: asFunction(createDepartment).scoped(),
-	updateDepartment: asFunction(updateDepartment).scoped(),
-	deleteDepartment: asFunction(deleteDepartment).scoped(),
-	createEmployee: asFunction(createEmployee).scoped(),
-	updateEmployee: asFunction(updateEmployee).scoped(),
-	deleteEmployee: asFunction(deleteEmployee).scoped(),
-});
+const setupContainer = () => {
+	const container = createContainer();
+
+	container.register({
+		logger: asValue(logger),
+		departmentLoaderById: asFunction(createDepartmentLoaderById).scoped(),
+		employeeLoaderById: asFunction(createEmployeeLoaderById).scoped(),
+		userBusinessService: asClass(UserBusinessService).scoped(),
+		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
+		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
+		departmentRepositoryService: asClass(DepartmentRepositoryService).scoped(),
+		employeeRepositoryService: asClass(EmployeeRepositoryService).scoped(),
+		getRootSchema: asFunction(getRootSchema).scoped(),
+		getRootQuery: asFunction(getRootQuery).scoped(),
+		getRootMutation: asFunction(getRootMutation).scoped(),
+		getUserType: asFunction(getUserType).scoped(),
+		departmentTypeResolver: asClass(DepartmentTypeResolver).scoped(),
+		employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
+		createDepartment: asFunction(createDepartment).scoped(),
+		updateDepartment: asFunction(updateDepartment).scoped(),
+		deleteDepartment: asFunction(deleteDepartment).scoped(),
+		createEmployee: asFunction(createEmployee).scoped(),
+		updateEmployee: asFunction(updateEmployee).scoped(),
+		deleteEmployee: asFunction(deleteEmployee).scoped(),
+	});
+
+	return container;
+};
 
 const createServer = async () => {
 	const expressServer = express();
+	const container = setupContainer();
 
 	expressServer.use(cors());
 	expressServer.use(await loggingWinston.express.makeMiddleware(container.resolve('logger')));
@@ -63,10 +73,6 @@ const createServer = async () => {
 			context: {
 				request,
 				sessionToken: request.headers.authorization,
-				dataLoaders: {
-					departmentLoaderById: container.resolve('createDepartmentLoaderById'),
-					employeeLoaderById: container.resolve('createEmployeeLoaderById'),
-				},
 			},
 		})(request, response);
 	});
@@ -74,4 +80,4 @@ const createServer = async () => {
 	return expressServer;
 };
 
-export { createServer, container };
+export { createServer, setupContainer };
