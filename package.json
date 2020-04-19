@@ -34,6 +34,8 @@
   },
   "homepage": "https://github.com/digital-management-system/api-gateway#readme",
   "dependencies": {
+    "@google-cloud/logging-winston": "^3.0.6",
+    "awilix": "^4.2.5",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
     "cuid": "^2.1.8",
@@ -45,7 +47,8 @@
     "graphql": "^15.0.0",
     "graphql-relay": "^0.6.0",
     "immutable": "^4.0.0-rc.12",
-    "regenerator-runtime": "^0.13.5"
+    "regenerator-runtime": "^0.13.5",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
