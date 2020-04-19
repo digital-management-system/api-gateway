@@ -4,7 +4,7 @@ import RelayHelper from './RelayHelper';
 import Common from './Common';
 import { NodeInterface } from '../interface';
 
-export default class DepartmentResolver {
+export default class DepartmentTypeResolver {
 	constructor() {
 		this.departmentType = new GraphQLObjectType({
 			name: 'Department',
