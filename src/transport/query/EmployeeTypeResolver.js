@@ -1,28 +1,29 @@
 import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLList, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
-import { connectionArgs } from 'graphql-relay';
 import RelayHelper from './RelayHelper';
 import Common from './Common';
 import { NodeInterface } from '../interface';
-import SortingOptionPair from './SortingOptionPair';
 import Name from './Name';
 
 export default class EmployeeTypeResolver {
-	constructor({ departmentTypeResolver }) {
+	constructor({ departmentTypeResolver, departmentLoaderById, employeeBusinessService }) {
 		this.departmentTypeResolver = departmentTypeResolver;
+		this.employeeBusinessService = employeeBusinessService;
+
 		this.employeeType = new GraphQLObjectType({
 			name: 'Employee',
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
 				name: { type: new GraphQLNonNull(Name), resolve: ({ name }) => name },
 				departments: {
-					type: this.departmentTypeResolver.getConnectionDefinitionType().connectionType,
-					args: {
-						...connectionArgs,
-						departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
-						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+					type: new GraphQLNonNull(new GraphQLList(this.departmentTypeResolver.getType())),
+					resolve: async ({ departmentIds }) => {
+						if (!departmentIds || departmentIds.length === 0) {
+							return [];
+						}
+
+						return departmentLoaderById.loadMany(departmentIds);
 					},
-					resolve: async (_, searchArgs, { dataLoaders }) => this.departmentTypeResolver.getDepartments(searchArgs, dataLoaders),
 				},
 			},
 			interfaces: [NodeInterface],
@@ -43,14 +44,9 @@ export default class EmployeeTypeResolver {
 
 	getConnectionDefinitionType = () => this.employeeConnectionType;
 
-	getEmployees = async (searchArgs, { employeeLoaderById }) => {
+	getEmployees = async (searchArgs) => {
 		const { employeeIds } = searchArgs;
-
-		if (!employeeIds || employeeIds.length === 0) {
-			return Common.getEmptyResult();
-		}
-
-		const employees = await employeeLoaderById.loadMany(employeeIds);
+		const employees = await this.employeeBusinessService.search({ employeeIds });
 		const totalCount = employees.length;
 
 		if (totalCount === 0) {

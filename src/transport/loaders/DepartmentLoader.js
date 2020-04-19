@@ -1,11 +1,7 @@
 import Dataloader from 'dataloader';
 
-export const createDepartmentLoaderById = () => {
+export const createDepartmentLoaderById = ({ departmentRepositoryService }) => {
 	return new Dataloader(async (ids) => {
-		return ids.map((id) => ({
-			id,
-			name: 'name: ' + id,
-			description: 'description: ' + id,
-		}));
+		return Promise.all(ids.map(async (id) => departmentRepositoryService.read(id)));
 	});
 };

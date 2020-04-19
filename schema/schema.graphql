@@ -71,7 +71,7 @@ enum SortingDirection {
 type Employee implements Node {
   id: ID!
   name: Name!
-  departments(after: String, first: Int, before: String, last: Int, departmentIds: [ID!], sortingOptions: [SortingOptionPair!]): DepartmentTypeConnection
+  departments: [Department]!
 }
 
 type Name {
