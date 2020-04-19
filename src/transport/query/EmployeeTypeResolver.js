@@ -7,22 +7,22 @@ import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
 import Name from './Name';
 
-export default class EmployeeResolver {
-	constructor({ departmentResolver }) {
-		this.departmentResolver = departmentResolver;
+export default class EmployeeTypeResolver {
+	constructor({ departmentTypeResolver }) {
+		this.departmentTypeResolver = departmentTypeResolver;
 		this.employeeType = new GraphQLObjectType({
 			name: 'Employee',
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
 				name: { type: new GraphQLNonNull(Name), resolve: ({ name }) => name },
 				departments: {
-					type: this.departmentResolver.getConnectionDefinitionType().connectionType,
+					type: this.departmentTypeResolver.getConnectionDefinitionType().connectionType,
 					args: {
 						...connectionArgs,
 						departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
 					},
-					resolve: async (_, searchArgs, { dataLoaders }) => this.departmentResolver.getDepartments(searchArgs, dataLoaders),
+					resolve: async (_, searchArgs, { dataLoaders }) => this.departmentTypeResolver.getDepartments(searchArgs, dataLoaders),
 				},
 			},
 			interfaces: [NodeInterface],

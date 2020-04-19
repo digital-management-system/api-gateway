@@ -1,7 +1,7 @@
 import { GraphQLID, GraphQLString, GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const updateDepartment = ({ departmentResolver }) =>
+const updateDepartment = ({ departmentTypeResolver }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateDepartment',
 		inputFields: {
@@ -11,12 +11,12 @@ const updateDepartment = ({ departmentResolver }) =>
 		},
 		outputFields: {
 			department: {
-				type: departmentResolver.getConnectionDefinitionType().edgeType,
+				type: departmentTypeResolver.getConnectionDefinitionType().edgeType,
 				resolve: (department) => department,
 			},
 		},
 		mutateAndGetPayload: async ({ id }, { dataLoaders }) =>
-			(await departmentResolver.getDepartments({ departmentIds: [{ id }] }, dataLoaders)).edges[0],
+			(await departmentTypeResolver.getDepartments({ departmentIds: [{ id }] }, dataLoaders)).edges[0],
 	});
 
 export default updateDepartment;

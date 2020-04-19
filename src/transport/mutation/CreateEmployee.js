@@ -3,7 +3,7 @@ import { mutationWithClientMutationId } from 'graphql-relay';
 import cuid from 'cuid';
 import Name from './Name';
 
-const createEmployee = ({ employeeResolver }) =>
+const createEmployee = ({ employeeTypeResolver }) =>
 	mutationWithClientMutationId({
 		name: 'CreateEmployee',
 		inputFields: {
@@ -12,11 +12,12 @@ const createEmployee = ({ employeeResolver }) =>
 		},
 		outputFields: {
 			employee: {
-				type: employeeResolver.getConnectionDefinitionType().edgeType,
+				type: employeeTypeResolver.getConnectionDefinitionType().edgeType,
 				resolve: (employee) => employee,
 			},
 		},
-		mutateAndGetPayload: async (args, { dataLoaders }) => (await employeeResolver.getEmployees({ employeeIds: [cuid()] }, dataLoaders)).edges[0],
+		mutateAndGetPayload: async (args, { dataLoaders }) =>
+			(await employeeTypeResolver.getEmployees({ employeeIds: [cuid()] }, dataLoaders)).edges[0],
 	});
 
 export default createEmployee;

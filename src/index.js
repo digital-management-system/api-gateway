@@ -7,7 +7,7 @@ import { asValue, asFunction, asClass, createContainer } from 'awilix';
 
 import logger from './Logger';
 import { UserService as UserBusinessService, DepartmentService as DepartmentBusinessService } from './business';
-import { getRootQuery, getUserType, DepartmentResolver, EmployeeResolver } from './transport/type';
+import { getRootQuery, getUserType, DepartmentTypeResolver, EmployeeTypeResolver } from './transport/query';
 import {
 	getRootMutation,
 	createDepartment,
@@ -33,8 +33,8 @@ container.register({
 	getRootQuery: asFunction(getRootQuery).scoped(),
 	getRootMutation: asFunction(getRootMutation).scoped(),
 	getUserType: asFunction(getUserType).scoped(),
-	departmentResolver: asClass(DepartmentResolver).scoped(),
-	employeeResolver: asClass(EmployeeResolver).scoped(),
+	departmentTypeResolver: asClass(DepartmentTypeResolver).scoped(),
+	employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
 	createDepartment: asFunction(createDepartment).scoped(),
 	updateDepartment: asFunction(updateDepartment).scoped(),
 	deleteDepartment: asFunction(deleteDepartment).scoped(),

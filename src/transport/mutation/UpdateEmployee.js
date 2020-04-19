@@ -2,7 +2,7 @@ import { GraphQLList, GraphQLNonNull, GraphQLID } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 import Name from './Name';
 
-const updateEmployee = ({ employeeResolver }) =>
+const updateEmployee = ({ employeeTypeResolver }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateEmployee',
 		inputFields: {
@@ -12,12 +12,12 @@ const updateEmployee = ({ employeeResolver }) =>
 		},
 		outputFields: {
 			employee: {
-				type: employeeResolver.getConnectionDefinitionType().edgeType,
+				type: employeeTypeResolver.getConnectionDefinitionType().edgeType,
 				resolve: (employee) => employee,
 			},
 		},
 		mutateAndGetPayload: async ({ id }, { dataLoaders }) =>
-			(await employeeResolver.getEmployees({ employeeIds: [{ id }] }, dataLoaders)).edges[0],
+			(await employeeTypeResolver.getEmployees({ employeeIds: [{ id }] }, dataLoaders)).edges[0],
 	});
 
 export default updateEmployee;
