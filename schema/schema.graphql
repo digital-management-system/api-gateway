@@ -106,7 +106,7 @@ type RegisteredUserTypeEdge {
 
 type Employee implements Node {
   id: ID!
-  name: Name!
+  email: String!
   departments: [Department]!
 }
 
@@ -179,16 +179,9 @@ type CreateEmployeePayload {
 }
 
 input CreateEmployeeInput {
-  name: InputName!
+  email: String!
   departmentIds: [ID!]
   clientMutationId: String
-}
-
-input InputName {
-  firstName: String!
-  middleName: String
-  lastName: String!
-  preferredName: String
 }
 
 type UpdateEmployeePayload {
@@ -198,7 +191,7 @@ type UpdateEmployeePayload {
 
 input UpdateEmployeeInput {
   id: ID!
-  name: InputName!
+  email: String!
   departmentIds: [ID!]
   clientMutationId: String
 }

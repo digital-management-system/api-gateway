@@ -1,9 +1,8 @@
-import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLList, GraphQLNonNull } from 'graphql';
+import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLString } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import RelayHelper from './RelayHelper';
 import Common from './Common';
 import { NodeInterface } from '../interface';
-import Name from './Name';
 
 export default class EmployeeTypeResolver {
 	constructor({ departmentTypeResolver, departmentLoaderById, employeeBusinessService }) {
@@ -14,7 +13,7 @@ export default class EmployeeTypeResolver {
 			name: 'Employee',
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
-				name: { type: new GraphQLNonNull(Name), resolve: ({ name }) => name },
+				email: { type: new GraphQLNonNull(GraphQLString), resolve: ({ email }) => email },
 				departments: {
 					type: new GraphQLNonNull(new GraphQLList(this.departmentTypeResolver.getType())),
 					resolve: async ({ departmentIds }) => {
