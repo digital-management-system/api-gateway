@@ -1,9 +1,16 @@
-import { GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLList } from 'graphql';
+import { GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLString } from 'graphql';
 import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
 
-const getUserType = ({ departmentTypeResolver, employeeTypeResolver, departmentLoaderById, employeeLoaderById }) =>
+const getUserType = ({
+	departmentTypeResolver,
+	registeredUserTypeResolver,
+	employeeTypeResolver,
+	departmentLoaderById,
+	createUserLoaderByEmail,
+	employeeLoaderById,
+}) =>
 	new GraphQLObjectType({
 		name: 'User',
 		fields: {
@@ -22,7 +29,23 @@ const getUserType = ({ departmentTypeResolver, employeeTypeResolver, departmentL
 					departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 					sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
 				},
-				resolve: async (_, searchArgs, { dataLoaders }) => departmentTypeResolver.getDepartments(searchArgs, dataLoaders),
+				resolve: async (_, searchArgs) => departmentTypeResolver.getDepartments(searchArgs),
+			},
+			registeredUser: {
+				type: registeredUserTypeResolver.getType(),
+				args: {
+					email: { type: new GraphQLNonNull(GraphQLString) },
+				},
+				resolve: async (_, { email }) => (email ? createUserLoaderByEmail.load(email) : null),
+			},
+			registeredUsers: {
+				type: registeredUserTypeResolver.getConnectionDefinitionType().connectionType,
+				args: {
+					...connectionArgs,
+					emails: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
+					sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+				},
+				resolve: async (_, searchArgs) => registeredUserTypeResolver.getRegisteredUsers(searchArgs),
 			},
 			employee: {
 				type: employeeTypeResolver.getType(),
@@ -38,7 +61,7 @@ const getUserType = ({ departmentTypeResolver, employeeTypeResolver, departmentL
 					employeeIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 					sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
 				},
-				resolve: async (_, searchArgs, { dataLoaders }) => employeeTypeResolver.getEmployees(searchArgs, dataLoaders),
+				resolve: async (_, searchArgs) => employeeTypeResolver.getEmployees(searchArgs),
 			},
 		},
 		interfaces: [NodeInterface],
