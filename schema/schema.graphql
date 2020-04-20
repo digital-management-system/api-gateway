@@ -6,6 +6,8 @@ type User implements Node {
   id: ID!
   department(departmentId: ID!): Department
   departments(after: String, first: Int, before: String, last: Int, departmentIds: [ID!], sortingOptions: [SortingOptionPair!]): DepartmentTypeConnection
+  registeredUser(email: String!): RegisteredUser
+  registeredUsers(after: String, first: Int, before: String, last: Int, emails: [String!], sortingOptions: [SortingOptionPair!]): RegisteredUserTypeConnection
   employee(employeeId: ID!): Employee
   employees(after: String, first: Int, before: String, last: Int, employeeIds: [ID!], sortingOptions: [SortingOptionPair!]): EmployeeTypeConnection
 }
@@ -68,10 +70,10 @@ enum SortingDirection {
   DESCENDING
 }
 
-type Employee implements Node {
+type RegisteredUser implements Node {
   id: ID!
+  email: String!
   name: Name!
-  departments: [Department]!
 }
 
 type Name {
@@ -79,6 +81,33 @@ type Name {
   middleName: String
   lastName: String!
   preferredName: String
+}
+
+"""A connection to a list of items."""
+type RegisteredUserTypeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [RegisteredUserTypeEdge]
+
+  """Total number of registeredUsers"""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type RegisteredUserTypeEdge {
+  """The item at the end of the edge"""
+  node: RegisteredUser
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type Employee implements Node {
+  id: ID!
+  name: Name!
+  departments: [Department]!
 }
 
 """A connection to a list of items."""
