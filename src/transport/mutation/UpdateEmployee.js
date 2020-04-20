@@ -1,13 +1,12 @@
-import { GraphQLList, GraphQLNonNull, GraphQLID } from 'graphql';
+import { GraphQLList, GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
-import Name from './Name';
 
 const updateEmployee = ({ employeeTypeResolver, employeeBusinessService }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateEmployee',
 		inputFields: {
 			id: { type: new GraphQLNonNull(GraphQLID) },
-			name: { type: new GraphQLNonNull(Name) },
+			email: { type: new GraphQLNonNull(GraphQLString) },
 			departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 		},
 		outputFields: {
@@ -17,13 +16,13 @@ const updateEmployee = ({ employeeTypeResolver, employeeBusinessService }) =>
 			},
 		},
 		mutateAndGetPayload: async (args) => {
-			const { id, name, departmentIds } = await employeeBusinessService.update(args);
+			const { id, email, departmentIds } = await employeeBusinessService.update(args);
 
 			return {
 				cursor: id,
 				node: {
 					id,
-					name,
+					email,
 					departmentIds,
 				},
 			};

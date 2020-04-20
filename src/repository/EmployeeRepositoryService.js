@@ -2,46 +2,46 @@ import admin from 'firebase-admin';
 import ObjectID from 'bson-objectid';
 
 export default class EmployeeRepositoryService {
-	create = async ({ name, departmentIds }) => {
+	create = async ({ email, departmentIds }) => {
 		const id = ObjectID().toHexString();
 		const document = this.getCollection().doc(id);
 
 		await document.set({
 			objectId: id,
-			name,
+			email,
 			departmentIds,
 		});
 
 		return {
 			id,
-			name,
+			email,
 			departmentIds,
 		};
 	};
 
 	read = async (id) => {
 		const document = this.getCollection().doc(id);
-		const { name, departmentIds } = (await document.get()).data();
+		const { email, departmentIds } = (await document.get()).data();
 
 		return {
 			id,
-			name,
+			email,
 			departmentIds,
 		};
 	};
 
-	update = async ({ id, name, departmentIds }) => {
+	update = async ({ id, email, departmentIds }) => {
 		const document = this.getCollection().doc(id);
 
 		await document.update({
 			objectId: id,
-			name,
+			email,
 			departmentIds,
 		});
 
 		return {
 			id,
-			name,
+			email,
 			departmentIds,
 		};
 	};
