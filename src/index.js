@@ -63,8 +63,23 @@ const createServer = async () => {
 	expressServer.use(cors());
 	expressServer.use(await loggingWinston.express.makeMiddleware(logger));
 	expressServer.use('*', async (request, response) => {
-		const decodedSessionToken = await admin.auth().verifyIdToken(decodedSessionToken);
-		const container = setupContainer(request.headers.authorization);
+		let decodedSessionToken;
+
+		if (!request.headers.authorization) {
+			response.send(401);
+
+			return;
+		}
+
+		try {
+			decodedSessionToken = await admin.auth().verifyIdToken(request.headers.authorization);
+		} catch {
+			response.send(401);
+
+			return;
+		}
+
+		const container = setupContainer(decodedSessionToken);
 
 		return GraphQLHTTP({
 			schema: container.resolve('getRootSchema'),
