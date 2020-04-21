@@ -7,6 +7,7 @@ const updateEmployee = ({ employeeTypeResolver, employeeBusinessService }) =>
 		inputFields: {
 			id: { type: new GraphQLNonNull(GraphQLID) },
 			email: { type: new GraphQLNonNull(GraphQLString) },
+			employeeReference: { type: new GraphQLNonNull(GraphQLString) },
 			departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 		},
 		outputFields: {
@@ -16,13 +17,14 @@ const updateEmployee = ({ employeeTypeResolver, employeeBusinessService }) =>
 			},
 		},
 		mutateAndGetPayload: async (args) => {
-			const { id, email, departmentIds } = await employeeBusinessService.update(args);
+			const { id, email, employeeReference, departmentIds } = await employeeBusinessService.update(args);
 
 			return {
 				cursor: id,
 				node: {
 					id,
 					email,
+					employeeReference,
 					departmentIds,
 				},
 			};

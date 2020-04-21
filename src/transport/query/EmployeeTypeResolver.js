@@ -14,6 +14,7 @@ export default class EmployeeTypeResolver {
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
 				email: { type: new GraphQLNonNull(GraphQLString), resolve: ({ email }) => email },
+				employeeReference: { type: new GraphQLNonNull(GraphQLString), resolve: ({ employeeReference }) => employeeReference },
 				departments: {
 					type: new GraphQLNonNull(new GraphQLList(this.departmentTypeResolver.getType())),
 					resolve: async ({ departmentIds }) => {
