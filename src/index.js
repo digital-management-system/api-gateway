@@ -7,7 +7,7 @@ import { asValue, asFunction, asClass, createContainer } from 'awilix';
 
 import logger from './Logger';
 import { UserBusinessService, DepartmentBusinessService, EmployeeBusinessService } from './business';
-import { DepartmentRepositoryService, EmployeeRepositoryService } from './repository';
+import { UserRepositoryService, DepartmentRepositoryService, EmployeeRepositoryService } from './repository';
 import { getRootQuery, getUserType, DepartmentTypeResolver, RegisteredUserTypeResolver, EmployeeTypeResolver } from './transport/query';
 import {
 	getRootMutation,
@@ -19,7 +19,12 @@ import {
 	deleteEmployee,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
-import { createDepartmentLoaderById, createUserLoaderByEmail, createEmployeeLoaderById } from './transport/loaders';
+import {
+	createDepartmentLoaderById,
+	createEmployeeUserTypeLoaderByEmail,
+	createManufacturerUserTypeLoaderByEmail,
+	createEmployeeLoaderById,
+} from './transport/loaders';
 
 const loggingWinston = require('@google-cloud/logging-winston');
 
@@ -29,10 +34,12 @@ const setupContainer = () => {
 	container.register({
 		logger: asValue(logger),
 		departmentLoaderById: asFunction(createDepartmentLoaderById).scoped(),
-		createUserLoaderByEmail: asFunction(createUserLoaderByEmail).scoped(),
+		createEmployeeUserTypeLoaderByEmail: asFunction(createEmployeeUserTypeLoaderByEmail).scoped(),
+		createManufacturerUserTypeLoaderByEmail: asFunction(createManufacturerUserTypeLoaderByEmail).scoped(),
 		employeeLoaderById: asFunction(createEmployeeLoaderById).scoped(),
 		userBusinessService: asClass(UserBusinessService).scoped(),
 		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
+		userRepositoryService: asClass(UserRepositoryService).scoped(),
 		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
 		departmentRepositoryService: asClass(DepartmentRepositoryService).scoped(),
 		employeeRepositoryService: asClass(EmployeeRepositoryService).scoped(),
