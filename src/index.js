@@ -3,6 +3,7 @@ import 'regenerator-runtime/runtime';
 import express from 'express';
 import GraphQLHTTP from 'express-graphql';
 import cors from 'cors';
+import admin from 'firebase-admin';
 import { asValue, asFunction, asClass, createContainer } from 'awilix';
 
 import logger from './Logger';
@@ -23,12 +24,12 @@ import { UserDataLoader, DepartmentDataLoader, EmployeeDataLoader } from './tran
 
 const loggingWinston = require('@google-cloud/logging-winston');
 
-const setupContainer = (sessionToken) => {
+const setupContainer = (decodedSessionToken) => {
 	const container = createContainer();
 
 	container.register({
 		logger: asValue(logger),
-		sessionToken: asValue(sessionToken),
+		decodedSessionToken: asValue(decodedSessionToken),
 		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
 		userDataLoader: asClass(UserDataLoader).scoped(),
 		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
@@ -62,6 +63,7 @@ const createServer = async () => {
 	expressServer.use(cors());
 	expressServer.use(await loggingWinston.express.makeMiddleware(logger));
 	expressServer.use('*', async (request, response) => {
+		const decodedSessionToken = await admin.auth().verifyIdToken(decodedSessionToken);
 		const container = setupContainer(request.headers.authorization);
 
 		return GraphQLHTTP({
