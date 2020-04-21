@@ -1,7 +1,13 @@
 import Dataloader from 'dataloader';
 
-export const createUserLoaderByEmail = ({ userBusinessService }) => {
+export const createEmployeeUserTypeLoaderByEmail = ({ userBusinessService }) => {
 	return new Dataloader(async (emails) => {
-		return Promise.all(emails.map(async (email) => userBusinessService.read(email)));
+		return Promise.all(emails.map(async (email) => userBusinessService.readEmployee(email)));
+	});
+};
+
+export const createManufacturerUserTypeLoaderByEmail = ({ userBusinessService }) => {
+	return new Dataloader(async (emails) => {
+		return Promise.all(emails.map(async (email) => userBusinessService.readManufacturer(email)));
 	});
 };

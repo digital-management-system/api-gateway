@@ -36,7 +36,7 @@ export default class RegisteredUserTypeResolver {
 
 	getRegisteredUsers = async (searchArgs) => {
 		const { emails } = searchArgs;
-		const users = await this.userBusinessService.search({ emails });
+		const users = await this.userBusinessService.searchEmployee({ emails });
 		const totalCount = users.length;
 
 		if (totalCount === 0) {

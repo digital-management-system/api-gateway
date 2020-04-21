@@ -8,7 +8,7 @@ const getUserType = ({
 	registeredUserTypeResolver,
 	employeeTypeResolver,
 	departmentLoaderById,
-	createUserLoaderByEmail,
+	createEmployeeUserTypeLoaderByEmail,
 	employeeLoaderById,
 }) =>
 	new GraphQLObjectType({
@@ -36,7 +36,7 @@ const getUserType = ({
 				args: {
 					email: { type: new GraphQLNonNull(GraphQLString) },
 				},
-				resolve: async (_, { email }) => (email ? createUserLoaderByEmail.load(email) : null),
+				resolve: async (_, { email }) => (email ? createEmployeeUserTypeLoaderByEmail.load(email) : null),
 			},
 			registeredUsers: {
 				type: registeredUserTypeResolver.getConnectionDefinitionType().connectionType,
