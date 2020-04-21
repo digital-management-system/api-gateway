@@ -5,7 +5,7 @@ import Common from './Common';
 import { NodeInterface } from '../interface';
 
 export default class EmployeeTypeResolver {
-	constructor({ departmentTypeResolver, departmentLoaderById, employeeBusinessService }) {
+	constructor({ departmentTypeResolver, departmentDataLoader, employeeBusinessService }) {
 		this.departmentTypeResolver = departmentTypeResolver;
 		this.employeeBusinessService = employeeBusinessService;
 
@@ -22,7 +22,7 @@ export default class EmployeeTypeResolver {
 							return [];
 						}
 
-						return departmentLoaderById.loadMany(departmentIds);
+						return departmentDataLoader.getDepartmentLoaderById().loadMany(departmentIds);
 					},
 				},
 			},

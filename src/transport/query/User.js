@@ -7,9 +7,9 @@ const getUserType = ({
 	departmentTypeResolver,
 	registeredUserTypeResolver,
 	employeeTypeResolver,
-	departmentLoaderById,
-	createEmployeeUserTypeLoaderByEmail,
-	employeeLoaderById,
+	departmentDataLoader,
+	userDataLoader,
+	employeeDataLoader,
 }) =>
 	new GraphQLObjectType({
 		name: 'User',
@@ -20,7 +20,7 @@ const getUserType = ({
 				args: {
 					departmentId: { type: new GraphQLNonNull(GraphQLID) },
 				},
-				resolve: async (_, { departmentId }) => (departmentId ? departmentLoaderById.load(departmentId) : null),
+				resolve: async (_, { departmentId }) => (departmentId ? departmentDataLoader.getDepartmentLoaderById().load(departmentId) : null),
 			},
 			departments: {
 				type: departmentTypeResolver.getConnectionDefinitionType().connectionType,
@@ -36,7 +36,7 @@ const getUserType = ({
 				args: {
 					email: { type: new GraphQLNonNull(GraphQLString) },
 				},
-				resolve: async (_, { email }) => (email ? createEmployeeUserTypeLoaderByEmail.load(email) : null),
+				resolve: async (_, { email }) => (email ? userDataLoader.getEmployeeUserTypeLoaderByEmail().load(email) : null),
 			},
 			registeredUsers: {
 				type: registeredUserTypeResolver.getConnectionDefinitionType().connectionType,
@@ -52,7 +52,7 @@ const getUserType = ({
 				args: {
 					employeeId: { type: new GraphQLNonNull(GraphQLID) },
 				},
-				resolve: async (_, { employeeId }) => (employeeId ? employeeLoaderById.load(employeeId) : null),
+				resolve: async (_, { employeeId }) => (employeeId ? employeeDataLoader.getEmployeeLoaderById().load(employeeId) : null),
 			},
 			employees: {
 				type: employeeTypeResolver.getConnectionDefinitionType().connectionType,
