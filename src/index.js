@@ -19,24 +19,19 @@ import {
 	deleteEmployee,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
-import {
-	createDepartmentLoaderById,
-	createEmployeeUserTypeLoaderByEmail,
-	createManufacturerUserTypeLoaderByEmail,
-	createEmployeeLoaderById,
-} from './transport/loaders';
+import { UserDataLoader, DepartmentDataLoader, EmployeeDataLoader } from './transport/loaders';
 
 const loggingWinston = require('@google-cloud/logging-winston');
 
-const setupContainer = () => {
+const setupContainer = (sessionToken) => {
 	const container = createContainer();
 
 	container.register({
 		logger: asValue(logger),
-		departmentLoaderById: asFunction(createDepartmentLoaderById).scoped(),
-		createEmployeeUserTypeLoaderByEmail: asFunction(createEmployeeUserTypeLoaderByEmail).scoped(),
-		createManufacturerUserTypeLoaderByEmail: asFunction(createManufacturerUserTypeLoaderByEmail).scoped(),
-		employeeLoaderById: asFunction(createEmployeeLoaderById).scoped(),
+		sessionToken: asValue(sessionToken),
+		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
+		userDataLoader: asClass(UserDataLoader).scoped(),
+		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
 		userBusinessService: asClass(UserBusinessService).scoped(),
 		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
 		userRepositoryService: asClass(UserRepositoryService).scoped(),
@@ -63,11 +58,12 @@ const setupContainer = () => {
 
 const createServer = async () => {
 	const expressServer = express();
-	const container = setupContainer();
 
 	expressServer.use(cors());
-	expressServer.use(await loggingWinston.express.makeMiddleware(container.resolve('logger')));
+	expressServer.use(await loggingWinston.express.makeMiddleware(logger));
 	expressServer.use('*', async (request, response) => {
+		const container = setupContainer(request.headers.authorization);
+
 		return GraphQLHTTP({
 			schema: container.resolve('getRootSchema'),
 			customFormatErrorFn: (error) => {
@@ -79,10 +75,6 @@ const createServer = async () => {
 				};
 			},
 			graphiql: true,
-			context: {
-				request,
-				sessionToken: request.headers.authorization,
-			},
 		})(request, response);
 	});
 
