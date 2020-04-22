@@ -4,6 +4,8 @@ type Query {
 
 type User implements Node {
   id: ID!
+  email: ID!
+  name: Name!
   department(departmentId: ID!): Department
   departments(after: String, first: Int, before: String, last: Int, departmentIds: [ID!], sortingOptions: [SortingOptionPair!]): DepartmentTypeConnection
   registeredUser(email: String!): RegisteredUser
@@ -16,6 +18,13 @@ type User implements Node {
 interface Node {
   """The id of the object."""
   id: ID!
+}
+
+type Name {
+  firstName: String!
+  middleName: String
+  lastName: String!
+  preferredName: String
 }
 
 type Department implements Node {
@@ -74,13 +83,6 @@ type RegisteredUser implements Node {
   id: ID!
   email: String!
   name: Name!
-}
-
-type Name {
-  firstName: String!
-  middleName: String
-  lastName: String!
-  preferredName: String
 }
 
 """A connection to a list of items."""

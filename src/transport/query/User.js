@@ -2,6 +2,7 @@ import { GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLStrin
 import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
+import Name from './Name';
 
 const getUserType = ({
 	departmentTypeResolver,
@@ -15,6 +16,8 @@ const getUserType = ({
 		name: 'User',
 		fields: {
 			id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
+			email: { type: new GraphQLNonNull(GraphQLID), resolve: ({ email }) => email },
+			name: { type: new GraphQLNonNull(Name), resolve: ({ name }) => name },
 			department: {
 				type: departmentTypeResolver.getType(),
 				args: {

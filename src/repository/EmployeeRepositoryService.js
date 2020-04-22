@@ -4,9 +4,8 @@ import ObjectID from 'bson-objectid';
 export default class EmployeeRepositoryService {
 	create = async ({ email, employeeReference, departmentIds }) => {
 		const id = ObjectID().toHexString();
-		const document = this.getCollection().doc(id);
 
-		await document.set({
+		await this.getCollection().doc(id).set({
 			objectId: id,
 			email,
 			employeeReference,
@@ -22,8 +21,7 @@ export default class EmployeeRepositoryService {
 	};
 
 	read = async (id) => {
-		const document = this.getCollection().doc(id);
-		const { email, employeeReference, departmentIds } = (await document.get()).data();
+		const { email, employeeReference, departmentIds } = (await this.getCollection().doc(id).get()).data();
 
 		return {
 			id,
@@ -34,9 +32,7 @@ export default class EmployeeRepositoryService {
 	};
 
 	update = async ({ id, email, employeeReference, departmentIds }) => {
-		const document = this.getCollection().doc(id);
-
-		await document.update({
+		await this.getCollection().doc(id).update({
 			objectId: id,
 			email,
 			employeeReference,
@@ -52,9 +48,7 @@ export default class EmployeeRepositoryService {
 	};
 
 	delete = async (id) => {
-		const document = this.getCollection().doc(id);
-
-		await document.delete();
+		await this.getCollection().doc(id).delete();
 
 		return id;
 	};
