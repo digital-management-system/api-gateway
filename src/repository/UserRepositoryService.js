@@ -1,13 +1,33 @@
 import admin from 'firebase-admin';
 
 export default class UserRepositoryService {
-	readEmployee = async (email) => this.read(email, 'employee');
-	readManufacturer = async (email) => this.read(email, 'manufacturer');
+	readEmployee = async (email) => this.readByEmail(email, 'employee');
+	readManufacturer = async (email) => this.readByEmail(email, 'manufacturer');
 	searchEmployee = async (searchArgs) => this.search(searchArgs, 'employee');
 	searchManufacturer = async (searchArgs) => this.search(searchArgs, 'manufacturer');
 
-	read = async (email, userType) => {
-		const snapshot = await this.getCollection().where('email', '==', email).where('userType', '==', userType).get();
+	readById = async (id) => {
+		const document = (await this.getCollection().doc(id).get()).data();
+
+		document.id = document.email;
+		document.name = {
+			firstName: 'No first name available',
+			middleName: 'No middle name available',
+			lastName: 'No last name available',
+			preferredName: 'No preferred name available',
+		};
+
+		return document;
+	};
+
+	readByEmail = async (email, userType) => {
+		let documentsReference = this.getCollection().where('email', '==', email);
+
+		if (userType) {
+			documentsReference = documentsReference.where('userType', '==', userType);
+		}
+
+		const snapshot = await documentsReference.get();
 		let documents = [];
 
 		if (snapshot.empty) {
@@ -39,7 +59,13 @@ export default class UserRepositoryService {
 		let documents = [];
 
 		if (!emails || emails.length === 0) {
-			const snapshot = await this.getCollection().where('userType', '==', userType).get();
+			let documentsReference = this.getCollection();
+
+			if (userType) {
+				documentsReference = documentsReference.where('userType', '==', userType);
+			}
+
+			const snapshot = await documentsReference.get();
 
 			if (!snapshot.empty) {
 				snapshot.forEach((document) => {
@@ -60,7 +86,7 @@ export default class UserRepositoryService {
 			});
 		}
 
-		return await Promise.all(emails.map((email) => this.read(email, userType)));
+		return await Promise.all(emails.map((email) => this.readByEmail(email, userType)));
 	};
 
 	getCollection = () => admin.firestore().collection('user');
