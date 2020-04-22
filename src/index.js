@@ -65,14 +65,16 @@ const createServer = async () => {
 	expressServer.use('*', async (request, response) => {
 		let decodedSessionToken;
 
-		if (!request.headers.authorization) {
+		if (!request.headers.authorization || !request.headers.authorization.startsWith('Bearer ')) {
 			response.send(401);
 
 			return;
 		}
 
 		try {
-			decodedSessionToken = await admin.auth().verifyIdToken(request.headers.authorization);
+			const token = request.headers.authorization;
+
+			decodedSessionToken = await admin.auth().verifyIdToken(token.substring('Bearer '.length, token.length));
 		} catch {
 			response.send(401);
 
