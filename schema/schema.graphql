@@ -91,6 +91,7 @@ type Department implements Node {
   id: ID!
   name: String!
   description: String
+  manufacturer: Manufacturer!
 }
 
 """A connection to a list of items."""
