@@ -6,6 +6,8 @@ type User implements Node {
   id: ID!
   email: ID!
   name: Name!
+  manufacturer(manufacturerId: ID!): Manufacturer
+  manufacturers(after: String, first: Int, before: String, last: Int, manufacturerIds: [ID!], sortingOptions: [SortingOptionPair!]): ManufacturerTypeConnection
   department(departmentId: ID!): Department
   departments(after: String, first: Int, before: String, last: Int, departmentIds: [ID!], sortingOptions: [SortingOptionPair!]): DepartmentTypeConnection
   registeredUser(email: String!): RegisteredUser
@@ -27,21 +29,20 @@ type Name {
   preferredName: String
 }
 
-type Department implements Node {
+type Manufacturer implements Node {
   id: ID!
   name: String!
-  description: String
 }
 
 """A connection to a list of items."""
-type DepartmentTypeConnection {
+type ManufacturerTypeConnection {
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """A list of edges."""
-  edges: [DepartmentTypeEdge]
+  edges: [ManufacturerTypeEdge]
 
-  """Total number of departments"""
+  """Total number of manufacturers"""
   totalCount: Int
 }
 
@@ -61,9 +62,9 @@ type PageInfo {
 }
 
 """An edge in a connection."""
-type DepartmentTypeEdge {
+type ManufacturerTypeEdge {
   """The item at the end of the edge"""
-  node: Department
+  node: Manufacturer
 
   """A cursor for use in pagination"""
   cursor: String!
@@ -77,6 +78,33 @@ input SortingOptionPair {
 enum SortingDirection {
   ASCENDING
   DESCENDING
+}
+
+type Department implements Node {
+  id: ID!
+  name: String!
+  description: String
+}
+
+"""A connection to a list of items."""
+type DepartmentTypeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [DepartmentTypeEdge]
+
+  """Total number of departments"""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type DepartmentTypeEdge {
+  """The item at the end of the edge"""
+  node: Department
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }
 
 type RegisteredUser implements Node {
@@ -135,12 +163,46 @@ type EmployeeTypeEdge {
 }
 
 type Mutation {
+  createManufacturer(input: CreateManufacturerInput!): CreateManufacturerPayload
+  updateManufacturer(input: UpdateManufacturerInput!): UpdateManufacturerPayload
+  deleteManufacturer(input: DeleteManufacturerInput!): DeleteManufacturerPayload
   createDepartment(input: CreateDepartmentInput!): CreateDepartmentPayload
   updateDepartment(input: UpdateDepartmentInput!): UpdateDepartmentPayload
   deleteDepartment(input: DeleteDepartmentInput!): DeleteDepartmentPayload
   createEmployee(input: CreateEmployeeInput!): CreateEmployeePayload
   updateEmployee(input: UpdateEmployeeInput!): UpdateEmployeePayload
   deleteEmployee(input: DeleteEmployeeInput!): DeleteEmployeePayload
+}
+
+type CreateManufacturerPayload {
+  manufacturer: ManufacturerTypeEdge
+  clientMutationId: String
+}
+
+input CreateManufacturerInput {
+  name: String!
+  clientMutationId: String
+}
+
+type UpdateManufacturerPayload {
+  manufacturer: ManufacturerTypeEdge
+  clientMutationId: String
+}
+
+input UpdateManufacturerInput {
+  id: ID!
+  name: String!
+  clientMutationId: String
+}
+
+type DeleteManufacturerPayload {
+  deletedManufacturerId: ID!
+  clientMutationId: String
+}
+
+input DeleteManufacturerInput {
+  id: ID!
+  clientMutationId: String
 }
 
 type CreateDepartmentPayload {

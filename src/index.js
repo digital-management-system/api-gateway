@@ -7,11 +7,21 @@ import admin from 'firebase-admin';
 import { asValue, asFunction, asClass, createContainer } from 'awilix';
 
 import logger from './Logger';
-import { UserBusinessService, DepartmentBusinessService, EmployeeBusinessService } from './business';
-import { UserRepositoryService, DepartmentRepositoryService, EmployeeRepositoryService } from './repository';
-import { getRootQuery, getUserType, DepartmentTypeResolver, RegisteredUserTypeResolver, EmployeeTypeResolver } from './transport/query';
+import { UserRepositoryService, ManufacturerRepositoryService, DepartmentRepositoryService, EmployeeRepositoryService } from './repository';
+import { UserBusinessService, ManufacturerBusinessService, DepartmentBusinessService, EmployeeBusinessService } from './business';
+import {
+	getRootQuery,
+	getUserType,
+	ManufacturerTypeResolver,
+	DepartmentTypeResolver,
+	RegisteredUserTypeResolver,
+	EmployeeTypeResolver,
+} from './transport/query';
 import {
 	getRootMutation,
+	createManufacturer,
+	updateManufacturer,
+	deleteManufacturer,
 	createDepartment,
 	updateDepartment,
 	deleteDepartment,
@@ -20,7 +30,7 @@ import {
 	deleteEmployee,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
-import { UserDataLoader, DepartmentDataLoader, EmployeeDataLoader } from './transport/loaders';
+import { UserDataLoader, ManufacturerDataLoader, DepartmentDataLoader, EmployeeDataLoader } from './transport/loaders';
 
 const loggingWinston = require('@google-cloud/logging-winston'); // eslint-disable-line no-undef
 
@@ -30,22 +40,29 @@ const setupContainer = (decodedSessionToken) => {
 	container.register({
 		logger: asValue(logger),
 		decodedSessionToken: asValue(decodedSessionToken),
-		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
 		userDataLoader: asClass(UserDataLoader).scoped(),
+		manufacturerDataLoader: asClass(ManufacturerDataLoader).scoped(),
+		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
 		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
 		userBusinessService: asClass(UserBusinessService).scoped(),
+		manufacturerBusinessService: asClass(ManufacturerBusinessService).scoped(),
 		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
 		userRepositoryService: asClass(UserRepositoryService).scoped(),
 		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
+		manufacturerRepositoryService: asClass(ManufacturerRepositoryService).scoped(),
 		departmentRepositoryService: asClass(DepartmentRepositoryService).scoped(),
 		employeeRepositoryService: asClass(EmployeeRepositoryService).scoped(),
 		getRootSchema: asFunction(getRootSchema).scoped(),
 		getRootQuery: asFunction(getRootQuery).scoped(),
 		getRootMutation: asFunction(getRootMutation).scoped(),
 		getUserType: asFunction(getUserType).scoped(),
+		manufacturerTypeResolver: asClass(ManufacturerTypeResolver).scoped(),
 		departmentTypeResolver: asClass(DepartmentTypeResolver).scoped(),
 		registeredUserTypeResolver: asClass(RegisteredUserTypeResolver).scoped(),
 		employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
+		createManufacturer: asFunction(createManufacturer).scoped(),
+		updateManufacturer: asFunction(updateManufacturer).scoped(),
+		deleteManufacturer: asFunction(deleteManufacturer).scoped(),
 		createDepartment: asFunction(createDepartment).scoped(),
 		updateDepartment: asFunction(updateDepartment).scoped(),
 		deleteDepartment: asFunction(deleteDepartment).scoped(),

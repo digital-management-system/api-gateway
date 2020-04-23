@@ -1,4 +1,7 @@
 export { default as getRootMutation } from './RootMutation';
+export { default as createManufacturer } from './CreateManufacturer';
+export { default as updateManufacturer } from './UpdateManufacturer';
+export { default as deleteManufacturer } from './DeleteManufacturer';
 export { default as createDepartment } from './CreateDepartment';
 export { default as updateDepartment } from './UpdateDepartment';
 export { default as deleteDepartment } from './DeleteDepartment';

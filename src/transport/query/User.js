@@ -5,12 +5,14 @@ import SortingOptionPair from './SortingOptionPair';
 import Name from './Name';
 
 const getUserType = ({
+	manufacturerTypeResolver,
+	manufacturerDataLoader,
 	departmentTypeResolver,
-	registeredUserTypeResolver,
-	employeeTypeResolver,
 	departmentDataLoader,
-	userDataLoader,
+	employeeTypeResolver,
 	employeeDataLoader,
+	registeredUserTypeResolver,
+	userDataLoader,
 }) =>
 	new GraphQLObjectType({
 		name: 'User',
@@ -18,6 +20,23 @@ const getUserType = ({
 			id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
 			email: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('email') },
 			name: { type: new GraphQLNonNull(Name), resolve: (_) => _.get('name') },
+			manufacturer: {
+				type: manufacturerTypeResolver.getType(),
+				args: {
+					manufacturerId: { type: new GraphQLNonNull(GraphQLID) },
+				},
+				resolve: async (_, { manufacturerId }) =>
+					manufacturerId ? manufacturerDataLoader.getManufacturerLoaderById().load(manufacturerId) : null,
+			},
+			manufacturers: {
+				type: manufacturerTypeResolver.getConnectionDefinitionType().connectionType,
+				args: {
+					...connectionArgs,
+					manufacturerIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+					sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+				},
+				resolve: async (_, searchArgs) => manufacturerTypeResolver.getManufacturers(searchArgs),
+			},
 			department: {
 				type: departmentTypeResolver.getType(),
 				args: {
