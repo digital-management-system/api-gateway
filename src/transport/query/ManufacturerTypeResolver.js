@@ -1,4 +1,4 @@
-import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLString } from 'graphql';
+import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLString } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import RelayHelper from './RelayHelper';
 import Common from './Common';
@@ -13,9 +13,9 @@ export default class ManufacturerTypeResolver {
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
 				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-				users: {
-					type: new GraphQLNonNull(new GraphQLList(registeredUserTypeResolver.getType())),
-					resolve: async (_) => _.get('users').toArray(),
+				user: {
+					type: new GraphQLNonNull(registeredUserTypeResolver.getType()),
+					resolve: async (_) => _.get('user'),
 				},
 			},
 			interfaces: [NodeInterface],

@@ -32,7 +32,7 @@ type Name {
 type Manufacturer implements Node {
   id: ID!
   name: String!
-  users: [RegisteredUser]!
+  user: RegisteredUser!
 }
 
 type RegisteredUser implements Node {
@@ -182,7 +182,6 @@ type CreateManufacturerPayload {
 
 input CreateManufacturerInput {
   name: String!
-  userIds: [ID!]
   clientMutationId: String
 }
 
@@ -194,7 +193,6 @@ type UpdateManufacturerPayload {
 input UpdateManufacturerInput {
   id: ID!
   name: String!
-  userIds: [ID!]
   clientMutationId: String
 }
 
@@ -216,6 +214,7 @@ type CreateDepartmentPayload {
 input CreateDepartmentInput {
   name: String!
   description: String
+  manufacturerId: ID!
   clientMutationId: String
 }
 
@@ -228,6 +227,7 @@ input UpdateDepartmentInput {
   id: ID!
   name: String!
   description: String
+  manufacturerId: ID!
   clientMutationId: String
 }
 
