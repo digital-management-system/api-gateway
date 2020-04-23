@@ -1,4 +1,4 @@
-import { GraphQLID, GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
 const updateDepartment = ({ departmentTypeResolver, departmentBusinessService }) =>
@@ -8,6 +8,7 @@ const updateDepartment = ({ departmentTypeResolver, departmentBusinessService })
 			id: { type: new GraphQLNonNull(GraphQLID) },
 			name: { type: new GraphQLNonNull(GraphQLString) },
 			description: { type: GraphQLString },
+			manufacturerId: { type: new GraphQLNonNull(GraphQLID) },
 		},
 		outputFields: {
 			department: {

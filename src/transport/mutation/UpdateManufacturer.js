@@ -1,13 +1,12 @@
-import { GraphQLList, GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
+import { GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const updateManufacturer = ({ manufacturerTypeResolver, manufacturerBusinessService }) =>
+const updateManufacturer = ({ manufacturerTypeResolver, manufacturerBusinessService, decodedSessionToken }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateManufacturer',
 		inputFields: {
 			id: { type: new GraphQLNonNull(GraphQLID) },
 			name: { type: new GraphQLNonNull(GraphQLString) },
-			userIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 		},
 		outputFields: {
 			manufacturer: {
@@ -16,7 +15,7 @@ const updateManufacturer = ({ manufacturerTypeResolver, manufacturerBusinessServ
 			},
 		},
 		mutateAndGetPayload: async (args) => {
-			const node = await manufacturerBusinessService.update(args);
+			const node = await manufacturerBusinessService.update(Object.assign(args, { userId: decodedSessionToken.user_id }));
 
 			return {
 				cursor: node.get('id'),

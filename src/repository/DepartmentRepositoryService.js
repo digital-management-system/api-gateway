@@ -3,11 +3,13 @@ import Immutable, { List } from 'immutable';
 
 export default class DepartmentRepositoryService {
 	getCollection = () => admin.firestore().collection('department');
+	getManufacturerCollection = () => admin.firestore().collection('manufacturer');
 
-	create = async ({ name, description }) => {
+	create = async ({ name, description, manufacturerId }) => {
 		const reference = await this.getCollection().add({
 			name,
 			description,
+			manufacturer: this.getManufacturerCollection().doc(manufacturerId),
 		});
 
 		return await this.read(reference.id);
@@ -20,15 +22,19 @@ export default class DepartmentRepositoryService {
 			return null;
 		}
 
-		return Immutable.fromJS(department).set('id', id);
+		return Immutable.fromJS(department)
+			.set('id', id)
+			.set('manufacturer', await this.readManufacturer(department.manufacturer));
 	};
 
-	update = async ({ id, name, description }) => {
-		await this.getCollection().doc(id).update({
-			objectId: id,
-			name,
-			description,
-		});
+	update = async ({ id, name, description, manufacturerId }) => {
+		await this.getCollection()
+			.doc(id)
+			.update({
+				name,
+				description,
+				manufacturer: this.getManufacturerCollection().doc(manufacturerId),
+			});
 
 		return await this.read(id);
 	};
@@ -51,9 +57,30 @@ export default class DepartmentRepositoryService {
 				});
 			}
 
-			return departments;
+			return List(
+				await Promise.all(
+					departments
+						.map(async (department) => {
+							const manufacturer = await this.readManufacturer(department.get('manufacturer'));
+
+							return department.set('manufacturer', manufacturer);
+						})
+						.toArray()
+				)
+			);
 		}
 
 		return Immutable.fromJS(await Promise.all(departmentIds.map((id) => this.read(id)))).filter((department) => department !== null);
+	};
+
+	readManufacturer = async (manufacturerRef) => {
+		const manufacturerDocumentRef = await manufacturerRef.get();
+		const manufacturerData = manufacturerDocumentRef.data();
+
+		if (!manufacturerData) {
+			return null;
+		}
+
+		return Immutable.fromJS(manufacturerData).set('id', manufacturerDocumentRef.id);
 	};
 }
