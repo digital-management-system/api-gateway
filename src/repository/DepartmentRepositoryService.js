@@ -1,31 +1,24 @@
 import admin from 'firebase-admin';
-import ObjectID from 'bson-objectid';
+import Immutable, { List } from 'immutable';
 
 export default class DepartmentRepositoryService {
 	create = async ({ name, description }) => {
-		const id = ObjectID().toHexString();
-
-		await this.getCollection().doc(id).set({
-			objectId: id,
+		const reference = await this.getCollection().add({
 			name,
 			description,
 		});
 
-		return {
-			id,
-			name,
-			description,
-		};
+		return await this.read(reference.id);
 	};
 
 	read = async (id) => {
-		const { name, description } = (await this.getCollection().doc(id).get()).data();
+		const department = (await this.getCollection().doc(id).get()).data();
 
-		return {
-			id,
-			name,
-			description,
-		};
+		if (!department) {
+			return null;
+		}
+
+		return Immutable.fromJS(department).set('id', id);
 	};
 
 	update = async ({ id, name, description }) => {
@@ -35,11 +28,7 @@ export default class DepartmentRepositoryService {
 			description,
 		});
 
-		return {
-			id,
-			name,
-			description,
-		};
+		return await this.read(id);
 	};
 
 	delete = async (id) => {
@@ -49,25 +38,21 @@ export default class DepartmentRepositoryService {
 	};
 
 	search = async ({ departmentIds }) => {
-		let documents = [];
+		let departments = List();
 
 		if (!departmentIds || departmentIds.length === 0) {
 			const snapshot = await this.getCollection().get();
 
 			if (!snapshot.empty) {
-				snapshot.forEach((document) => {
-					documents.push(document.data());
+				snapshot.forEach((department) => {
+					departments = departments.push(Immutable.fromJS(department.data()).set('id', department.id));
 				});
 			}
-		} else {
-			return await Promise.all(departmentIds.map((id) => this.read(id)));
+
+			return departments;
 		}
 
-		return documents.map((document) => {
-			document.id = document.objectId;
-
-			return document;
-		});
+		return Immutable.fromJS(await Promise.all(departmentIds.map((id) => this.read(id)))).filter((department) => department !== null);
 	};
 
 	getCollection = () => admin.firestore().collection('department');

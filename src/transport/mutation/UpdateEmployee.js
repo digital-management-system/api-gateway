@@ -17,16 +17,11 @@ const updateEmployee = ({ employeeTypeResolver, employeeBusinessService }) =>
 			},
 		},
 		mutateAndGetPayload: async (args) => {
-			const { id, email, employeeReference, departmentIds } = await employeeBusinessService.update(args);
+			const node = await employeeBusinessService.update(args);
 
 			return {
-				cursor: id,
-				node: {
-					id,
-					email,
-					employeeReference,
-					departmentIds,
-				},
+				cursor: node.get('id'),
+				node,
 			};
 		},
 	});

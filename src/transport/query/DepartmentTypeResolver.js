@@ -11,9 +11,9 @@ export default class DepartmentTypeResolver {
 		this.departmentType = new GraphQLObjectType({
 			name: 'Department',
 			fields: {
-				id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
-				name: { type: new GraphQLNonNull(GraphQLString), resolve: ({ name }) => name },
-				description: { type: GraphQLString, resolve: ({ description }) => description },
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+				description: { type: GraphQLString, resolve: (_) => _.get('description') },
 			},
 			interfaces: [NodeInterface],
 		});

@@ -12,9 +12,9 @@ export default class RegisteredUserTypeResolver {
 		this.registeredUserType = new GraphQLObjectType({
 			name: 'RegisteredUser',
 			fields: {
-				id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
-				email: { type: new GraphQLNonNull(GraphQLString), resolve: ({ email }) => email },
-				name: { type: new GraphQLNonNull(Name), resolve: ({ name }) => name },
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				email: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('email') },
+				name: { type: new GraphQLNonNull(Name), resolve: (_) => _.get('name') },
 			},
 			interfaces: [NodeInterface],
 		});
@@ -37,7 +37,7 @@ export default class RegisteredUserTypeResolver {
 	getRegisteredUsers = async (searchArgs) => {
 		const { emails } = searchArgs;
 		const users = await this.userBusinessService.searchEmployee({ emails });
-		const totalCount = users.length;
+		const totalCount = users.count();
 
 		if (totalCount === 0) {
 			return Common.getEmptyResult();

@@ -5,25 +5,19 @@ import Common from './Common';
 import { NodeInterface } from '../interface';
 
 export default class EmployeeTypeResolver {
-	constructor({ departmentTypeResolver, departmentDataLoader, employeeBusinessService }) {
+	constructor({ departmentTypeResolver, employeeBusinessService }) {
 		this.departmentTypeResolver = departmentTypeResolver;
 		this.employeeBusinessService = employeeBusinessService;
 
 		this.employeeType = new GraphQLObjectType({
 			name: 'Employee',
 			fields: {
-				id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
-				email: { type: new GraphQLNonNull(GraphQLString), resolve: ({ email }) => email },
-				employeeReference: { type: new GraphQLNonNull(GraphQLString), resolve: ({ employeeReference }) => employeeReference },
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				email: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('email') },
+				employeeReference: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('employeeReference') },
 				departments: {
 					type: new GraphQLNonNull(new GraphQLList(this.departmentTypeResolver.getType())),
-					resolve: async ({ departmentIds }) => {
-						if (!departmentIds || departmentIds.length === 0) {
-							return [];
-						}
-
-						return departmentDataLoader.getDepartmentLoaderById().loadMany(departmentIds);
-					},
+					resolve: async (_) => _.get('departments').toArray(),
 				},
 			},
 			interfaces: [NodeInterface],
