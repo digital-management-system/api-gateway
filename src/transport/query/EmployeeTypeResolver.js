@@ -5,14 +5,17 @@ import Common from './Common';
 import { NodeInterface } from '../interface';
 
 export default class EmployeeTypeResolver {
-	constructor({ departmentTypeResolver, employeeBusinessService }) {
+	constructor({ registeredUserTypeResolver, departmentTypeResolver, employeeBusinessService }) {
 		this.employeeBusinessService = employeeBusinessService;
 
 		this.employeeType = new GraphQLObjectType({
 			name: 'Employee',
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-				email: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('email') },
+				user: {
+					type: new GraphQLNonNull(registeredUserTypeResolver.getType()),
+					resolve: async (_) => _.get('user'),
+				},
 				employeeReference: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('employeeReference') },
 				departments: {
 					type: new GraphQLNonNull(new GraphQLList(departmentTypeResolver.getType())),

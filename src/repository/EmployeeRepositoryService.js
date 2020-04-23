@@ -4,13 +4,15 @@ import Immutable, { List, Set } from 'immutable';
 export default class EmployeeRepositoryService {
 	getCollection = () => admin.firestore().collection('employee');
 	getDepartmentCollection = () => admin.firestore().collection('department');
+	getUserCollection = () => admin.firestore().collection('user');
 
-	create = async ({ email, employeeReference, departmentIds }) => {
+	create = async ({ email, employeeReference, departmentIds, userId }) => {
 		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
 		const reference = await this.getCollection().add({
 			email,
 			employeeReference,
 			departments: departments.toJS(),
+			user: this.getUserCollection().doc(userId),
 		});
 
 		return await this.read(reference.id);
@@ -25,17 +27,21 @@ export default class EmployeeRepositoryService {
 
 		return Immutable.fromJS(employee)
 			.set('id', id)
-			.set('departments', await this.readDepartments(employee.departments));
+			.set('departments', await this.readDepartments(employee.departments))
+			.set('user', await this.readManufacturer(employee.user));
 	};
 
-	update = async ({ id, email, employeeReference, departmentIds }) => {
+	update = async ({ id, email, employeeReference, departmentIds, userId }) => {
 		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
 
-		await this.getCollection().doc(id).update({
-			email,
-			employeeReference,
-			departments: departments.toJS(),
-		});
+		await this.getCollection()
+			.doc(id)
+			.update({
+				email,
+				employeeReference,
+				departments: departments.toJS(),
+				user: this.getUserCollection().doc(userId),
+			});
 
 		return await this.read(id);
 	};
@@ -58,13 +64,25 @@ export default class EmployeeRepositoryService {
 				});
 			}
 
-			return List(
+			employees = List(
 				await Promise.all(
 					employees
 						.map(async (employee) => {
 							const departments = await this.readDepartments(employee.get('departments'));
 
 							return employee.set('departments', departments);
+						})
+						.toArray()
+				)
+			);
+
+			return List(
+				await Promise.all(
+					employees
+						.map(async (employee) => {
+							const user = await this.readUser(employee.get('user'));
+
+							return employee.set('user', user);
 						})
 						.toArray()
 				)
@@ -89,4 +107,15 @@ export default class EmployeeRepositoryService {
 				})
 			)
 		).filter((department) => department !== null);
+
+	readUser = async (userRef) => {
+		const userDocumentRef = await userRef.get();
+		const userData = userDocumentRef.data();
+
+		if (!userData) {
+			return null;
+		}
+
+		return Immutable.fromJS(userData).set('id', userDocumentRef.id);
+	};
 }

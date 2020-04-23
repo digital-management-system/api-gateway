@@ -5,7 +5,7 @@ const createEmployee = ({ employeeTypeResolver, employeeBusinessService }) =>
 	mutationWithClientMutationId({
 		name: 'CreateEmployee',
 		inputFields: {
-			email: { type: new GraphQLNonNull(GraphQLString) },
+			userId: { type: new GraphQLNonNull(GraphQLID) },
 			employeeReference: { type: new GraphQLNonNull(GraphQLString) },
 			departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 		},
