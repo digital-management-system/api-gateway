@@ -6,7 +6,6 @@ import { NodeInterface } from '../interface';
 
 export default class EmployeeTypeResolver {
 	constructor({ departmentTypeResolver, employeeBusinessService }) {
-		this.departmentTypeResolver = departmentTypeResolver;
 		this.employeeBusinessService = employeeBusinessService;
 
 		this.employeeType = new GraphQLObjectType({
@@ -16,7 +15,7 @@ export default class EmployeeTypeResolver {
 				email: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('email') },
 				employeeReference: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('employeeReference') },
 				departments: {
-					type: new GraphQLNonNull(new GraphQLList(this.departmentTypeResolver.getType())),
+					type: new GraphQLNonNull(new GraphQLList(departmentTypeResolver.getType())),
 					resolve: async (_) => _.get('departments').toArray(),
 				},
 			},

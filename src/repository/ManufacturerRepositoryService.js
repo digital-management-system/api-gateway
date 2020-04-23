@@ -1,10 +1,15 @@
 import admin from 'firebase-admin';
-import Immutable, { List } from 'immutable';
+import Immutable, { List, Set } from 'immutable';
 
 export default class ManufacturerRepositoryService {
-	create = async ({ name }) => {
+	getCollection = () => admin.firestore().collection('manufacturer');
+	getUserCollection = () => admin.firestore().collection('user');
+
+	create = async ({ name, userIds }) => {
+		const users = userIds ? Set(userIds).map((userId) => this.getUserCollection().doc(userId)) : Set();
 		const reference = await this.getCollection().add({
 			name,
+			users: users.toJS(),
 		});
 
 		return await this.read(reference.id);
@@ -17,12 +22,17 @@ export default class ManufacturerRepositoryService {
 			return null;
 		}
 
-		return Immutable.fromJS(manufacturer).set('id', id);
+		return Immutable.fromJS(manufacturer)
+			.set('id', id)
+			.set('users', await this.readUsers(manufacturer.users));
 	};
 
-	update = async ({ id, name }) => {
+	update = async ({ id, name, userIds }) => {
+		const users = userIds ? Set(userIds).map((userId) => this.getUserCollection().doc(userId)) : Set();
+
 		await this.getCollection().doc(id).update({
 			name,
+			users: users.toJS(),
 		});
 
 		return await this.read(id);
@@ -46,11 +56,35 @@ export default class ManufacturerRepositoryService {
 				});
 			}
 
-			return manufacturers;
+			return List(
+				await Promise.all(
+					manufacturers
+						.map(async (manufacturer) => {
+							const users = await this.readUsers(manufacturer.get('users'));
+
+							return manufacturer.set('users', users);
+						})
+						.toArray()
+				)
+			);
 		}
 
 		return Immutable.fromJS(await Promise.all(manufacturerIds.map((id) => this.read(id)))).filter((manufacturer) => manufacturer !== null);
 	};
 
-	getCollection = () => admin.firestore().collection('manufacturer');
+	readUsers = async (userRefs) =>
+		List(
+			await Promise.all(
+				userRefs.map(async (userRef) => {
+					const userDocumentRef = await userRef.get();
+					const userData = userDocumentRef.data();
+
+					if (!userData) {
+						return null;
+					}
+
+					return Immutable.fromJS(userData).set('id', userDocumentRef.id);
+				})
+			)
+		).filter((user) => user !== null);
 }

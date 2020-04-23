@@ -2,6 +2,8 @@ import admin from 'firebase-admin';
 import Immutable, { List } from 'immutable';
 
 export default class DepartmentRepositoryService {
+	getCollection = () => admin.firestore().collection('department');
+
 	create = async ({ name, description }) => {
 		const reference = await this.getCollection().add({
 			name,
@@ -54,6 +56,4 @@ export default class DepartmentRepositoryService {
 
 		return Immutable.fromJS(await Promise.all(departmentIds.map((id) => this.read(id)))).filter((department) => department !== null);
 	};
-
-	getCollection = () => admin.firestore().collection('department');
 }
