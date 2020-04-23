@@ -16,15 +16,11 @@ const updateDepartment = ({ departmentTypeResolver, departmentBusinessService })
 			},
 		},
 		mutateAndGetPayload: async (args) => {
-			const { id, name, description } = await departmentBusinessService.update(args);
+			const node = await departmentBusinessService.update(args);
 
 			return {
-				cursor: id,
-				node: {
-					id,
-					name,
-					description,
-				},
+				cursor: node.get('id'),
+				node,
 			};
 		},
 	});

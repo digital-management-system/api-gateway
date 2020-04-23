@@ -1,4 +1,12 @@
 import admin from 'firebase-admin';
+import Immutable, { Map, List } from 'immutable';
+
+const dummyName = Map({
+	firstName: 'No first name available',
+	middleName: 'No middle name available',
+	lastName: 'No last name available',
+	preferredName: 'No preferred name available',
+});
 
 export default class UserRepositoryService {
 	readEmployee = async (email) => this.readByEmail(email, 'employee');
@@ -7,86 +15,62 @@ export default class UserRepositoryService {
 	searchManufacturer = async (searchArgs) => this.search(searchArgs, 'manufacturer');
 
 	readById = async (id) => {
-		const document = (await this.getCollection().doc(id).get()).data();
+		const user = (await this.getCollection().doc(id).get()).data();
 
-		document.id = document.email;
-		document.name = {
-			firstName: 'No first name available',
-			middleName: 'No middle name available',
-			lastName: 'No last name available',
-			preferredName: 'No preferred name available',
-		};
+		if (!user) {
+			return null;
+		}
 
-		return document;
+		return Immutable.fromJS(user).set('id', id).set('name', dummyName);
 	};
 
 	readByEmail = async (email, userType) => {
-		let documentsReference = this.getCollection().where('email', '==', email);
+		let usersReference = this.getCollection().where('email', '==', email);
 
 		if (userType) {
-			documentsReference = documentsReference.where('userType', '==', userType);
+			usersReference = usersReference.where('userType', '==', userType);
 		}
 
-		const snapshot = await documentsReference.get();
-		let documents = [];
+		const snapshot = await usersReference.get();
+		let users = List();
 
 		if (snapshot.empty) {
-			throw new Error(`Email address ${email} does not exist!`);
+			return null;
 		}
 
-		snapshot.forEach((document) => {
-			documents.push(document.data());
+		snapshot.forEach((user) => {
+			users = users.push(Immutable.fromJS(user.data()).set('id', user.id).set('name', dummyName));
 		});
 
-		if (documents.length > 1) {
+		if (users.count() > 1) {
 			throw new Error(`Multiple email address ${email} exists in the database!`);
 		}
 
-		const document = documents[0];
-
-		document.id = document.email;
-		document.name = {
-			firstName: 'No first name available',
-			middleName: 'No middle name available',
-			lastName: 'No last name available',
-			preferredName: 'No preferred name available',
-		};
-
-		return document;
+		return users.get(0);
 	};
 
 	search = async ({ emails }, userType) => {
-		let documents = [];
+		let users = List();
 
 		if (!emails || emails.length === 0) {
-			let documentsReference = this.getCollection();
+			let usersReference = this.getCollection();
 
 			if (userType) {
-				documentsReference = documentsReference.where('userType', '==', userType);
+				usersReference = usersReference.where('userType', '==', userType);
 			}
 
-			const snapshot = await documentsReference.get();
+			const snapshot = await usersReference.get();
 
 			if (!snapshot.empty) {
-				snapshot.forEach((document) => {
-					documents.push(document.data());
+				snapshot.forEach((user) => {
+					users = users.push(Immutable.fromJS(user.data()).set('id', user.id).set('name', dummyName));
 				});
 			}
 
-			return documents.map((document) => {
-				document.id = document.email;
-				document.name = {
-					firstName: 'No first name available',
-					middleName: 'No middle name available',
-					lastName: 'No last name available',
-					preferredName: 'No preferred name available',
-				};
-
-				return document;
-			});
+			return users;
 		}
 
-		return await Promise.all(emails.map((email) => this.readByEmail(email, userType)));
+		return Immutable.fromJS(await Promise.all(emails.map((email) => this.readByEmail(email, userType)))).filter((user) => user !== null);
 	};
 
 	getCollection = () => admin.firestore().collection('user');

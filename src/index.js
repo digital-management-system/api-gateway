@@ -22,7 +22,7 @@ import {
 import { getRootSchema } from './transport';
 import { UserDataLoader, DepartmentDataLoader, EmployeeDataLoader } from './transport/loaders';
 
-const loggingWinston = require('@google-cloud/logging-winston');
+const loggingWinston = require('@google-cloud/logging-winston'); // eslint-disable-line no-undef
 
 const setupContainer = (decodedSessionToken) => {
 	const container = createContainer();
@@ -63,22 +63,27 @@ const createServer = async () => {
 	expressServer.use(cors());
 	expressServer.use(await loggingWinston.express.makeMiddleware(logger));
 	expressServer.use('*', async (request, response) => {
+		const developmentUserId = process.env.FIREBASE_USER_ID; // eslint-disable-line no-undef
 		let decodedSessionToken;
 
-		if (!request.headers.authorization || !request.headers.authorization.startsWith('Bearer ')) {
-			response.send(401);
+		if (developmentUserId) {
+			decodedSessionToken = { user_id: developmentUserId };
+		} else {
+			if (!request.headers.authorization || !request.headers.authorization.startsWith('Bearer ')) {
+				response.send(401);
 
-			return;
-		}
+				return;
+			}
 
-		try {
-			const token = request.headers.authorization;
+			try {
+				const token = request.headers.authorization;
 
-			decodedSessionToken = await admin.auth().verifyIdToken(token.substring('Bearer '.length, token.length));
-		} catch {
-			response.send(401);
+				decodedSessionToken = await admin.auth().verifyIdToken(token.substring('Bearer '.length, token.length));
+			} catch {
+				response.send(401);
 
-			return;
+				return;
+			}
 		}
 
 		const container = setupContainer(decodedSessionToken);

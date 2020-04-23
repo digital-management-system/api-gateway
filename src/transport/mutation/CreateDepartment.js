@@ -15,15 +15,11 @@ const createDepartment = ({ departmentTypeResolver, departmentBusinessService })
 			},
 		},
 		mutateAndGetPayload: async (args) => {
-			const { id, name, description } = await departmentBusinessService.create(args);
+			const node = await departmentBusinessService.create(args);
 
 			return {
-				cursor: id,
-				node: {
-					id,
-					name,
-					description,
-				},
+				cursor: node.get('id'),
+				node,
 			};
 		},
 	});

@@ -15,9 +15,9 @@ const getUserType = ({
 	new GraphQLObjectType({
 		name: 'User',
 		fields: {
-			id: { type: new GraphQLNonNull(GraphQLID), resolve: ({ id }) => id },
-			email: { type: new GraphQLNonNull(GraphQLID), resolve: ({ email }) => email },
-			name: { type: new GraphQLNonNull(Name), resolve: ({ name }) => name },
+			id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+			email: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('email') },
+			name: { type: new GraphQLNonNull(Name), resolve: (_) => _.get('name') },
 			department: {
 				type: departmentTypeResolver.getType(),
 				args: {

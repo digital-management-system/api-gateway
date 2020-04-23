@@ -1,4 +1,4 @@
-import Immutable, { Range } from 'immutable';
+import { Range } from 'immutable';
 
 export default class Common {
 	static getEmptyResult = () => ({
@@ -13,7 +13,7 @@ export default class Common {
 	});
 
 	static convertResultsToRelayConnectionResponse = (results, skip, limit, count, hasNextPage, hasPreviousPage) => {
-		const indexedResults = Immutable.fromJS(results).zip(Range(skip, skip + limit));
+		const indexedResults = results.zip(Range(skip, skip + limit));
 		const edges = indexedResults.map((indexedResult) => ({
 			node: indexedResult[0],
 			cursor: indexedResult[1] + 1,
@@ -23,7 +23,7 @@ export default class Common {
 		const lastEdge = edges.last();
 
 		return {
-			edges: edges.toJS(),
+			edges: edges.toArray(),
 			count,
 			pageInfo: {
 				startCursor: firstEdge ? firstEdge.cursor : 'cursor not available',

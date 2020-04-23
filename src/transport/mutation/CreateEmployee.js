@@ -16,16 +16,11 @@ const createEmployee = ({ employeeTypeResolver, employeeBusinessService }) =>
 			},
 		},
 		mutateAndGetPayload: async (args) => {
-			const { id, email, employeeReference, departmentIds } = await employeeBusinessService.create(args);
+			const node = await employeeBusinessService.create(args);
 
 			return {
-				cursor: id,
-				node: {
-					id,
-					email,
-					employeeReference,
-					departmentIds,
-				},
+				cursor: node.get('id'),
+				node,
 			};
 		},
 	});
