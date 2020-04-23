@@ -9,6 +9,8 @@ const dummyName = Map({
 });
 
 export default class UserRepositoryService {
+	getCollection = () => admin.firestore().collection('user');
+
 	readEmployee = async (email) => this.readByEmail(email, 'employee');
 	readManufacturer = async (email) => this.readByEmail(email, 'manufacturer');
 	searchEmployee = async (searchArgs) => this.search(searchArgs, 'employee');
@@ -72,6 +74,4 @@ export default class UserRepositoryService {
 
 		return Immutable.fromJS(await Promise.all(emails.map((email) => this.readByEmail(email, userType)))).filter((user) => user !== null);
 	};
-
-	getCollection = () => admin.firestore().collection('user');
 }

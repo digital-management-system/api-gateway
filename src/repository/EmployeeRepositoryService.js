@@ -2,6 +2,9 @@ import admin from 'firebase-admin';
 import Immutable, { List, Set } from 'immutable';
 
 export default class EmployeeRepositoryService {
+	getCollection = () => admin.firestore().collection('employee');
+	getDepartmentCollection = () => admin.firestore().collection('department');
+
 	create = async ({ email, employeeReference, departmentIds }) => {
 		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
 		const reference = await this.getCollection().add({
@@ -70,9 +73,6 @@ export default class EmployeeRepositoryService {
 
 		return Immutable.fromJS(await Promise.all(employeeIds.map((id) => this.read(id)))).filter((employee) => employee !== null);
 	};
-
-	getCollection = () => admin.firestore().collection('employee');
-	getDepartmentCollection = () => admin.firestore().collection('department');
 
 	readDepartments = async (departmentRefs) =>
 		List(

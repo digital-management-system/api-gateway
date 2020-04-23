@@ -1,11 +1,11 @@
-import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLString } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
 import RelayHelper from './RelayHelper';
 import Common from './Common';
 import { NodeInterface } from '../interface';
 
 export default class ManufacturerTypeResolver {
-	constructor({ manufacturerBusinessService }) {
+	constructor({ registeredUserTypeResolver, manufacturerBusinessService }) {
 		this.manufacturerBusinessService = manufacturerBusinessService;
 
 		this.manufacturerType = new GraphQLObjectType({
@@ -13,6 +13,10 @@ export default class ManufacturerTypeResolver {
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
 				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+				users: {
+					type: new GraphQLNonNull(new GraphQLList(registeredUserTypeResolver.getType())),
+					resolve: async (_) => _.get('users').toArray(),
+				},
 			},
 			interfaces: [NodeInterface],
 		});

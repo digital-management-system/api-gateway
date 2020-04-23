@@ -1,4 +1,4 @@
-import { GraphQLString, GraphQLNonNull } from 'graphql';
+import { GraphQLList, GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
 const createManufacturer = ({ manufacturerTypeResolver, manufacturerBusinessService }) =>
@@ -6,6 +6,7 @@ const createManufacturer = ({ manufacturerTypeResolver, manufacturerBusinessServ
 		name: 'CreateManufacturer',
 		inputFields: {
 			name: { type: new GraphQLNonNull(GraphQLString) },
+			userIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 		},
 		outputFields: {
 			manufacturer: {

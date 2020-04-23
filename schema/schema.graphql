@@ -32,6 +32,13 @@ type Name {
 type Manufacturer implements Node {
   id: ID!
   name: String!
+  users: [RegisteredUser]!
+}
+
+type RegisteredUser implements Node {
+  id: ID!
+  email: String!
+  name: Name!
 }
 
 """A connection to a list of items."""
@@ -107,12 +114,6 @@ type DepartmentTypeEdge {
   cursor: String!
 }
 
-type RegisteredUser implements Node {
-  id: ID!
-  email: String!
-  name: Name!
-}
-
 """A connection to a list of items."""
 type RegisteredUserTypeConnection {
   """Information to aid in pagination."""
@@ -181,6 +182,7 @@ type CreateManufacturerPayload {
 
 input CreateManufacturerInput {
   name: String!
+  userIds: [ID!]
   clientMutationId: String
 }
 
@@ -192,6 +194,7 @@ type UpdateManufacturerPayload {
 input UpdateManufacturerInput {
   id: ID!
   name: String!
+  userIds: [ID!]
   clientMutationId: String
 }
 
