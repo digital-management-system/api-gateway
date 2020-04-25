@@ -11,15 +11,15 @@ const graphql = functions.https.onRequest((request, response) => {
 const onUserSignUp = functions.firestore.document('/user/{userId}').onCreate((snapshot, context) => {
       const  { userType } = snapshot.data();
 
-       if (userType !== 'manufaturer') {
-         return;
+       if (userType !== 'manufacturer') {
+         return null;
        }
 
       const userId = context.params.userId;
       const container = setupContainer({user_id: userId});
       const manufacturerBusinessService = container.resolve('manufacturerBusinessService')
 
-      manufacturerBusinessService.create({userId, name: "no name set yet!!!"});
+      return manufacturerBusinessService.create({userId, name: "no name set yet!!!"});
 });
 
 module.exports = {
