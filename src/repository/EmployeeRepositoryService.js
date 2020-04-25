@@ -6,10 +6,9 @@ export default class EmployeeRepositoryService {
 	getDepartmentCollection = () => admin.firestore().collection('department');
 	getUserCollection = () => admin.firestore().collection('user');
 
-	create = async ({ email, employeeReference, departmentIds, userId }) => {
+	create = async ({ employeeReference, departmentIds, userId }) => {
 		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
 		const reference = await this.getCollection().add({
-			email,
 			employeeReference,
 			departments: departments.toJS(),
 			user: this.getUserCollection().doc(userId),
@@ -28,16 +27,15 @@ export default class EmployeeRepositoryService {
 		return Immutable.fromJS(employee)
 			.set('id', id)
 			.set('departments', await this.readDepartments(employee.departments))
-			.set('user', await this.readManufacturer(employee.user));
+			.set('user', await this.readUser(employee.user));
 	};
 
-	update = async ({ id, email, employeeReference, departmentIds, userId }) => {
+	update = async ({ id, employeeReference, departmentIds, userId }) => {
 		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
 
 		await this.getCollection()
 			.doc(id)
 			.update({
-				email,
 				employeeReference,
 				departments: departments.toJS(),
 				user: this.getUserCollection().doc(userId),
