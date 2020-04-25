@@ -9,7 +9,7 @@ export default class EmployeeRepositoryService {
 	create = async ({ employeeReference, departmentIds, userId }) => {
 		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
 		const reference = await this.getCollection().add({
-			employeeReference,
+			employeeReference: employeeReference ? employeeReference : null,
 			departments: departments.toJS(),
 			user: this.getUserCollection().doc(userId),
 		});
@@ -36,7 +36,7 @@ export default class EmployeeRepositoryService {
 		await this.getCollection()
 			.doc(id)
 			.update({
-				employeeReference,
+				employeeReference: employeeReference ? employeeReference : null,
 				departments: departments.toJS(),
 				user: this.getUserCollection().doc(userId),
 			});

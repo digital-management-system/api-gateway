@@ -8,7 +8,7 @@ export default class DepartmentRepositoryService {
 	create = async ({ name, description, manufacturerId }) => {
 		const reference = await this.getCollection().add({
 			name,
-			description,
+			description: description ? description : null,
 			manufacturer: this.getManufacturerCollection().doc(manufacturerId),
 		});
 
@@ -32,7 +32,7 @@ export default class DepartmentRepositoryService {
 			.doc(id)
 			.update({
 				name,
-				description,
+				description: description ? description : null,
 				manufacturer: this.getManufacturerCollection().doc(manufacturerId),
 			});
 
