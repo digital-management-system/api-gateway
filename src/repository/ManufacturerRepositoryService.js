@@ -23,7 +23,7 @@ export default class ManufacturerRepositoryService {
 
 		return Immutable.fromJS(manufacturer)
 			.set('id', id)
-			.set('user', await this.readManufacturer(manufacturer.user));
+			.set('user', await this.readUser(manufacturer.user));
 	};
 
 	update = async ({ id, name, userId }) => {
