@@ -1,12 +1,5 @@
 import admin from 'firebase-admin';
-import Immutable, { Map, List } from 'immutable';
-
-const dummyName = Map({
-	firstName: 'No first name available',
-	middleName: 'No middle name available',
-	lastName: 'No last name available',
-	preferredName: 'No preferred name available',
-});
+import Immutable, { List } from 'immutable';
 
 export default class UserRepositoryService {
 	getCollection = () => admin.firestore().collection('user');
@@ -23,7 +16,7 @@ export default class UserRepositoryService {
 			return null;
 		}
 
-		return Immutable.fromJS(user).set('id', id).set('name', dummyName);
+		return Immutable.fromJS(user).set('id', id);
 	};
 
 	readByEmail = async (email, userType) => {
@@ -41,7 +34,7 @@ export default class UserRepositoryService {
 		}
 
 		snapshot.forEach((user) => {
-			users = users.push(Immutable.fromJS(user.data()).set('id', user.id).set('name', dummyName));
+			users = users.push(Immutable.fromJS(user.data()).set('id', user.id));
 		});
 
 		if (users.count() > 1) {
@@ -65,7 +58,7 @@ export default class UserRepositoryService {
 
 			if (!snapshot.empty) {
 				snapshot.forEach((user) => {
-					users = users.push(Immutable.fromJS(user.data()).set('id', user.id).set('name', dummyName));
+					users = users.push(Immutable.fromJS(user.data()).set('id', user.id));
 				});
 			}
 

@@ -5,7 +5,6 @@ type Query {
 type User implements Node {
   id: ID!
   email: ID!
-  name: Name!
   manufacturer(manufacturerId: ID!): Manufacturer
   manufacturers(after: String, first: Int, before: String, last: Int, manufacturerIds: [ID!], sortingOptions: [SortingOptionPair!]): ManufacturerTypeConnection
   department(departmentId: ID!): Department
@@ -22,13 +21,6 @@ interface Node {
   id: ID!
 }
 
-type Name {
-  firstName: String!
-  middleName: String
-  lastName: String!
-  preferredName: String
-}
-
 type Manufacturer implements Node {
   id: ID!
   name: String!
@@ -38,7 +30,6 @@ type Manufacturer implements Node {
 type RegisteredUser implements Node {
   id: ID!
   email: String!
-  name: Name!
 }
 
 """A connection to a list of items."""

@@ -3,7 +3,6 @@ import { connectionDefinitions } from 'graphql-relay';
 import RelayHelper from './RelayHelper';
 import Common from './Common';
 import { NodeInterface } from '../interface';
-import Name from './Name';
 
 export default class RegisteredUserTypeResolver {
 	constructor({ userBusinessService }) {
@@ -14,7 +13,6 @@ export default class RegisteredUserTypeResolver {
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
 				email: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('email') },
-				name: { type: new GraphQLNonNull(Name), resolve: (_) => _.get('name') },
 			},
 			interfaces: [NodeInterface],
 		});
