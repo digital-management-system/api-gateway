@@ -16,7 +16,7 @@ export default class EmployeeTypeResolver {
 					type: new GraphQLNonNull(registeredUserTypeResolver.getType()),
 					resolve: async (_) => _.get('user'),
 				},
-				employeeReference: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('employeeReference') },
+				employeeReference: { type: GraphQLString, resolve: (_) => _.get('employeeReference') },
 				departments: {
 					type: new GraphQLNonNull(new GraphQLList(departmentTypeResolver.getType())),
 					resolve: async (_) => _.get('departments').toArray(),
