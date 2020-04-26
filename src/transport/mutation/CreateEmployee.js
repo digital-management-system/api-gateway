@@ -6,7 +6,7 @@ const createEmployee = ({ employeeTypeResolver, employeeBusinessService }) =>
 		name: 'CreateEmployee',
 		inputFields: {
 			userId: { type: new GraphQLNonNull(GraphQLID) },
-			employeeReference: { type: new GraphQLNonNull(GraphQLString) },
+			employeeReference: { type: GraphQLString },
 			departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 		},
 		outputFields: {
