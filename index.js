@@ -4,11 +4,11 @@ const { createServer, setupContainer } = require('./dist');
 
 admin.initializeApp();
 
-const graphql = functions.https.onRequest((request, response) => {
+const graphql = functions.region('asia-east2', 'asia-northeast1', 'us-central1').https.onRequest((request, response) => {
   createServer().then(server => server(request, response));
 });
 
-const onUserSignUp = functions.firestore.document('/user/{userId}').onCreate((snapshot, context) => {
+const onUserSignUp = functions.region('asia-east2', 'asia-northeast1', 'us-central1').firestore.document('/user/{userId}').onCreate((snapshot, context) => {
       const  { userType } = snapshot.data();
 
        if (userType !== 'manufacturer') {
