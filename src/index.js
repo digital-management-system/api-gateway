@@ -43,7 +43,7 @@ import {
 	deleteEmployee,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
-import { UserDataLoader, ManufacturerDataLoader, DepartmentDataLoader, EmployeeDataLoader } from './transport/loaders';
+import { UserDataLoader, ManufacturerDataLoader, DepartmentDataLoader, EmployeeDataLoader, MSOPDataLoader } from './transport/loaders';
 
 const loggingWinston = require('@google-cloud/logging-winston'); // eslint-disable-line no-undef
 
@@ -57,6 +57,7 @@ const setupContainer = (decodedSessionToken) => {
 		manufacturerDataLoader: asClass(ManufacturerDataLoader).scoped(),
 		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
 		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
+		msopDataLoader: asClass(MSOPDataLoader).scoped(),
 		userBusinessService: asClass(UserBusinessService).scoped(),
 		manufacturerBusinessService: asClass(ManufacturerBusinessService).scoped(),
 		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
