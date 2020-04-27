@@ -32,7 +32,7 @@ export default class EmployeeRepositoryService extends BaseRepositoryService {
 			.remove('departments')
 			.set('departmentIds', List(employee.departments.map((department) => department.id)))
 			.remove('reportingToEmployee')
-			.set('reportingToEmployeeId', employee.reportingToEmployee.id);
+			.set('reportingToEmployeeId', employee.reportingToEmployee ? employee.reportingToEmployee.id : null);
 	};
 
 	update = async ({ id, ...info }) => {
