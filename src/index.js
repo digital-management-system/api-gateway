@@ -29,6 +29,7 @@ import {
 	RegisteredUserTypeResolver,
 	EmployeeTypeResolver,
 	ReportingEmployeeTypeResolver,
+	MSOPTypeResolver,
 } from './transport/query';
 import {
 	getRootMutation,
@@ -41,6 +42,9 @@ import {
 	createEmployee,
 	updateEmployee,
 	deleteEmployee,
+	createMSOP,
+	updateMSOP,
+	deleteMSOP,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
 import { UserDataLoader, ManufacturerDataLoader, DepartmentDataLoader, EmployeeDataLoader, MSOPDataLoader } from './transport/loaders';
@@ -77,6 +81,7 @@ const setupContainer = (decodedSessionToken) => {
 		registeredUserTypeResolver: asClass(RegisteredUserTypeResolver).scoped(),
 		employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
 		reportingEmployeeTypeResolver: asClass(ReportingEmployeeTypeResolver).scoped(),
+		msopTypeResolver: asClass(MSOPTypeResolver).scoped(),
 		createManufacturer: asFunction(createManufacturer).scoped(),
 		updateManufacturer: asFunction(updateManufacturer).scoped(),
 		deleteManufacturer: asFunction(deleteManufacturer).scoped(),
@@ -86,6 +91,9 @@ const setupContainer = (decodedSessionToken) => {
 		createEmployee: asFunction(createEmployee).scoped(),
 		updateEmployee: asFunction(updateEmployee).scoped(),
 		deleteEmployee: asFunction(deleteEmployee).scoped(),
+		createMSOP: asFunction(createMSOP).scoped(),
+		updateMSOP: asFunction(updateMSOP).scoped(),
+		deleteMSOP: asFunction(deleteMSOP).scoped(),
 	});
 
 	return container;

@@ -5,3 +5,6 @@ export { default as DepartmentTypeResolver } from './DepartmentTypeResolver';
 export { default as RegisteredUserTypeResolver } from './RegisteredUserTypeResolver';
 export { default as EmployeeTypeResolver } from './EmployeeTypeResolver';
 export { default as ReportingEmployeeTypeResolver } from './ReportingEmployeeTypeResolver';
+export { default as MSOPTypeResolver } from './MSOPTypeResolver';
+export { default as MSOPMeetingFrequency } from '../query/MSOPMeetingFrequency';
+export { default as MSOPMeetingDay } from '../query/MSOPMeetingDay';

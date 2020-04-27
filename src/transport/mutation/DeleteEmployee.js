@@ -10,11 +10,7 @@ const deleteEmployee = ({ employeeBusinessService }) =>
 		outputFields: {
 			deletedEmployeeId: { type: new GraphQLNonNull(GraphQLID), resolve: ({ deletedEmployeeId }) => deletedEmployeeId },
 		},
-		mutateAndGetPayload: async ({ id }) => {
-			const deletedEmployeeId = await employeeBusinessService.delete(id);
-
-			return { deletedEmployeeId };
-		},
+		mutateAndGetPayload: async ({ id }) => ({ deletedEmployeeId: await employeeBusinessService.delete(id) }),
 	});
 
 export default deleteEmployee;

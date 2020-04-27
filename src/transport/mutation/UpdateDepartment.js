@@ -13,23 +13,15 @@ const updateDepartment = ({ departmentTypeResolver, departmentBusinessService, d
 		outputFields: {
 			department: {
 				type: departmentTypeResolver.getConnectionDefinitionType().edgeType,
-				resolve: async ({ id }) => {
-					const node = await departmentDataLoader.getDepartmentLoaderById().load(id);
-
-					return {
-						cursor: id,
-						node,
-					};
-				},
+				resolve: async ({ id }) => ({
+					cursor: id,
+					node: await departmentDataLoader.getDepartmentLoaderById().load(id),
+				}),
 			},
 		},
-		mutateAndGetPayload: async (args) => {
-			const id = await departmentBusinessService.update(args);
-
-			return {
-				id,
-			};
-		},
+		mutateAndGetPayload: async (args) => ({
+			id: await departmentBusinessService.update(args),
+		}),
 	});
 
 export default updateDepartment;

@@ -13,6 +13,10 @@ type User implements Node {
   registeredUsers(after: String, first: Int, before: String, last: Int, emails: [String!], sortingOptions: [SortingOptionPair!]): RegisteredUserTypeConnection
   employee(employeeId: ID!): Employee
   employees(after: String, first: Int, before: String, last: Int, employeeIds: [ID!], sortingOptions: [SortingOptionPair!]): EmployeeTypeConnection
+  msop(msopId: ID!): MSOP
+  msops(after: String, first: Int, before: String, last: Int, msopIds: [ID!], sortingOptions: [SortingOptionPair!]): MSOPTypeConnection
+  msopMeetingFrequencies: [MSOPMeetingFrequency]
+  msopMeetingDays: [MSOPMeetingDay]
 }
 
 """An object with an ID"""
@@ -74,8 +78,8 @@ input SortingOptionPair {
 }
 
 enum SortingDirection {
-  ASCENDING
-  DESCENDING
+  Ascending
+  Descending
 }
 
 type Department implements Node {
@@ -167,6 +171,56 @@ type EmployeeTypeEdge {
   cursor: String!
 }
 
+type MSOP implements Node {
+  id: ID!
+  meetingName: String!
+  meetingDuration: String!
+  frequency: MSOPMeetingFrequency!
+  meetingDays: [MSOPMeetingDay]
+  agendas: String
+  department: Department!
+  chairPersonEmployee: Employee!
+  actionLogSecretaryEmployee: Employee!
+  attendees: [Employee]!
+}
+
+enum MSOPMeetingFrequency {
+  Daily
+  Weekly
+  Monthly
+}
+
+enum MSOPMeetingDay {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+"""A connection to a list of items."""
+type MSOPTypeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [MSOPTypeEdge]
+
+  """Total number of MSOPs"""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type MSOPTypeEdge {
+  """The item at the end of the edge"""
+  node: MSOP
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
 type Mutation {
   createManufacturer(input: CreateManufacturerInput!): CreateManufacturerPayload
   updateManufacturer(input: UpdateManufacturerInput!): UpdateManufacturerPayload
@@ -177,6 +231,9 @@ type Mutation {
   createEmployee(input: CreateEmployeeInput!): CreateEmployeePayload
   updateEmployee(input: UpdateEmployeeInput!): UpdateEmployeePayload
   deleteEmployee(input: DeleteEmployeeInput!): DeleteEmployeePayload
+  createMSOP(input: CreateMSOPInput!): CreateMSOPPayload
+  updateMSOP(input: UpdateMSOPInput!): UpdateMSOPPayload
+  deleteMSOP(input: DeleteMSOPInput!): DeleteMSOPPayload
 }
 
 type CreateManufacturerPayload {
@@ -282,6 +339,53 @@ type DeleteEmployeePayload {
 }
 
 input DeleteEmployeeInput {
+  id: ID!
+  clientMutationId: String
+}
+
+type CreateMSOPPayload {
+  msop: MSOPTypeEdge
+  clientMutationId: String
+}
+
+input CreateMSOPInput {
+  meetingName: String!
+  meetingDuration: String!
+  frequency: MSOPMeetingFrequency!
+  meetingDays: [MSOPMeetingDay!]
+  agendas: String
+  departmentId: ID!
+  chairPersonEmployeeId: ID!
+  actionLogSecretaryEmployeeId: ID!
+  attendeeIds: [ID!]
+  clientMutationId: String
+}
+
+type UpdateMSOPPayload {
+  msop: MSOPTypeEdge
+  clientMutationId: String
+}
+
+input UpdateMSOPInput {
+  id: ID!
+  meetingName: String!
+  meetingDuration: String!
+  frequency: MSOPMeetingFrequency!
+  meetingDays: [MSOPMeetingDay!]
+  agendas: String
+  departmentId: ID!
+  chairPersonEmployeeId: ID!
+  actionLogSecretaryEmployeeId: ID!
+  attendeeIds: [ID!]
+  clientMutationId: String
+}
+
+type DeleteMSOPPayload {
+  deletedMSOPId: ID!
+  clientMutationId: String
+}
+
+input DeleteMSOPInput {
   id: ID!
   clientMutationId: String
 }

@@ -8,3 +8,6 @@ export { default as deleteDepartment } from './DeleteDepartment';
 export { default as createEmployee } from './CreateEmployee';
 export { default as updateEmployee } from './UpdateEmployee';
 export { default as deleteEmployee } from './DeleteEmployee';
+export { default as createMSOP } from './CreateMSOP';
+export { default as updateMSOP } from './UpdateMSOP';
+export { default as deleteMSOP } from './DeleteMSOP';
