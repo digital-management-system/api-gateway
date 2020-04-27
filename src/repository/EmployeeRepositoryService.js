@@ -6,16 +6,20 @@ export default class EmployeeRepositoryService {
 	getDepartmentCollection = () => admin.firestore().collection('department');
 	getUserCollection = () => admin.firestore().collection('user');
 
-	create = async ({ employeeReference, userId, departmentIds }) => {
+	getEmployeeDocument = ({ employeeReference, position, mobile, userId, departmentIds, reportingToEmployeeId }) => {
 		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
-		const reference = await this.getEmployeeCollection().add({
+
+		return {
 			employeeReference: employeeReference ? employeeReference : null,
+			position: position ? position : null,
+			mobile: mobile ? mobile : null,
 			user: this.getUserCollection().doc(userId),
 			departments: departments.toJS(),
-		});
-
-		return reference.id;
+			reportingToEmployeeId: reportingToEmployeeId ? this.getEmployeeCollection().doc(reportingToEmployeeId) : null,
+		};
 	};
+
+	create = async (info) => (await this.getEmployeeCollection().add(this.getEmployeeDocument(info))).id;
 
 	read = async (id) => {
 		const employee = (await this.getEmployeeCollection().doc(id).get()).data();
@@ -32,16 +36,8 @@ export default class EmployeeRepositoryService {
 			.set('departmentIds', List(employee.departments.map((department) => department.id)));
 	};
 
-	update = async ({ id, employeeReference, userId, departmentIds }) => {
-		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
-
-		await this.getEmployeeCollection()
-			.doc(id)
-			.update({
-				employeeReference: employeeReference ? employeeReference : null,
-				user: this.getUserCollection().doc(userId),
-				departments: departments.toJS(),
-			});
+	update = async ({ id, ...info }) => {
+		await this.getEmployeeCollection().doc(id).update(this.getEmployeeDocument(info));
 
 		return id;
 	};

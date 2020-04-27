@@ -5,9 +5,12 @@ const createEmployee = ({ employeeTypeResolver, employeeBusinessService, employe
 	mutationWithClientMutationId({
 		name: 'CreateEmployee',
 		inputFields: {
-			userId: { type: new GraphQLNonNull(GraphQLID) },
 			employeeReference: { type: GraphQLString },
+			position: { type: GraphQLString },
+			mobile: { type: GraphQLString },
+			userId: { type: new GraphQLNonNull(GraphQLID) },
 			departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+			reportingToEmployeeId: { type: GraphQLID },
 		},
 		outputFields: {
 			employee: {

@@ -5,14 +5,12 @@ export default class ManufacturerRepositoryService {
 	getManufacturerCollection = () => admin.firestore().collection('manufacturer');
 	getUserCollection = () => admin.firestore().collection('user');
 
-	create = async ({ name, userId }) => {
-		const reference = await this.getManufacturerCollection().add({
-			name,
-			user: this.getUserCollection().doc(userId),
-		});
+	getManufacturerDocument = ({ name, userId }) => ({
+		name,
+		user: this.getUserCollection().doc(userId),
+	});
 
-		return reference.id;
-	};
+	create = async (info) => (await this.getManufacturerCollection().add(this.getManufacturerDocument(info))).id;
 
 	read = async (id) => {
 		const manufacturer = (await this.getManufacturerCollection().doc(id).get()).data();
@@ -24,13 +22,8 @@ export default class ManufacturerRepositoryService {
 		return Immutable.fromJS(manufacturer).set('id', id).remove('user').set('userId', manufacturer.user.id);
 	};
 
-	update = async ({ id, name, userId }) => {
-		await this.getManufacturerCollection()
-			.doc(id)
-			.update({
-				name,
-				user: this.getUserCollection().doc(userId),
-			});
+	update = async ({ id, ...info }) => {
+		await this.getManufacturerCollection().doc(id).update(this.getManufacturerDocument(info));
 
 		return id;
 	};

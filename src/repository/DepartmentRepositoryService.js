@@ -5,15 +5,13 @@ export default class DepartmentRepositoryService {
 	getDepartmentCollection = () => admin.firestore().collection('department');
 	getManufacturerCollection = () => admin.firestore().collection('manufacturer');
 
-	create = async ({ name, description, manufacturerId }) => {
-		const reference = await this.getDepartmentCollection().add({
-			name,
-			description: description ? description : null,
-			manufacturer: this.getManufacturerCollection().doc(manufacturerId),
-		});
+	getDepartmentDocument = ({ name, description, manufacturerId }) => ({
+		name,
+		description: description ? description : null,
+		manufacturer: this.getManufacturerCollection().doc(manufacturerId),
+	});
 
-		return reference.id;
-	};
+	create = async (info) => (await this.getDepartmentCollection().add(this.getDepartmentDocument(info))).id;
 
 	read = async (id) => {
 		const department = (await this.getDepartmentCollection().doc(id).get()).data();
@@ -25,14 +23,8 @@ export default class DepartmentRepositoryService {
 		return Immutable.fromJS(department).set('id', id).remove('manufacturer').set('manufacturerId', department.manufacturer.id);
 	};
 
-	update = async ({ id, name, description, manufacturerId }) => {
-		await this.getDepartmentCollection()
-			.doc(id)
-			.update({
-				name,
-				description: description ? description : null,
-				manufacturer: this.getManufacturerCollection().doc(manufacturerId),
-			});
+	update = async ({ id, ...info }) => {
+		await this.getDepartmentCollection().doc(id).update(this.getDepartmentDocument(info));
 
 		return id;
 	};
