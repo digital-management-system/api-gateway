@@ -13,16 +13,21 @@ const updateEmployee = ({ employeeTypeResolver, employeeBusinessService, employe
 		outputFields: {
 			employee: {
 				type: employeeTypeResolver.getConnectionDefinitionType().edgeType,
-				resolve: (employee) => employee,
+				resolve: async ({ id }) => {
+					const node = await employeeDataLoader.getEmployeeLoaderById().load(id);
+
+					return {
+						cursor: id,
+						node,
+					};
+				},
 			},
 		},
 		mutateAndGetPayload: async (args) => {
 			const id = await employeeBusinessService.update(args);
-			const node = await employeeDataLoader.getEmployeeLoaderById().load(id);
 
 			return {
-				cursor: id,
-				node,
+				id,
 			};
 		},
 	});

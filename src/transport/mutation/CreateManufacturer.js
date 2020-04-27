@@ -10,16 +10,21 @@ const createManufacturer = ({ manufacturerTypeResolver, manufacturerBusinessServ
 		outputFields: {
 			manufacturer: {
 				type: manufacturerTypeResolver.getConnectionDefinitionType().edgeType,
-				resolve: (manufacturer) => manufacturer,
+				resolve: async ({ id }) => {
+					const node = await manufacturerDataLoader.getManufacturerLoaderById().load(id);
+
+					return {
+						cursor: id,
+						node,
+					};
+				},
 			},
 		},
 		mutateAndGetPayload: async (args) => {
 			const id = await manufacturerBusinessService.create(Object.assign(args, { userId: decodedSessionToken.user_id }));
-			const node = await manufacturerDataLoader.getManufacturerLoaderById().load(id);
 
 			return {
-				cursor: id,
-				node,
+				id,
 			};
 		},
 	});
