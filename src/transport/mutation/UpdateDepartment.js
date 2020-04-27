@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const updateDepartment = ({ departmentTypeResolver, departmentBusinessService }) =>
+const updateDepartment = ({ departmentTypeResolver, departmentBusinessService, departmentDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateDepartment',
 		inputFields: {
@@ -17,10 +17,11 @@ const updateDepartment = ({ departmentTypeResolver, departmentBusinessService })
 			},
 		},
 		mutateAndGetPayload: async (args) => {
-			const node = await departmentBusinessService.update(args);
+			const id = await departmentBusinessService.update(args);
+			const node = await departmentDataLoader.getDepartmentLoaderById().load(id);
 
 			return {
-				cursor: node.get('id'),
+				cursor: id,
 				node,
 			};
 		},

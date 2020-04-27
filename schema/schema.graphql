@@ -129,8 +129,8 @@ type RegisteredUserTypeEdge {
 
 type Employee implements Node {
   id: ID!
-  user: RegisteredUser!
   employeeReference: String
+  user: RegisteredUser!
   departments: [Department]!
 }
 

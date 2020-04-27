@@ -2,43 +2,41 @@ import admin from 'firebase-admin';
 import Immutable, { List } from 'immutable';
 
 export default class ManufacturerRepositoryService {
-	getCollection = () => admin.firestore().collection('manufacturer');
+	getManufacturerCollection = () => admin.firestore().collection('manufacturer');
 	getUserCollection = () => admin.firestore().collection('user');
 
 	create = async ({ name, userId }) => {
-		const reference = await this.getCollection().add({
+		const reference = await this.getManufacturerCollection().add({
 			name,
 			user: this.getUserCollection().doc(userId),
 		});
 
-		return await this.read(reference.id);
+		return reference.id;
 	};
 
 	read = async (id) => {
-		const manufacturer = (await this.getCollection().doc(id).get()).data();
+		const manufacturer = (await this.getManufacturerCollection().doc(id).get()).data();
 
 		if (!manufacturer) {
 			return null;
 		}
 
-		return Immutable.fromJS(manufacturer)
-			.set('id', id)
-			.set('user', await this.readUser(manufacturer.user));
+		return Immutable.fromJS(manufacturer).set('id', id).remove('user').set('userId', manufacturer.user.id);
 	};
 
 	update = async ({ id, name, userId }) => {
-		await this.getCollection()
+		await this.getManufacturerCollection()
 			.doc(id)
 			.update({
 				name,
 				user: this.getUserCollection().doc(userId),
 			});
 
-		return await this.read(id);
+		return id;
 	};
 
 	delete = async (id) => {
-		await this.getCollection().doc(id).delete();
+		await this.getManufacturerCollection().doc(id).delete();
 
 		return id;
 	};
@@ -47,38 +45,22 @@ export default class ManufacturerRepositoryService {
 		let manufacturers = List();
 
 		if (!manufacturerIds || manufacturerIds.length === 0) {
-			const snapshot = await this.getCollection().get();
+			const snapshot = await this.getManufacturerCollection().get();
 
 			if (!snapshot.empty) {
 				snapshot.forEach((manufacturer) => {
-					manufacturers = manufacturers.push(Immutable.fromJS(manufacturer.data()).set('id', manufacturer.id));
+					const manufacturerData = manufacturer.data();
+					const userId = manufacturerData.user.id;
+
+					manufacturers = manufacturers.push(
+						Immutable.fromJS(manufacturerData).set('id', manufacturer.id).remove('user').set('userId', userId)
+					);
 				});
 			}
 
-			return List(
-				await Promise.all(
-					manufacturers
-						.map(async (manufacturer) => {
-							const user = await this.readUser(manufacturer.get('user'));
-
-							return manufacturer.set('user', user);
-						})
-						.toArray()
-				)
-			);
+			return manufacturers;
 		}
 
 		return Immutable.fromJS(await Promise.all(manufacturerIds.map((id) => this.read(id)))).filter((manufacturer) => manufacturer !== null);
-	};
-
-	readUser = async (userRef) => {
-		const userDocumentRef = await userRef.get();
-		const userData = userDocumentRef.data();
-
-		if (!userData) {
-			return null;
-		}
-
-		return Immutable.fromJS(userData).set('id', userDocumentRef.id);
 	};
 }
