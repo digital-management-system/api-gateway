@@ -7,8 +7,20 @@ import admin from 'firebase-admin';
 import { asValue, asFunction, asClass, createContainer } from 'awilix';
 
 import logger from './Logger';
-import { UserRepositoryService, ManufacturerRepositoryService, DepartmentRepositoryService, EmployeeRepositoryService } from './repository';
-import { UserBusinessService, ManufacturerBusinessService, DepartmentBusinessService, EmployeeBusinessService } from './business';
+import {
+	UserBusinessService,
+	ManufacturerBusinessService,
+	DepartmentBusinessService,
+	EmployeeBusinessService,
+	MSOPBusinessService,
+} from './business';
+import {
+	UserRepositoryService,
+	ManufacturerRepositoryService,
+	DepartmentRepositoryService,
+	EmployeeRepositoryService,
+	MSOPRepositoryService,
+} from './repository';
 import {
 	getRootQuery,
 	getUserType,
@@ -50,9 +62,11 @@ const setupContainer = (decodedSessionToken) => {
 		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
 		userRepositoryService: asClass(UserRepositoryService).scoped(),
 		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
+		msopBusinessService: asClass(MSOPBusinessService).scoped(),
 		manufacturerRepositoryService: asClass(ManufacturerRepositoryService).scoped(),
 		departmentRepositoryService: asClass(DepartmentRepositoryService).scoped(),
 		employeeRepositoryService: asClass(EmployeeRepositoryService).scoped(),
+		msopRepositoryService: asClass(MSOPRepositoryService).scoped(),
 		getRootSchema: asFunction(getRootSchema).scoped(),
 		getRootQuery: asFunction(getRootQuery).scoped(),
 		getRootMutation: asFunction(getRootMutation).scoped(),
