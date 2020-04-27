@@ -33,7 +33,11 @@ export default class EmployeeTypeResolver {
 				},
 				reportingToEmployee: {
 					type: reportingEmployeeTypeResolver.getType(),
-					resolve: async (_) => employeeDataLoader.getEmployeeLoaderById().load(_.get('reportingToEmployeeId')),
+					resolve: async (_) => {
+						const reportingToEmployeeId = _.get('reportingToEmployeeId');
+
+						return reportingToEmployeeId ? employeeDataLoader.getEmployeeLoaderById().load(reportingToEmployeeId) : null;
+					},
 				},
 			},
 			interfaces: [NodeInterface],
