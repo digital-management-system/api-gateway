@@ -10,11 +10,7 @@ const deleteManufacturer = ({ manufacturerBusinessService }) =>
 		outputFields: {
 			deletedManufacturerId: { type: new GraphQLNonNull(GraphQLID), resolve: ({ deletedManufacturerId }) => deletedManufacturerId },
 		},
-		mutateAndGetPayload: async ({ id }) => {
-			const deletedManufacturerId = await manufacturerBusinessService.delete(id);
-
-			return { deletedManufacturerId };
-		},
+		mutateAndGetPayload: async ({ id }) => ({ deletedManufacturerId: await manufacturerBusinessService.delete(id) }),
 	});
 
 export default deleteManufacturer;

@@ -3,10 +3,10 @@ import { GraphQLEnumType, GraphQLInputObjectType, GraphQLString, GraphQLNonNull 
 const sortingDirection = new GraphQLEnumType({
 	name: 'SortingDirection',
 	values: {
-		ASCENDING: {
+		Ascending: {
 			value: 0,
 		},
-		DESCENDING: {
+		Descending: {
 			value: 1,
 		},
 	},

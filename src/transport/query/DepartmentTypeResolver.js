@@ -1,8 +1,9 @@
 import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
+
+import { NodeInterface } from '../interface';
 import RelayHelper from './RelayHelper';
 import Common from './Common';
-import { NodeInterface } from '../interface';
 
 export default class DepartmentTypeResolver {
 	constructor({ departmentBusinessService, manufacturerTypeResolver, manufacturerDataLoader }) {

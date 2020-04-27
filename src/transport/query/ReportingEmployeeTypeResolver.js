@@ -1,4 +1,5 @@
 import { GraphQLID, GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLString } from 'graphql';
+
 import { NodeInterface } from '../interface';
 
 export default class ReportingEmployeeTypeResolver {

@@ -1,7 +1,10 @@
 import { GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLString } from 'graphql';
 import { connectionArgs } from 'graphql-relay';
+
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
+import MSOPMeetingFrequency from './MSOPMeetingFrequency';
+import MSOPMeetingDay from './MSOPMeetingDay';
 
 const getUserType = ({
 	manufacturerTypeResolver,
@@ -12,6 +15,8 @@ const getUserType = ({
 	employeeDataLoader,
 	registeredUserTypeResolver,
 	userDataLoader,
+	msopTypeResolver,
+	msopDataLoader,
 }) =>
 	new GraphQLObjectType({
 		name: 'User',
@@ -82,6 +87,30 @@ const getUserType = ({
 					sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
 				},
 				resolve: async (_, searchArgs) => employeeTypeResolver.getEmployees(searchArgs),
+			},
+			msop: {
+				type: msopTypeResolver.getType(),
+				args: {
+					msopId: { type: new GraphQLNonNull(GraphQLID) },
+				},
+				resolve: async (_, { msopId }) => (msopId ? msopDataLoader.getMSOPLoaderById().load(msopId) : null),
+			},
+			msops: {
+				type: msopTypeResolver.getConnectionDefinitionType().connectionType,
+				args: {
+					...connectionArgs,
+					msopIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+					sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+				},
+				resolve: async (_, searchArgs) => msopTypeResolver.getMSOPs(searchArgs),
+			},
+			msopMeetingFrequencies: {
+				type: new GraphQLList(MSOPMeetingFrequency),
+				resolve: () => [0, 1, 2],
+			},
+			msopMeetingDays: {
+				type: new GraphQLList(MSOPMeetingDay),
+				resolve: () => [0, 1, 2, 3, 4, 5, 6],
 			},
 		},
 		interfaces: [NodeInterface],
