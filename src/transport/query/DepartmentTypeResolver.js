@@ -5,7 +5,7 @@ import Common from './Common';
 import { NodeInterface } from '../interface';
 
 export default class DepartmentTypeResolver {
-	constructor({ departmentBusinessService, manufacturerTypeResolver }) {
+	constructor({ departmentBusinessService, manufacturerTypeResolver, manufacturerDataLoader }) {
 		this.departmentBusinessService = departmentBusinessService;
 
 		this.departmentType = new GraphQLObjectType({
@@ -16,7 +16,7 @@ export default class DepartmentTypeResolver {
 				description: { type: GraphQLString, resolve: (_) => _.get('description') },
 				manufacturer: {
 					type: new GraphQLNonNull(manufacturerTypeResolver.getType()),
-					resolve: async (_) => _.get('manufacturer'),
+					resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
 				},
 			},
 			interfaces: [NodeInterface],
