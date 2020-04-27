@@ -16,6 +16,7 @@ import {
 	DepartmentTypeResolver,
 	RegisteredUserTypeResolver,
 	EmployeeTypeResolver,
+	ReportingEmployeeTypeResolver,
 } from './transport/query';
 import {
 	getRootMutation,
@@ -60,6 +61,7 @@ const setupContainer = (decodedSessionToken) => {
 		departmentTypeResolver: asClass(DepartmentTypeResolver).scoped(),
 		registeredUserTypeResolver: asClass(RegisteredUserTypeResolver).scoped(),
 		employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
+		reportingEmployeeTypeResolver: asClass(ReportingEmployeeTypeResolver).scoped(),
 		createManufacturer: asFunction(createManufacturer).scoped(),
 		updateManufacturer: asFunction(updateManufacturer).scoped(),
 		deleteManufacturer: asFunction(deleteManufacturer).scoped(),

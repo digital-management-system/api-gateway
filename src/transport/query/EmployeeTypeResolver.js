@@ -5,7 +5,15 @@ import Common from './Common';
 import { NodeInterface } from '../interface';
 
 export default class EmployeeTypeResolver {
-	constructor({ registeredUserTypeResolver, departmentTypeResolver, employeeBusinessService, userDataLoader, departmentDataLoader }) {
+	constructor({
+		registeredUserTypeResolver,
+		departmentTypeResolver,
+		employeeBusinessService,
+		userDataLoader,
+		departmentDataLoader,
+		employeeDataLoader,
+		reportingEmployeeTypeResolver,
+	}) {
 		this.employeeBusinessService = employeeBusinessService;
 
 		this.employeeType = new GraphQLObjectType({
@@ -13,6 +21,8 @@ export default class EmployeeTypeResolver {
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
 				employeeReference: { type: GraphQLString, resolve: (_) => _.get('employeeReference') },
+				position: { type: GraphQLString, resolve: (_) => _.get('position') },
+				mobile: { type: GraphQLString, resolve: (_) => _.get('mobile') },
 				user: {
 					type: new GraphQLNonNull(registeredUserTypeResolver.getType()),
 					resolve: async (_) => userDataLoader.getUserLoaderById().load(_.get('userId')),
@@ -20,6 +30,10 @@ export default class EmployeeTypeResolver {
 				departments: {
 					type: new GraphQLNonNull(new GraphQLList(departmentTypeResolver.getType())),
 					resolve: async (_) => departmentDataLoader.getDepartmentLoaderById().loadMany(_.get('departmentIds').toArray()),
+				},
+				reportingToEmployee: {
+					type: reportingEmployeeTypeResolver.getType(),
+					resolve: async (_) => employeeDataLoader.getEmployeeLoaderById().load(_.get('reportingToEmployeeId')),
 				},
 			},
 			interfaces: [NodeInterface],
