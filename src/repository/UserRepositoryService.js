@@ -1,16 +1,15 @@
-import admin from 'firebase-admin';
 import Immutable, { List } from 'immutable';
 
-export default class UserRepositoryService {
-	getCollection = () => admin.firestore().collection('user');
+import BaseRepositoryService from './BaseRepositoryService';
 
+export default class UserRepositoryService extends BaseRepositoryService {
 	readEmployee = async (email) => this.readByEmail(email, 'employee');
 	readManufacturer = async (email) => this.readByEmail(email, 'manufacturer');
 	searchEmployee = async (searchArgs) => this.search(searchArgs, 'employee');
 	searchManufacturer = async (searchArgs) => this.search(searchArgs, 'manufacturer');
 
 	readById = async (id) => {
-		const user = (await this.getCollection().doc(id).get()).data();
+		const user = (await this.getUserCollection().doc(id).get()).data();
 
 		if (!user) {
 			return null;
@@ -20,7 +19,7 @@ export default class UserRepositoryService {
 	};
 
 	readByEmail = async (email, userType) => {
-		let usersReference = this.getCollection().where('email', '==', email);
+		let usersReference = this.getUserCollection().where('email', '==', email);
 
 		if (userType) {
 			usersReference = usersReference.where('userType', '==', userType);
@@ -48,7 +47,7 @@ export default class UserRepositoryService {
 		let users = List();
 
 		if (!emails || emails.length === 0) {
-			let usersReference = this.getCollection();
+			let usersReference = this.getUserCollection();
 
 			if (userType) {
 				usersReference = usersReference.where('userType', '==', userType);

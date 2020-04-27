@@ -1,11 +1,8 @@
-import admin from 'firebase-admin';
 import Immutable, { List, Set } from 'immutable';
 
-export default class EmployeeRepositoryService {
-	getEmployeeCollection = () => admin.firestore().collection('employee');
-	getDepartmentCollection = () => admin.firestore().collection('department');
-	getUserCollection = () => admin.firestore().collection('user');
+import BaseRepositoryService from './BaseRepositoryService';
 
+export default class EmployeeRepositoryService extends BaseRepositoryService {
 	getEmployeeDocument = ({ employeeReference, position, mobile, userId, departmentIds, reportingToEmployeeId }) => {
 		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
 
@@ -15,7 +12,7 @@ export default class EmployeeRepositoryService {
 			mobile: mobile ? mobile : null,
 			user: this.getUserCollection().doc(userId),
 			departments: departments.toJS(),
-			reportingToEmployeeId: reportingToEmployeeId ? this.getEmployeeCollection().doc(reportingToEmployeeId) : null,
+			reportingToEmployee: reportingToEmployeeId ? this.getEmployeeCollection().doc(reportingToEmployeeId) : null,
 		};
 	};
 
@@ -33,7 +30,9 @@ export default class EmployeeRepositoryService {
 			.remove('user')
 			.set('userId', employee.user.id)
 			.remove('departments')
-			.set('departmentIds', List(employee.departments.map((department) => department.id)));
+			.set('departmentIds', List(employee.departments.map((department) => department.id)))
+			.remove('reportingToEmployee')
+			.set('reportingToEmployeeId', employee.reportingToEmployee.id);
 	};
 
 	update = async ({ id, ...info }) => {
@@ -57,16 +56,16 @@ export default class EmployeeRepositoryService {
 			if (!snapshot.empty) {
 				snapshot.forEach((employee) => {
 					const employeeData = employee.data();
-					const userId = employeeData.user.id;
-					const departmentIds = List(employeeData.departments.map((department) => department.id));
 
 					employees = employees.push(
 						Immutable.fromJS(employeeData)
 							.set('id', employee.id)
 							.remove('user')
-							.set('userId', userId)
+							.set('userId', employeeData.user.id)
 							.remove('departments')
-							.set('departmentIds', departmentIds)
+							.set('departmentIds', List(employeeData.departments.map((department) => department.id)))
+							.remove('reportingToEmployee')
+							.set('reportingToEmployeeId', employeeData.reportingToEmployee ? employeeData.reportingToEmployee.id : null)
 					);
 				});
 			}

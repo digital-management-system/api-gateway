@@ -1,10 +1,8 @@
-import admin from 'firebase-admin';
 import Immutable, { List } from 'immutable';
 
-export default class DepartmentRepositoryService {
-	getDepartmentCollection = () => admin.firestore().collection('department');
-	getManufacturerCollection = () => admin.firestore().collection('manufacturer');
+import BaseRepositoryService from './BaseRepositoryService';
 
+export default class DepartmentRepositoryService extends BaseRepositoryService {
 	getDepartmentDocument = ({ name, description, manufacturerId }) => ({
 		name,
 		description: description ? description : null,
@@ -44,10 +42,12 @@ export default class DepartmentRepositoryService {
 			if (!snapshot.empty) {
 				snapshot.forEach((department) => {
 					const departmentData = department.data();
-					const manufacturerId = departmentData.manufacturer.id;
 
 					departments = departments.push(
-						Immutable.fromJS(departmentData).set('id', department.id).remove('manufacturer').set('manufacturerId', manufacturerId)
+						Immutable.fromJS(departmentData)
+							.set('id', department.id)
+							.remove('manufacturer')
+							.set('manufacturerId', departmentData.manufacturer.id)
 					);
 				});
 			}

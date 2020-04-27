@@ -1,10 +1,8 @@
-import admin from 'firebase-admin';
 import Immutable, { List } from 'immutable';
 
-export default class ManufacturerRepositoryService {
-	getManufacturerCollection = () => admin.firestore().collection('manufacturer');
-	getUserCollection = () => admin.firestore().collection('user');
+import BaseRepositoryService from './BaseRepositoryService';
 
+export default class ManufacturerRepositoryService extends BaseRepositoryService {
 	getManufacturerDocument = ({ name, userId }) => ({
 		name,
 		user: this.getUserCollection().doc(userId),
@@ -43,10 +41,9 @@ export default class ManufacturerRepositoryService {
 			if (!snapshot.empty) {
 				snapshot.forEach((manufacturer) => {
 					const manufacturerData = manufacturer.data();
-					const userId = manufacturerData.user.id;
 
 					manufacturers = manufacturers.push(
-						Immutable.fromJS(manufacturerData).set('id', manufacturer.id).remove('user').set('userId', userId)
+						Immutable.fromJS(manufacturerData).set('id', manufacturer.id).remove('user').set('userId', manufacturerData.user.id)
 					);
 				});
 			}
