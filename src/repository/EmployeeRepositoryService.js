@@ -3,36 +3,12 @@ import Immutable, { List, Set } from 'immutable';
 import BaseRepositoryService from './BaseRepositoryService';
 
 export default class EmployeeRepositoryService extends BaseRepositoryService {
-	getEmployeeDocument = ({ employeeReference, position, mobile, userId, departmentIds, reportingToEmployeeId }) => {
-		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
-
-		return {
-			employeeReference: employeeReference ? employeeReference : null,
-			position: position ? position : null,
-			mobile: mobile ? mobile : null,
-			user: this.getUserCollection().doc(userId),
-			departments: departments.toJS(),
-			reportingToEmployee: reportingToEmployeeId ? this.getEmployeeCollection().doc(reportingToEmployeeId) : null,
-		};
-	};
-
 	create = async (info) => (await this.getEmployeeCollection().add(this.getEmployeeDocument(info))).id;
 
 	read = async (id) => {
 		const employee = (await this.getEmployeeCollection().doc(id).get()).data();
 
-		if (!employee) {
-			return null;
-		}
-
-		return Immutable.fromJS(employee)
-			.set('id', id)
-			.remove('user')
-			.set('userId', employee.user.id)
-			.remove('departments')
-			.set('departmentIds', List(employee.departments.map((department) => department.id)))
-			.remove('reportingToEmployee')
-			.set('reportingToEmployeeId', employee.reportingToEmployee ? employee.reportingToEmployee.id : null);
+		return employee ? this.createReturnObject(employee, id) : null;
 	};
 
 	update = async ({ id, ...info }) => {
@@ -55,18 +31,7 @@ export default class EmployeeRepositoryService extends BaseRepositoryService {
 
 			if (!snapshot.empty) {
 				snapshot.forEach((employee) => {
-					const employeeData = employee.data();
-
-					employees = employees.push(
-						Immutable.fromJS(employeeData)
-							.set('id', employee.id)
-							.remove('user')
-							.set('userId', employeeData.user.id)
-							.remove('departments')
-							.set('departmentIds', List(employeeData.departments.map((department) => department.id)))
-							.remove('reportingToEmployee')
-							.set('reportingToEmployeeId', employeeData.reportingToEmployee ? employeeData.reportingToEmployee.id : null)
-					);
+					employees = employees.push(this.createReturnObject(employee.data(), employee.id));
 				});
 			}
 
@@ -75,4 +40,30 @@ export default class EmployeeRepositoryService extends BaseRepositoryService {
 
 		return Immutable.fromJS(await Promise.all(employeeIds.map((id) => this.read(id)))).filter((employee) => employee !== null);
 	};
+
+	getEmployeeDocument = ({ employeeReference, position, mobile, userId, departmentIds, reportingToEmployeeId, manufacturerId }) => {
+		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
+
+		return {
+			manufacturer: this.getManufacturerCollection().doc(manufacturerId),
+			employeeReference: employeeReference ? employeeReference : null,
+			position: position ? position : null,
+			mobile: mobile ? mobile : null,
+			user: this.getUserCollection().doc(userId),
+			departments: departments.toJS(),
+			reportingToEmployee: reportingToEmployeeId ? this.getEmployeeCollection().doc(reportingToEmployeeId) : null,
+		};
+	};
+
+	createReturnObject = (employee, id) =>
+		Immutable.fromJS(employee)
+			.set('id', id)
+			.remove('manufacturer')
+			.set('manufacturerId', employee.manufacturer.id)
+			.remove('user')
+			.set('userId', employee.user.id)
+			.remove('departments')
+			.set('departmentIds', List(employee.departments.map((department) => department.id)))
+			.remove('reportingToEmployee')
+			.set('reportingToEmployeeId', employee.reportingToEmployee ? employee.reportingToEmployee.id : null);
 }

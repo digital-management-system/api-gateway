@@ -6,7 +6,7 @@ import RelayHelper from './RelayHelper';
 import Common from './Common';
 
 export default class DepartmentTypeResolver {
-	constructor({ departmentBusinessService, manufacturerTypeResolver, manufacturerDataLoader }) {
+	constructor({ departmentBusinessService }) {
 		this.departmentBusinessService = departmentBusinessService;
 
 		this.departmentType = new GraphQLObjectType({
@@ -15,10 +15,6 @@ export default class DepartmentTypeResolver {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
 				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
 				description: { type: GraphQLString, resolve: (_) => _.get('description') },
-				manufacturer: {
-					type: new GraphQLNonNull(manufacturerTypeResolver.getType()),
-					resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
-				},
 			},
 			interfaces: [NodeInterface],
 		});

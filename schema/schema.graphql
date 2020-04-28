@@ -7,16 +7,8 @@ type User implements Node {
   email: ID!
   manufacturer(manufacturerId: ID!): Manufacturer
   manufacturers(after: String, first: Int, before: String, last: Int, manufacturerIds: [ID!], sortingOptions: [SortingOptionPair!]): ManufacturerTypeConnection
-  department(departmentId: ID!): Department
-  departments(after: String, first: Int, before: String, last: Int, departmentIds: [ID!], sortingOptions: [SortingOptionPair!]): DepartmentTypeConnection
   registeredUser(email: String!): RegisteredUser
   registeredUsers(after: String, first: Int, before: String, last: Int, emails: [String!], sortingOptions: [SortingOptionPair!]): RegisteredUserTypeConnection
-  employee(employeeId: ID!): Employee
-  employees(after: String, first: Int, before: String, last: Int, employeeIds: [ID!], sortingOptions: [SortingOptionPair!]): EmployeeTypeConnection
-  msop(msopId: ID!): MSOP
-  msops(after: String, first: Int, before: String, last: Int, msopIds: [ID!], sortingOptions: [SortingOptionPair!]): MSOPTypeConnection
-  msopMeetingFrequencies: [MSOPMeetingFrequency]
-  msopMeetingDays: [MSOPMeetingDay]
 }
 
 """An object with an ID"""
@@ -29,6 +21,14 @@ type Manufacturer implements Node {
   id: ID!
   name: String!
   user: RegisteredUser!
+  department(departmentId: ID!): Department
+  departments(after: String, first: Int, before: String, last: Int, departmentIds: [ID!], sortingOptions: [SortingOptionPair!]): DepartmentTypeConnection
+  employee(employeeId: ID!): Employee
+  employees(after: String, first: Int, before: String, last: Int, employeeIds: [ID!], sortingOptions: [SortingOptionPair!]): EmployeeTypeConnection
+  msop(msopId: ID!): MSOP
+  msops(after: String, first: Int, before: String, last: Int, msopIds: [ID!], sortingOptions: [SortingOptionPair!]): MSOPTypeConnection
+  msopMeetingFrequencies: [MSOPMeetingFrequency]
+  msopMeetingDays: [MSOPMeetingDay]
 }
 
 type RegisteredUser implements Node {
@@ -36,15 +36,21 @@ type RegisteredUser implements Node {
   email: String!
 }
 
+type Department implements Node {
+  id: ID!
+  name: String!
+  description: String
+}
+
 """A connection to a list of items."""
-type ManufacturerTypeConnection {
+type DepartmentTypeConnection {
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """A list of edges."""
-  edges: [ManufacturerTypeEdge]
+  edges: [DepartmentTypeEdge]
 
-  """Total number of manufacturers"""
+  """Total number of departments"""
   totalCount: Int
 }
 
@@ -64,9 +70,9 @@ type PageInfo {
 }
 
 """An edge in a connection."""
-type ManufacturerTypeEdge {
+type DepartmentTypeEdge {
   """The item at the end of the edge"""
-  node: Manufacturer
+  node: Department
 
   """A cursor for use in pagination"""
   cursor: String!
@@ -80,55 +86,6 @@ input SortingOptionPair {
 enum SortingDirection {
   Ascending
   Descending
-}
-
-type Department implements Node {
-  id: ID!
-  name: String!
-  description: String
-  manufacturer: Manufacturer!
-}
-
-"""A connection to a list of items."""
-type DepartmentTypeConnection {
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """A list of edges."""
-  edges: [DepartmentTypeEdge]
-
-  """Total number of departments"""
-  totalCount: Int
-}
-
-"""An edge in a connection."""
-type DepartmentTypeEdge {
-  """The item at the end of the edge"""
-  node: Department
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-"""A connection to a list of items."""
-type RegisteredUserTypeConnection {
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """A list of edges."""
-  edges: [RegisteredUserTypeEdge]
-
-  """Total number of registeredUsers"""
-  totalCount: Int
-}
-
-"""An edge in a connection."""
-type RegisteredUserTypeEdge {
-  """The item at the end of the edge"""
-  node: RegisteredUser
-
-  """A cursor for use in pagination"""
-  cursor: String!
 }
 
 type Employee implements Node {
@@ -221,6 +178,48 @@ type MSOPTypeEdge {
   cursor: String!
 }
 
+"""A connection to a list of items."""
+type ManufacturerTypeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [ManufacturerTypeEdge]
+
+  """Total number of manufacturers"""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type ManufacturerTypeEdge {
+  """The item at the end of the edge"""
+  node: Manufacturer
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""A connection to a list of items."""
+type RegisteredUserTypeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [RegisteredUserTypeEdge]
+
+  """Total number of registeredUsers"""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type RegisteredUserTypeEdge {
+  """The item at the end of the edge"""
+  node: RegisteredUser
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
 type Mutation {
   createManufacturer(input: CreateManufacturerInput!): CreateManufacturerPayload
   updateManufacturer(input: UpdateManufacturerInput!): UpdateManufacturerPayload
@@ -308,6 +307,7 @@ type CreateEmployeePayload {
 }
 
 input CreateEmployeeInput {
+  manufacturerId: ID!
   employeeReference: String
   position: String
   mobile: String
@@ -324,6 +324,7 @@ type UpdateEmployeePayload {
 
 input UpdateEmployeeInput {
   id: ID!
+  manufacturerId: ID!
   employeeReference: String
   position: String
   mobile: String
