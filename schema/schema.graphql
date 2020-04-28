@@ -350,6 +350,7 @@ type CreateMSOPPayload {
 }
 
 input CreateMSOPInput {
+  manufacturerId: ID!
   meetingName: String!
   meetingDuration: String!
   frequency: MSOPMeetingFrequency!
@@ -369,6 +370,7 @@ type UpdateMSOPPayload {
 
 input UpdateMSOPInput {
   id: ID!
+  manufacturerId: ID!
   meetingName: String!
   meetingDuration: String!
   frequency: MSOPMeetingFrequency!

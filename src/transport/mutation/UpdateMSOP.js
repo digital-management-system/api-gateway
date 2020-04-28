@@ -8,6 +8,7 @@ const updateMSOP = ({ msopTypeResolver, msopBusinessService, msopDataLoader }) =
 		name: 'UpdateMSOP',
 		inputFields: {
 			id: { type: new GraphQLNonNull(GraphQLID) },
+			manufacturerId: { type: new GraphQLNonNull(GraphQLID) },
 			meetingName: { type: new GraphQLNonNull(GraphQLString) },
 			meetingDuration: { type: new GraphQLNonNull(GraphQLString) },
 			frequency: { type: new GraphQLNonNull(MSOPMeetingFrequency) },
