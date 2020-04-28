@@ -1,12 +1,25 @@
-import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLString } from 'graphql';
-import { connectionDefinitions } from 'graphql-relay';
+import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList } from 'graphql';
+import { connectionArgs, connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
 import RelayHelper from './RelayHelper';
 import Common from './Common';
+import SortingOptionPair from './SortingOptionPair';
+import MSOPMeetingFrequency from './MSOPMeetingFrequency';
+import MSOPMeetingDay from './MSOPMeetingDay';
 
 export default class ManufacturerTypeResolver {
-	constructor({ registeredUserTypeResolver, manufacturerBusinessService, userDataLoader }) {
+	constructor({
+		registeredUserTypeResolver,
+		manufacturerBusinessService,
+		userDataLoader,
+		departmentDataLoader,
+		departmentTypeResolver,
+		employeeTypeResolver,
+		employeeDataLoader,
+		msopTypeResolver,
+		msopDataLoader,
+	}) {
 		this.manufacturerBusinessService = manufacturerBusinessService;
 
 		this.manufacturerType = new GraphQLObjectType({
@@ -17,6 +30,62 @@ export default class ManufacturerTypeResolver {
 				user: {
 					type: new GraphQLNonNull(registeredUserTypeResolver.getType()),
 					resolve: async (_) => userDataLoader.getUserLoaderById().load(_.get('userId')),
+				},
+				department: {
+					type: departmentTypeResolver.getType(),
+					args: {
+						departmentId: { type: new GraphQLNonNull(GraphQLID) },
+					},
+					resolve: async (_, { departmentId }) => (departmentId ? departmentDataLoader.getDepartmentLoaderById().load(departmentId) : null),
+				},
+				departments: {
+					type: departmentTypeResolver.getConnectionDefinitionType().connectionType,
+					args: {
+						...connectionArgs,
+						departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+					},
+					resolve: async (_, searchArgs) => departmentTypeResolver.getDepartments(searchArgs),
+				},
+				employee: {
+					type: employeeTypeResolver.getType(),
+					args: {
+						employeeId: { type: new GraphQLNonNull(GraphQLID) },
+					},
+					resolve: async (_, { employeeId }) => (employeeId ? employeeDataLoader.getEmployeeLoaderById().load(employeeId) : null),
+				},
+				employees: {
+					type: employeeTypeResolver.getConnectionDefinitionType().connectionType,
+					args: {
+						...connectionArgs,
+						employeeIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+					},
+					resolve: async (_, searchArgs) => employeeTypeResolver.getEmployees(searchArgs),
+				},
+				msop: {
+					type: msopTypeResolver.getType(),
+					args: {
+						msopId: { type: new GraphQLNonNull(GraphQLID) },
+					},
+					resolve: async (_, { msopId }) => (msopId ? msopDataLoader.getMSOPLoaderById().load(msopId) : null),
+				},
+				msops: {
+					type: msopTypeResolver.getConnectionDefinitionType().connectionType,
+					args: {
+						...connectionArgs,
+						msopIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+					},
+					resolve: async (_, searchArgs) => msopTypeResolver.getMSOPs(searchArgs),
+				},
+				msopMeetingFrequencies: {
+					type: new GraphQLList(MSOPMeetingFrequency),
+					resolve: () => [0, 1, 2],
+				},
+				msopMeetingDays: {
+					type: new GraphQLList(MSOPMeetingDay),
+					resolve: () => [0, 1, 2, 3, 4, 5, 6],
 				},
 			},
 			interfaces: [NodeInterface],

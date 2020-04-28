@@ -11,11 +11,7 @@ export default class UserRepositoryService extends BaseRepositoryService {
 	readById = async (id) => {
 		const user = (await this.getUserCollection().doc(id).get()).data();
 
-		if (!user) {
-			return null;
-		}
-
-		return Immutable.fromJS(user).set('id', id);
+		return user ? this.createReturnObject(user, id) : null;
 	};
 
 	readByEmail = async (email, userType) => {
@@ -57,7 +53,7 @@ export default class UserRepositoryService extends BaseRepositoryService {
 
 			if (!snapshot.empty) {
 				snapshot.forEach((user) => {
-					users = users.push(Immutable.fromJS(user.data()).set('id', user.id));
+					users = users.push(this.createReturnObject(user.data(), user.id));
 				});
 			}
 
@@ -66,4 +62,6 @@ export default class UserRepositoryService extends BaseRepositoryService {
 
 		return Immutable.fromJS(await Promise.all(emails.map((email) => this.readByEmail(email, userType)))).filter((user) => user !== null);
 	};
+
+	createReturnObject = (user, id) => Immutable.fromJS(user).set('id', id);
 }

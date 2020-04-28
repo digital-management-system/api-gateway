@@ -6,6 +6,7 @@ const updateEmployee = ({ employeeTypeResolver, employeeBusinessService, employe
 		name: 'UpdateEmployee',
 		inputFields: {
 			id: { type: new GraphQLNonNull(GraphQLID) },
+			manufacturerId: { type: new GraphQLNonNull(GraphQLID) },
 			employeeReference: { type: GraphQLString },
 			position: { type: GraphQLString },
 			mobile: { type: GraphQLString },
