@@ -7,6 +7,7 @@ const createMSOP = ({ msopTypeResolver, msopBusinessService, msopDataLoader }) =
 	mutationWithClientMutationId({
 		name: 'CreateMSOP',
 		inputFields: {
+			manufacturerId: { type: new GraphQLNonNull(GraphQLID) },
 			meetingName: { type: new GraphQLNonNull(GraphQLString) },
 			meetingDuration: { type: new GraphQLNonNull(GraphQLString) },
 			frequency: { type: new GraphQLNonNull(MSOPMeetingFrequency) },
