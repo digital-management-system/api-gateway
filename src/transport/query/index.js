@@ -8,3 +8,4 @@ export { default as ReportingEmployeeTypeResolver } from './ReportingEmployeeTyp
 export { default as MSOPTypeResolver } from './MSOPTypeResolver';
 export { default as MSOPMeetingFrequency } from '../query/MSOPMeetingFrequency';
 export { default as MSOPMeetingDay } from '../query/MSOPMeetingDay';
+export { default as ActionReferenceTypeResolver } from './ActionReferenceTypeResolver';
