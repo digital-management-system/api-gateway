@@ -19,6 +19,8 @@ export default class ManufacturerTypeResolver {
 		employeeDataLoader,
 		msopTypeResolver,
 		msopDataLoader,
+		actionReferenceTypeResolver,
+		actionReferenceDataLoader,
 	}) {
 		this.manufacturerBusinessService = manufacturerBusinessService;
 
@@ -86,6 +88,23 @@ export default class ManufacturerTypeResolver {
 				msopMeetingDays: {
 					type: new GraphQLList(MSOPMeetingDay),
 					resolve: () => [0, 1, 2, 3, 4, 5, 6],
+				},
+				actionReference: {
+					type: actionReferenceTypeResolver.getType(),
+					args: {
+						actionReferenceId: { type: new GraphQLNonNull(GraphQLID) },
+					},
+					resolve: async (_, { actionReferenceId }) =>
+						actionReferenceId ? actionReferenceDataLoader.getDepartmentLoaderById().load(actionReferenceId) : null,
+				},
+				actionReferences: {
+					type: actionReferenceTypeResolver.getConnectionDefinitionType().connectionType,
+					args: {
+						...connectionArgs,
+						actionReferenceIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+					},
+					resolve: async (_, searchArgs) => actionReferenceTypeResolver.getDepartments(searchArgs),
 				},
 			},
 			interfaces: [NodeInterface],

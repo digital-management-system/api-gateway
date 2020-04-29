@@ -13,6 +13,7 @@ import {
 	DepartmentBusinessService,
 	EmployeeBusinessService,
 	MSOPBusinessService,
+	ActionReferenceBusinessService,
 } from './business';
 import {
 	UserRepositoryService,
@@ -20,6 +21,7 @@ import {
 	DepartmentRepositoryService,
 	EmployeeRepositoryService,
 	MSOPRepositoryService,
+	ActionReferenceRepositoryService,
 } from './repository';
 import {
 	getRootQuery,
@@ -30,6 +32,7 @@ import {
 	EmployeeTypeResolver,
 	ReportingEmployeeTypeResolver,
 	MSOPTypeResolver,
+	ActionReferenceTypeResolver,
 } from './transport/query';
 import {
 	getRootMutation,
@@ -45,9 +48,19 @@ import {
 	createMSOP,
 	updateMSOP,
 	deleteMSOP,
+	createActionReference,
+	updateActionReference,
+	deleteActionReference,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
-import { UserDataLoader, ManufacturerDataLoader, DepartmentDataLoader, EmployeeDataLoader, MSOPDataLoader } from './transport/loaders';
+import {
+	UserDataLoader,
+	ManufacturerDataLoader,
+	DepartmentDataLoader,
+	EmployeeDataLoader,
+	MSOPDataLoader,
+	ActionReferenceDataLoader,
+} from './transport/loaders';
 
 const loggingWinston = require('@google-cloud/logging-winston'); // eslint-disable-line no-undef
 
@@ -57,43 +70,63 @@ const setupContainer = (decodedSessionToken) => {
 	container.register({
 		logger: asValue(logger),
 		decodedSessionToken: asValue(decodedSessionToken),
+
 		userDataLoader: asClass(UserDataLoader).scoped(),
-		manufacturerDataLoader: asClass(ManufacturerDataLoader).scoped(),
-		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
-		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
-		msopDataLoader: asClass(MSOPDataLoader).scoped(),
 		userBusinessService: asClass(UserBusinessService).scoped(),
-		manufacturerBusinessService: asClass(ManufacturerBusinessService).scoped(),
-		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
 		userRepositoryService: asClass(UserRepositoryService).scoped(),
-		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
-		msopBusinessService: asClass(MSOPBusinessService).scoped(),
+
+		manufacturerDataLoader: asClass(ManufacturerDataLoader).scoped(),
+		manufacturerBusinessService: asClass(ManufacturerBusinessService).scoped(),
 		manufacturerRepositoryService: asClass(ManufacturerRepositoryService).scoped(),
+
+		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
+		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
 		departmentRepositoryService: asClass(DepartmentRepositoryService).scoped(),
+
+		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
+		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
 		employeeRepositoryService: asClass(EmployeeRepositoryService).scoped(),
+
+		msopDataLoader: asClass(MSOPDataLoader).scoped(),
+		msopBusinessService: asClass(MSOPBusinessService).scoped(),
 		msopRepositoryService: asClass(MSOPRepositoryService).scoped(),
+
+		actionReferenceDataLoader: asClass(ActionReferenceDataLoader).scoped(),
+		actionReferenceBusinessService: asClass(ActionReferenceBusinessService).scoped(),
+		actionReferenceRepositoryService: asClass(ActionReferenceRepositoryService).scoped(),
+
 		getRootSchema: asFunction(getRootSchema).scoped(),
 		getRootQuery: asFunction(getRootQuery).scoped(),
 		getRootMutation: asFunction(getRootMutation).scoped(),
 		getUserType: asFunction(getUserType).scoped(),
+
 		manufacturerTypeResolver: asClass(ManufacturerTypeResolver).scoped(),
 		departmentTypeResolver: asClass(DepartmentTypeResolver).scoped(),
 		registeredUserTypeResolver: asClass(RegisteredUserTypeResolver).scoped(),
 		employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
 		reportingEmployeeTypeResolver: asClass(ReportingEmployeeTypeResolver).scoped(),
 		msopTypeResolver: asClass(MSOPTypeResolver).scoped(),
+		actionReferenceTypeResolver: asClass(ActionReferenceTypeResolver).scoped(),
+
 		createManufacturer: asFunction(createManufacturer).scoped(),
 		updateManufacturer: asFunction(updateManufacturer).scoped(),
 		deleteManufacturer: asFunction(deleteManufacturer).scoped(),
+
 		createDepartment: asFunction(createDepartment).scoped(),
 		updateDepartment: asFunction(updateDepartment).scoped(),
 		deleteDepartment: asFunction(deleteDepartment).scoped(),
+
 		createEmployee: asFunction(createEmployee).scoped(),
 		updateEmployee: asFunction(updateEmployee).scoped(),
 		deleteEmployee: asFunction(deleteEmployee).scoped(),
+
 		createMSOP: asFunction(createMSOP).scoped(),
 		updateMSOP: asFunction(updateMSOP).scoped(),
 		deleteMSOP: asFunction(deleteMSOP).scoped(),
+
+		createActionReference: asFunction(createActionReference).scoped(),
+		updateActionReference: asFunction(updateActionReference).scoped(),
+		deleteActionReference: asFunction(deleteActionReference).scoped(),
 	});
 
 	return container;
