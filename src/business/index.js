@@ -4,3 +4,4 @@ export { default as DepartmentBusinessService } from './DepartmentBusinessServic
 export { default as EmployeeBusinessService } from './EmployeeBusinessService';
 export { default as MSOPBusinessService } from './MSOPBusinessService';
 export { default as ActionReferenceBusinessService } from './ActionReferenceBusinessService';
+export { default as ActionPointBusinessService } from './ActionPointBusinessService';

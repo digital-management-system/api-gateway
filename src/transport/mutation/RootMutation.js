@@ -16,6 +16,9 @@ const getRootMutation = ({
 	createActionReference,
 	updateActionReference,
 	deleteActionReference,
+	createActionPoint,
+	updateActionPoint,
+	deleteActionPoint,
 }) =>
 	new GraphQLObjectType({
 		name: 'Mutation',
@@ -35,6 +38,9 @@ const getRootMutation = ({
 			createActionReference,
 			updateActionReference,
 			deleteActionReference,
+			createActionPoint,
+			updateActionPoint,
+			deleteActionPoint,
 		},
 	});
 

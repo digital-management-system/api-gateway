@@ -31,6 +31,8 @@ type Manufacturer implements Node {
   msopMeetingDays: [MSOPMeetingDay]
   actionReference(actionReferenceId: ID!): ActionReference
   actionReferences(after: String, first: Int, before: String, last: Int, actionReferenceIds: [ID!], sortingOptions: [SortingOptionPair!]): ActionReferenceTypeConnection
+  actionPoint(actionPointId: ID!): ActionPoint
+  actionPoints(after: String, first: Int, before: String, last: Int, actionPointIds: [ID!], sortingOptions: [SortingOptionPair!]): ActionPointTypeConnection
 }
 
 type RegisteredUser implements Node {
@@ -206,6 +208,40 @@ type ActionReferenceTypeEdge {
   cursor: String!
 }
 
+type ActionPoint implements Node {
+  id: ID!
+  msop: MSOP
+  assignee: Employee
+  department: Department!
+  assignedDate: String!
+  dueDate: String
+  priority: String
+  status: String
+  actionReferences: [ActionReference]!
+  comments: String
+}
+
+"""A connection to a list of items."""
+type ActionPointTypeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [ActionPointTypeEdge]
+
+  """Total number of action points"""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type ActionPointTypeEdge {
+  """The item at the end of the edge"""
+  node: ActionPoint
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
 """A connection to a list of items."""
 type ManufacturerTypeConnection {
   """Information to aid in pagination."""
@@ -264,6 +300,9 @@ type Mutation {
   createActionReference(input: CreateActionReferenceInput!): CreateActionReferencePayload
   updateActionReference(input: UpdateActionReferenceInput!): UpdateActionReferencePayload
   deleteActionReference(input: DeleteActionReferenceInput!): DeleteActionReferencePayload
+  createActionPoint(input: CreateActionPointInput!): CreateActionPointPayload
+  updateActionPoint(input: UpdateActionPointInput!): UpdateActionPointPayload
+  deleteActionPoint(input: DeleteActionPointInput!): DeleteActionPointPayload
 }
 
 type CreateManufacturerPayload {
@@ -343,7 +382,7 @@ input CreateEmployeeInput {
   position: String
   mobile: String
   userId: ID!
-  departmentIds: [ID!]
+  departmentIds: [ID!]!
   reportingToEmployeeId: ID
   clientMutationId: String
 }
@@ -360,7 +399,7 @@ input UpdateEmployeeInput {
   position: String
   mobile: String
   userId: ID!
-  departmentIds: [ID!]
+  departmentIds: [ID!]!
   reportingToEmployeeId: ID
   clientMutationId: String
 }
@@ -390,7 +429,7 @@ input CreateMSOPInput {
   departmentId: ID!
   chairPersonEmployeeId: ID!
   actionLogSecretaryEmployeeId: ID!
-  attendeeIds: [ID!]
+  attendeeIds: [ID!]!
   clientMutationId: String
 }
 
@@ -410,7 +449,7 @@ input UpdateMSOPInput {
   departmentId: ID!
   chairPersonEmployeeId: ID!
   actionLogSecretaryEmployeeId: ID!
-  attendeeIds: [ID!]
+  attendeeIds: [ID!]!
   clientMutationId: String
 }
 
@@ -453,6 +492,55 @@ type DeleteActionReferencePayload {
 }
 
 input DeleteActionReferenceInput {
+  id: ID!
+  clientMutationId: String
+}
+
+type CreateActionPointPayload {
+  actionPoint: ActionPointTypeEdge
+  clientMutationId: String
+}
+
+input CreateActionPointInput {
+  manufacturerId: ID!
+  msopId: ID!
+  assigneeId: ID!
+  departmentId: ID!
+  assignedDate: String!
+  dueDate: String
+  priority: String
+  status: String
+  actionReferenceIds: [ID!]!
+  comments: String
+  clientMutationId: String
+}
+
+type UpdateActionPointPayload {
+  actionPoint: ActionPointTypeEdge
+  clientMutationId: String
+}
+
+input UpdateActionPointInput {
+  id: ID!
+  manufacturerId: ID!
+  msopId: ID!
+  assigneeId: ID!
+  departmentId: ID!
+  assignedDate: String!
+  dueDate: String
+  priority: String
+  status: String
+  actionReferenceIds: [ID!]!
+  comments: String
+  clientMutationId: String
+}
+
+type DeleteActionPointPayload {
+  deletedActionPointId: ID!
+  clientMutationId: String
+}
+
+input DeleteActionPointInput {
   id: ID!
   clientMutationId: String
 }

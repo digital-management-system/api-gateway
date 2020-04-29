@@ -10,7 +10,7 @@ const createEmployee = ({ employeeTypeResolver, employeeBusinessService, employe
 			position: { type: GraphQLString },
 			mobile: { type: GraphQLString },
 			userId: { type: new GraphQLNonNull(GraphQLID) },
-			departmentIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+			departmentIds: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))) },
 			reportingToEmployeeId: { type: GraphQLID },
 		},
 		outputFields: {
