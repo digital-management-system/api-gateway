@@ -4,3 +4,4 @@ export { default as DepartmentDataLoader } from './DepartmentDataLoader';
 export { default as EmployeeDataLoader } from './EmployeeDataLoader';
 export { default as MSOPDataLoader } from './MSOPDataLoader';
 export { default as ActionReferenceDataLoader } from './ActionReferenceDataLoader';
+export { default as ActionPointDataLoader } from './ActionPointDataLoader';

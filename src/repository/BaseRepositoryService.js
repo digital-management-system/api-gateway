@@ -7,4 +7,5 @@ export default class BaseRepositoryService {
 	getEmployeeCollection = () => admin.firestore().collection('employee');
 	getMSOPCollection = () => admin.firestore().collection('msop');
 	getActionReferenceCollection = () => admin.firestore().collection('actionReference');
+	getActionPointCollection = () => admin.firestore().collection('actionPoint');
 }

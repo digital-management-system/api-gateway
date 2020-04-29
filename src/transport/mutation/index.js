@@ -19,3 +19,7 @@ export { default as deleteMSOP } from './DeleteMSOP';
 export { default as createActionReference } from './CreateActionReference';
 export { default as updateActionReference } from './UpdateActionReference';
 export { default as deleteActionReference } from './DeleteActionReference';
+
+export { default as createActionPoint } from './CreateActionPoint';
+export { default as updateActionPoint } from './UpdateActionPoint';
+export { default as deleteActionPoint } from './DeleteActionPoint';

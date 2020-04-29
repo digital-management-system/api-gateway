@@ -4,3 +4,4 @@ export { default as DepartmentRepositoryService } from './DepartmentRepositorySe
 export { default as EmployeeRepositoryService } from './EmployeeRepositoryService';
 export { default as MSOPRepositoryService } from './MSOPRepositoryService';
 export { default as ActionReferenceRepositoryService } from './ActionReferenceRepositoryService';
+export { default as ActionPointRepositoryService } from './ActionPointRepositoryService';

@@ -21,6 +21,8 @@ export default class ManufacturerTypeResolver {
 		msopDataLoader,
 		actionReferenceTypeResolver,
 		actionReferenceDataLoader,
+		actionPointTypeResolver,
+		actionPointDataLoader,
 	}) {
 		this.manufacturerBusinessService = manufacturerBusinessService;
 
@@ -105,6 +107,23 @@ export default class ManufacturerTypeResolver {
 						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
 					},
 					resolve: async (_, searchArgs) => actionReferenceTypeResolver.getDepartments(searchArgs),
+				},
+				actionPoint: {
+					type: actionPointTypeResolver.getType(),
+					args: {
+						actionPointId: { type: new GraphQLNonNull(GraphQLID) },
+					},
+					resolve: async (_, { actionPointId }) =>
+						actionPointId ? actionPointDataLoader.getDepartmentLoaderById().load(actionPointId) : null,
+				},
+				actionPoints: {
+					type: actionPointTypeResolver.getConnectionDefinitionType().connectionType,
+					args: {
+						...connectionArgs,
+						actionPointIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+					},
+					resolve: async (_, searchArgs) => actionPointTypeResolver.getDepartments(searchArgs),
 				},
 			},
 			interfaces: [NodeInterface],

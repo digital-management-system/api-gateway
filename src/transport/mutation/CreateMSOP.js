@@ -16,7 +16,7 @@ const createMSOP = ({ msopTypeResolver, msopBusinessService, msopDataLoader }) =
 			departmentId: { type: new GraphQLNonNull(GraphQLID) },
 			chairPersonEmployeeId: { type: new GraphQLNonNull(GraphQLID) },
 			actionLogSecretaryEmployeeId: { type: new GraphQLNonNull(GraphQLID) },
-			attendeeIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+			attendeeIds: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))) },
 		},
 		outputFields: {
 			msop: {

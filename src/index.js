@@ -14,6 +14,7 @@ import {
 	EmployeeBusinessService,
 	MSOPBusinessService,
 	ActionReferenceBusinessService,
+	ActionPointBusinessService,
 } from './business';
 import {
 	UserRepositoryService,
@@ -22,6 +23,7 @@ import {
 	EmployeeRepositoryService,
 	MSOPRepositoryService,
 	ActionReferenceRepositoryService,
+	ActionPointRepositoryService,
 } from './repository';
 import {
 	getRootQuery,
@@ -33,6 +35,7 @@ import {
 	ReportingEmployeeTypeResolver,
 	MSOPTypeResolver,
 	ActionReferenceTypeResolver,
+	ActionPointTypeResolver,
 } from './transport/query';
 import {
 	getRootMutation,
@@ -51,6 +54,9 @@ import {
 	createActionReference,
 	updateActionReference,
 	deleteActionReference,
+	createActionPoint,
+	updateActionPoint,
+	deleteActionPoint,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
 import {
@@ -60,6 +66,7 @@ import {
 	EmployeeDataLoader,
 	MSOPDataLoader,
 	ActionReferenceDataLoader,
+	ActionPointDataLoader,
 } from './transport/loaders';
 
 const loggingWinston = require('@google-cloud/logging-winston'); // eslint-disable-line no-undef
@@ -95,6 +102,10 @@ const setupContainer = (decodedSessionToken) => {
 		actionReferenceBusinessService: asClass(ActionReferenceBusinessService).scoped(),
 		actionReferenceRepositoryService: asClass(ActionReferenceRepositoryService).scoped(),
 
+		actionPointDataLoader: asClass(ActionPointDataLoader).scoped(),
+		actionPointBusinessService: asClass(ActionPointBusinessService).scoped(),
+		actionPointRepositoryService: asClass(ActionPointRepositoryService).scoped(),
+
 		getRootSchema: asFunction(getRootSchema).scoped(),
 		getRootQuery: asFunction(getRootQuery).scoped(),
 		getRootMutation: asFunction(getRootMutation).scoped(),
@@ -107,6 +118,7 @@ const setupContainer = (decodedSessionToken) => {
 		reportingEmployeeTypeResolver: asClass(ReportingEmployeeTypeResolver).scoped(),
 		msopTypeResolver: asClass(MSOPTypeResolver).scoped(),
 		actionReferenceTypeResolver: asClass(ActionReferenceTypeResolver).scoped(),
+		actionPointTypeResolver: asClass(ActionPointTypeResolver).scoped(),
 
 		createManufacturer: asFunction(createManufacturer).scoped(),
 		updateManufacturer: asFunction(updateManufacturer).scoped(),
@@ -127,6 +139,10 @@ const setupContainer = (decodedSessionToken) => {
 		createActionReference: asFunction(createActionReference).scoped(),
 		updateActionReference: asFunction(updateActionReference).scoped(),
 		deleteActionReference: asFunction(deleteActionReference).scoped(),
+
+		createActionPoint: asFunction(createActionPoint).scoped(),
+		updateActionPoint: asFunction(updateActionPoint).scoped(),
+		deleteActionPoint: asFunction(deleteActionPoint).scoped(),
 	});
 
 	return container;
