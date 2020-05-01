@@ -2,21 +2,16 @@ import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLList, GraphQLNonNull, 
 import { connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
-import RelayHelper from './RelayHelper';
-import Common from './Common';
 
 export default class EmployeeTypeResolver {
 	constructor({
 		registeredUserTypeResolver,
-		departmentTypeResolver,
-		employeeBusinessService,
 		userDataLoader,
-		departmentDataLoader,
 		employeeDataLoader,
 		reportingEmployeeTypeResolver,
+		departmentTypeResolver,
+		departmentDataLoader,
 	}) {
-		this.employeeBusinessService = employeeBusinessService;
-
 		this.employeeType = new GraphQLObjectType({
 			name: 'Employee',
 			fields: {
@@ -50,7 +45,7 @@ export default class EmployeeTypeResolver {
 					description: 'Total number of employees',
 				},
 			},
-			name: 'EmployeeType',
+			name: 'Employees',
 			nodeType: this.employeeType,
 		});
 	}
@@ -58,18 +53,4 @@ export default class EmployeeTypeResolver {
 	getType = () => this.employeeType;
 
 	getConnectionDefinitionType = () => this.employeeConnectionType;
-
-	getEmployees = async (searchArgs) => {
-		const { employeeIds } = searchArgs;
-		const employees = await this.employeeBusinessService.search({ employeeIds });
-		const totalCount = employees.length;
-
-		if (totalCount === 0) {
-			return Common.getEmptyResult();
-		}
-
-		const { limit, skip, hasNextPage, hasPreviousPage } = RelayHelper.getLimitAndSkipValue(searchArgs, totalCount, 10, 1000);
-
-		return Common.convertResultsToRelayConnectionResponse(employees, skip, limit, totalCount, hasNextPage, hasPreviousPage);
-	};
 }

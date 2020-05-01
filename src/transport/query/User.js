@@ -4,7 +4,15 @@ import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
 
-const getUserType = ({ manufacturerTypeResolver, manufacturerDataLoader, registeredUserTypeResolver, userDataLoader }) =>
+const getUserType = ({
+	convertToRelayConnection,
+	manufacturerTypeResolver,
+	manufacturerBusinessService,
+	manufacturerDataLoader,
+	registeredUserTypeResolver,
+	userBusinessService,
+	userDataLoader,
+}) =>
 	new GraphQLObjectType({
 		name: 'User',
 		fields: {
@@ -13,19 +21,23 @@ const getUserType = ({ manufacturerTypeResolver, manufacturerDataLoader, registe
 			manufacturer: {
 				type: manufacturerTypeResolver.getType(),
 				args: {
-					manufacturerId: { type: new GraphQLNonNull(GraphQLID) },
+					id: { type: new GraphQLNonNull(GraphQLID) },
 				},
-				resolve: async (_, { manufacturerId }) =>
-					manufacturerId ? manufacturerDataLoader.getManufacturerLoaderById().load(manufacturerId) : null,
+				resolve: async (_, { id }) => (id ? manufacturerDataLoader.getManufacturerLoaderById().load(id) : null),
 			},
 			manufacturers: {
 				type: manufacturerTypeResolver.getConnectionDefinitionType().connectionType,
 				args: {
 					...connectionArgs,
-					manufacturerIds: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+					ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+					name: { type: GraphQLString },
 					sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
 				},
-				resolve: async (_, searchArgs) => manufacturerTypeResolver.getManufacturers(searchArgs),
+				resolve: async (_, searchCriteria) =>
+					convertToRelayConnection(
+						searchCriteria,
+						await manufacturerBusinessService.search(Object.assign(searchCriteria, { userId: _.get('id') }))
+					),
 			},
 			registeredUser: {
 				type: registeredUserTypeResolver.getType(),
@@ -41,7 +53,8 @@ const getUserType = ({ manufacturerTypeResolver, manufacturerDataLoader, registe
 					emails: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
 					sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
 				},
-				resolve: async (_, searchArgs) => registeredUserTypeResolver.getRegisteredUsers(searchArgs),
+				resolve: async (_, searchCriteria) =>
+					convertToRelayConnection(searchCriteria, await userBusinessService.searchEmployee(searchCriteria)),
 			},
 		},
 		interfaces: [NodeInterface],

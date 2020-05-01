@@ -1,9 +1,9 @@
-import { GraphQLID, GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLString } from 'graphql';
+import { GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLString } from 'graphql';
 
 import { NodeInterface } from '../interface';
 
 export default class ReportingEmployeeTypeResolver {
-	constructor({ registeredUserTypeResolver, departmentTypeResolver, userDataLoader, departmentDataLoader }) {
+	constructor({ registeredUserTypeResolver, userDataLoader }) {
 		this.reportingEmployeeType = new GraphQLObjectType({
 			name: 'ReportingEmployee',
 			fields: {
@@ -14,10 +14,6 @@ export default class ReportingEmployeeTypeResolver {
 				user: {
 					type: new GraphQLNonNull(registeredUserTypeResolver.getType()),
 					resolve: async (_) => userDataLoader.getUserLoaderById().load(_.get('userId')),
-				},
-				departments: {
-					type: new GraphQLNonNull(new GraphQLList(departmentTypeResolver.getType())),
-					resolve: async (_) => departmentDataLoader.getDepartmentLoaderById().loadMany(_.get('departmentIds').toArray()),
 				},
 			},
 			interfaces: [NodeInterface],

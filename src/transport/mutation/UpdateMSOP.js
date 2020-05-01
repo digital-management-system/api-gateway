@@ -1,8 +1,6 @@
 import { GraphQLNonNull, GraphQLID, GraphQLList, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-import { MSOPMeetingFrequency, MSOPMeetingDay } from '../query';
-
 const updateMSOP = ({ msopTypeResolver, msopBusinessService, msopDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateMSOP',
@@ -11,8 +9,8 @@ const updateMSOP = ({ msopTypeResolver, msopBusinessService, msopDataLoader }) =
 			manufacturerId: { type: new GraphQLNonNull(GraphQLID) },
 			meetingName: { type: new GraphQLNonNull(GraphQLString) },
 			meetingDuration: { type: new GraphQLNonNull(GraphQLString) },
-			frequency: { type: new GraphQLNonNull(MSOPMeetingFrequency) },
-			meetingDays: { type: new GraphQLList(new GraphQLNonNull(MSOPMeetingDay)) },
+			frequencyId: { type: new GraphQLNonNull(GraphQLID) },
+			meetingDayIds: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))) },
 			agendas: { type: GraphQLString },
 			departmentId: { type: new GraphQLNonNull(GraphQLID) },
 			chairPersonEmployeeId: { type: new GraphQLNonNull(GraphQLID) },

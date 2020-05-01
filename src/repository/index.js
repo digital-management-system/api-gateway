@@ -1,7 +1,11 @@
-export { default as UserRepositoryService } from './UserRepositoryService';
-export { default as ManufacturerRepositoryService } from './ManufacturerRepositoryService';
+export { default as ActionPointPriorityRepositoryService } from './ActionPointPriorityRepositoryService';
+export { default as ActionPointReferenceRepositoryService } from './ActionPointReferenceRepositoryService';
+export { default as ActionPointRepositoryService } from './ActionPointRepositoryService';
+export { default as ActionPointStatusRepositoryService } from './ActionPointStatusRepositoryService';
 export { default as DepartmentRepositoryService } from './DepartmentRepositoryService';
 export { default as EmployeeRepositoryService } from './EmployeeRepositoryService';
+export { default as ManufacturerRepositoryService } from './ManufacturerRepositoryService';
+export { default as MeetingDayRepositoryService } from './MeetingDayRepositoryService';
+export { default as MeetingFrequencyRepositoryService } from './MeetingFrequencyRepositoryService';
 export { default as MSOPRepositoryService } from './MSOPRepositoryService';
-export { default as ActionReferenceRepositoryService } from './ActionReferenceRepositoryService';
-export { default as ActionPointRepositoryService } from './ActionPointRepositoryService';
+export { default as UserRepositoryService } from './UserRepositoryService';

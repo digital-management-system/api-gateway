@@ -1,85 +1,131 @@
-import Immutable, { List, Set } from 'immutable';
+import Immutable, { List } from 'immutable';
 
 import BaseRepositoryService from './BaseRepositoryService';
 
 export default class MSOPRepositoryService extends BaseRepositoryService {
-	create = async (info) => (await this.getMSOPCollection().add(this.getMSOPDocument(info))).id;
-
-	read = async (id) => {
-		const msop = (await this.getMSOPCollection().doc(id).get()).data();
-
-		return msop ? this.createReturnObject(msop, id) : null;
-	};
-
-	update = async ({ id, ...info }) => {
-		await this.getMSOPCollection().doc(id).update(this.getMSOPDocument(info));
-
-		return id;
-	};
-
-	delete = async (id) => {
-		await this.getMSOPCollection().doc(id).delete();
-
-		return id;
-	};
-
-	search = async ({ msopIds }) => {
-		let msops = List();
-
-		if (!msopIds || msopIds.length === 0) {
-			const snapshot = await this.getMSOPCollection().get();
-
-			if (!snapshot.empty) {
-				snapshot.forEach((msop) => {
-					msops = msops.push(this.createReturnObject(msop.data(), msop.id));
-				});
-			}
-
-			return msops;
-		}
-
-		return Immutable.fromJS(await Promise.all(msopIds.map((id) => this.read(id)))).filter((msop) => msop !== null);
-	};
-
-	getMSOPDocument = ({
-		manufacturerId,
-		meetingName,
-		meetingDuration,
-		frequency,
-		meetingDays,
-		agendas,
-		departmentId,
-		chairPersonEmployeeId,
-		actionLogSecretaryEmployeeId,
-		attendeeIds,
-	}) => {
-		const attendees = attendeeIds ? Set(attendeeIds).map((attendeeId) => this.getEmployeeCollection().doc(attendeeId)) : Set();
-
-		return {
-			manufacturer: this.getManufacturerCollection().doc(manufacturerId),
+	constructor() {
+		const toDocument = ({
+			manufacturerId,
 			meetingName,
 			meetingDuration,
-			frequency,
-			meetingDays,
-			agendas: agendas ? agendas : null,
-			department: this.getDepartmentCollection().doc(departmentId),
-			chairPersonEmployee: this.getEmployeeCollection().doc(chairPersonEmployeeId),
-			actionLogSecretaryEmployee: this.getEmployeeCollection().doc(actionLogSecretaryEmployeeId),
-			attendees: attendees.toJS(),
-		};
-	};
+			frequencyId,
+			meetingDayIds,
+			agendas,
+			departmentId,
+			chairPersonEmployeeId,
+			actionLogSecretaryEmployeeId,
+			attendeeIds,
+		}) => {
+			const meetingDays = meetingDayIds ? Set(meetingDayIds).map((meetingDayId) => this.getMeetingDayCollection().doc(meetingDayId)) : Set();
+			const attendees = attendeeIds ? Set(attendeeIds).map((attendeeId) => this.getEmployeeCollection().doc(attendeeId)) : Set();
 
-	createReturnObject = (msop, id) =>
-		Immutable.fromJS(msop)
-			.set('id', id)
-			.remove('manufacturer')
-			.set('manufacturerId', msop.manufacturer.id)
-			.remove('department')
-			.set('departmentId', msop.department.id)
-			.remove('chairPersonEmployee')
-			.set('chairPersonEmployeeId', msop.chairPersonEmployee.id)
-			.remove('actionLogSecretaryEmployee')
-			.set('actionLogSecretaryEmployeeId', msop.actionLogSecretaryEmployee.id)
-			.remove('attendees')
-			.set('attendeeIds', List(msop.attendees.map((attendee) => attendee.id)));
+			return {
+				manufacturer: this.getManufacturerCollection().doc(manufacturerId),
+				meetingName,
+				meetingDuration,
+				frequency: this.getMeetingFrequencyCollection().doc(frequencyId),
+				meetingDays: meetingDays.toJS(),
+				agendas: agendas ? agendas : null,
+				department: this.getDepartmentCollection().doc(departmentId),
+				chairPersonEmployee: this.getEmployeeCollection().doc(chairPersonEmployeeId),
+				actionLogSecretaryEmployee: this.getEmployeeCollection().doc(actionLogSecretaryEmployeeId),
+				attendees: attendees.toJS(),
+			};
+		};
+
+		const toObject = (document, id) =>
+			Immutable.fromJS(document)
+				.set('id', id)
+				.remove('manufacturer')
+				.set('manufacturerId', document.manufacturer.id)
+				.remove('frequency')
+				.set('frequencyId', document.frequency.id)
+				.remove('meetingDays')
+				.set('meetingDayIds', List(document.meetingDays.map((meetingDay) => meetingDay.id)))
+				.remove('department')
+				.set('departmentId', document.department.id)
+				.remove('chairPersonEmployee')
+				.set('chairPersonEmployeeId', document.chairPersonEmployee.id)
+				.remove('actionLogSecretaryEmployee')
+				.set('actionLogSecretaryEmployeeId', document.actionLogSecretaryEmployee.id)
+				.remove('attendees')
+				.set('attendeeIds', List(document.attendees.map((attendee) => attendee.id)));
+
+		const buildWhereClause = (
+			collection,
+			{
+				manufacturerId,
+				meetingName,
+				meetingDuration,
+				frequencyId,
+				meetingDayId,
+				departmentId,
+				chairPersonEmployeeId,
+				actionLogSecretaryEmployeeId,
+				attendeeId,
+			}
+		) => {
+			let collectionWithWhereClause = collection;
+
+			if (manufacturerId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'manufacturer',
+					'==',
+					this.getManufacturerCollection().doc(manufacturerId)
+				);
+			}
+
+			if (meetingName) {
+				collectionWithWhereClause = collectionWithWhereClause.where('meetingName', '==', meetingName);
+			}
+
+			if (meetingDuration) {
+				collectionWithWhereClause = collectionWithWhereClause.where('meetingDuration', '==', meetingDuration);
+			}
+
+			if (frequencyId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('frequency', '==', this.getMeetingFrequencyCollection().doc(frequencyId));
+			}
+
+			if (meetingDayId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'meetingDays',
+					'array-contains',
+					this.getMeetingDayCollection().doc(meetingDayId)
+				);
+			}
+
+			if (departmentId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('department', '==', this.getDepartmentCollection().doc(departmentId));
+			}
+
+			if (chairPersonEmployeeId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'chairPersonEmployee',
+					'==',
+					this.getEmployeeCollection().doc(chairPersonEmployeeId)
+				);
+			}
+
+			if (actionLogSecretaryEmployeeId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'actionLogSecretaryEmployee',
+					'==',
+					this.getEmployeeCollection().doc(actionLogSecretaryEmployeeId)
+				);
+			}
+
+			if (attendeeId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'attendees',
+					'array-contains',
+					this.getEmployeeCollection().doc(attendeeId)
+				);
+			}
+
+			return collectionWithWhereClause;
+		};
+
+		super(BaseRepositoryService.collectioNames.msop, toDocument, toObject, buildWhereClause);
+	}
 }

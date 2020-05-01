@@ -2,23 +2,22 @@ import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLString, GraphQLNonNull
 import { connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
-import RelayHelper from './RelayHelper';
-import Common from './Common';
 
 export default class ActionPointTypeResolver {
 	constructor({
-		actionPointBusinessService,
 		msopDataLoader,
 		msopTypeResolver,
 		employeeDataLoader,
 		employeeTypeResolver,
 		departmentDataLoader,
 		departmentTypeResolver,
-		actionReferenceTypeResolver,
-		actionReferenceDataLoader,
+		actionPointPriorityTypeResolver,
+		actionPointPriorityDataLoader,
+		actionPointStatusTypeResolver,
+		actionPointStatusDataLoader,
+		actionPointReferenceTypeResolver,
+		actionPointReferenceDataLoader,
 	}) {
-		this.actionPointBusinessService = actionPointBusinessService;
-
 		this.actionPointType = new GraphQLObjectType({
 			name: 'ActionPoint',
 			fields: {
@@ -45,11 +44,26 @@ export default class ActionPointTypeResolver {
 				},
 				assignedDate: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('assignedDate') },
 				dueDate: { type: GraphQLString, resolve: (_) => _.get('dueDate') },
-				priority: { type: GraphQLString, resolve: (_) => _.get('priority') },
-				status: { type: GraphQLString, resolve: (_) => _.get('status') },
-				actionReferences: {
-					type: new GraphQLNonNull(new GraphQLList(actionReferenceTypeResolver.getType())),
-					resolve: async (_) => actionReferenceDataLoader.getActionReferenceLoaderById().loadMany(_.get('actionReferenceIds').toArray()),
+				priority: {
+					type: actionPointPriorityTypeResolver.getType(),
+					resolve: async (_) => {
+						const priorityId = _.get('priorityId');
+
+						return priorityId ? actionPointPriorityDataLoader.getActionPointPriorityLoaderById().load(priorityId) : null;
+					},
+				},
+				status: {
+					type: actionPointStatusTypeResolver.getType(),
+					resolve: async (_) => {
+						const statusId = _.get('statusId');
+
+						return statusId ? actionPointStatusDataLoader.getActionPointStatusLoaderById().load(statusId) : null;
+					},
+				},
+				references: {
+					type: new GraphQLNonNull(new GraphQLList(actionPointReferenceTypeResolver.getType())),
+					resolve: async (_) =>
+						actionPointReferenceDataLoader.getActionPointReferenceLoaderById().loadMany(_.get('referenceIds').toArray()),
 				},
 				comments: { type: GraphQLString, resolve: (_) => _.get('comments') },
 			},
@@ -63,7 +77,7 @@ export default class ActionPointTypeResolver {
 					description: 'Total number of action points',
 				},
 			},
-			name: 'ActionPointType',
+			name: 'ActionPoints',
 			nodeType: this.actionPointType,
 		});
 	}
@@ -71,18 +85,4 @@ export default class ActionPointTypeResolver {
 	getType = () => this.actionPointType;
 
 	getConnectionDefinitionType = () => this.actionPointConnectionType;
-
-	getActionPoints = async (searchArgs) => {
-		const { actionPointIds } = searchArgs;
-		const actionPoints = await this.actionPointBusinessService.search({ actionPointIds });
-		const totalCount = actionPoints.length;
-
-		if (totalCount === 0) {
-			return Common.getEmptyResult();
-		}
-
-		const { limit, skip, hasNextPage, hasPreviousPage } = RelayHelper.getLimitAndSkipValue(searchArgs, totalCount, 10, 1000);
-
-		return Common.convertResultsToRelayConnectionResponse(actionPoints, skip, limit, totalCount, hasNextPage, hasPreviousPage);
-	};
 }

@@ -5,13 +5,13 @@ import BaseRepositoryService from './BaseRepositoryService';
 export default class UserRepositoryService extends BaseRepositoryService {
 	readEmployee = async (email) => this.readByEmail(email, 'employee');
 	readManufacturer = async (email) => this.readByEmail(email, 'manufacturer');
-	searchEmployee = async (searchArgs) => this.search(searchArgs, 'employee');
-	searchManufacturer = async (searchArgs) => this.search(searchArgs, 'manufacturer');
+	searchEmployee = async (searchCriteria) => this.search(searchCriteria, 'employee');
+	searchManufacturer = async (searchCriteria) => this.search(searchCriteria, 'manufacturer');
 
 	readById = async (id) => {
 		const user = (await this.getUserCollection().doc(id).get()).data();
 
-		return user ? this.createReturnObject(user, id) : null;
+		return user ? UserRepositoryService.toObject(user, id) : null;
 	};
 
 	readByEmail = async (email, userType) => {
@@ -53,7 +53,7 @@ export default class UserRepositoryService extends BaseRepositoryService {
 
 			if (!snapshot.empty) {
 				snapshot.forEach((user) => {
-					users = users.push(this.createReturnObject(user.data(), user.id));
+					users = users.push(UserRepositoryService.toObject(user.data(), user.id));
 				});
 			}
 
@@ -63,5 +63,5 @@ export default class UserRepositoryService extends BaseRepositoryService {
 		return Immutable.fromJS(await Promise.all(emails.map((email) => this.readByEmail(email, userType)))).filter((user) => user !== null);
 	};
 
-	createReturnObject = (user, id) => Immutable.fromJS(user).set('id', id);
+	static toObject = (user, id) => Immutable.fromJS(user).set('id', id);
 }
