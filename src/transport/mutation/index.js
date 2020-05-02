@@ -39,3 +39,7 @@ export { default as deleteMeetingFrequency } from './DeleteMeetingFrequency';
 export { default as createMeetingDay } from './CreateMeetingDay';
 export { default as updateMeetingDay } from './UpdateMeetingDay';
 export { default as deleteMeetingDay } from './DeleteMeetingDay';
+
+export { default as createMeetingDuration } from './CreateMeetingDuration';
+export { default as updateMeetingDuration } from './UpdateMeetingDuration';
+export { default as deleteMeetingDuration } from './DeleteMeetingDuration';

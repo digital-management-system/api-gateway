@@ -6,6 +6,7 @@ export { default as DepartmentRepositoryService } from './DepartmentRepositorySe
 export { default as EmployeeRepositoryService } from './EmployeeRepositoryService';
 export { default as ManufacturerRepositoryService } from './ManufacturerRepositoryService';
 export { default as MeetingDayRepositoryService } from './MeetingDayRepositoryService';
+export { default as MeetingDurationRepositoryService } from './MeetingDurationRepositoryService';
 export { default as MeetingFrequencyRepositoryService } from './MeetingFrequencyRepositoryService';
 export { default as MSOPRepositoryService } from './MSOPRepositoryService';
 export { default as UserRepositoryService } from './UserRepositoryService';

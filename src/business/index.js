@@ -6,6 +6,7 @@ export { default as DepartmentBusinessService } from './DepartmentBusinessServic
 export { default as EmployeeBusinessService } from './EmployeeBusinessService';
 export { default as ManufacturerBusinessService } from './ManufacturerBusinessService';
 export { default as MeetingDayBusinessService } from './MeetingDayBusinessService';
+export { default as MeetingDurationBusinessService } from './MeetingDurationBusinessService';
 export { default as MeetingFrequencyBusinessService } from './MeetingFrequencyBusinessService';
 export { default as MSOPBusinessService } from './MSOPBusinessService';
 export { default as UserBusinessService } from './UserBusinessService';

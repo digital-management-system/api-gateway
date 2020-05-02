@@ -26,7 +26,7 @@ type Manufacturer implements Node {
   employee(id: ID!): Employee
   employees(after: String, first: Int, before: String, last: Int, ids: [ID!], employeeReference: String, position: String, mobile: String, userId: ID, reportingToEmployeeId: ID, sortingOptions: [SortingOptionPair!]): EmployeesConnection
   msop(id: ID!): MSOP
-  msops(after: String, first: Int, before: String, last: Int, ids: [ID!], meetingName: String, meetingDuration: String, frequencyId: ID, meetingDayId: ID, departmentId: ID, chairPersonEmployeeId: ID, actionLogSecretaryEmployeeId: ID, attendeeId: ID, sortingOptions: [SortingOptionPair!]): MSOPsConnection
+  msops(after: String, first: Int, before: String, last: Int, ids: [ID!], meetingName: String, durationId: ID, frequencyId: ID, meetingDayId: ID, departmentId: ID, chairPersonEmployeeId: ID, actionLogSecretaryEmployeeId: ID, attendeeId: ID, sortingOptions: [SortingOptionPair!]): MSOPsConnection
   actionPointPriority(id: ID!): ActionPointPriority
   actionPointPriorities(after: String, first: Int, before: String, last: Int, ids: [ID!], name: String, sortingOptions: [SortingOptionPair!]): ActionPointPrioritiesConnection
   actionPointReference(id: ID!): ActionPointReference
@@ -37,6 +37,8 @@ type Manufacturer implements Node {
   actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], msopId: ID, assigneeId: ID, departmentId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsConnection
   meetingDay(id: ID!): MeetingDay
   meetingDays(after: String, first: Int, before: String, last: Int, ids: [ID!], name: String, sortingOptions: [SortingOptionPair!]): MeetingDaysConnection
+  meetingDuration(id: ID!): MeetingDuration
+  meetingDurations(after: String, first: Int, before: String, last: Int, ids: [ID!], name: String, sortingOptions: [SortingOptionPair!]): MeetingDurationsConnection
   meetingFrequency(id: ID!): MeetingFrequency
   meetingFrequencies(after: String, first: Int, before: String, last: Int, ids: [ID!], name: String, sortingOptions: [SortingOptionPair!]): MeetingFrequenciesConnection
 }
@@ -172,7 +174,7 @@ type EmployeesEdge {
 type MSOP implements Node {
   id: ID!
   meetingName: String!
-  meetingDuration: String!
+  duration: MeetingDuration!
   frequency: MeetingFrequency!
   meetingDays: [MeetingDay]!
   agendas: String
@@ -182,6 +184,11 @@ type MSOP implements Node {
   attendees: [Employee]!
   actionPoint(id: ID!): ActionPointWithoutMSOP
   actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], assigneeId: ID, departmentId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsWithoutMSOPConnection
+}
+
+type MeetingDuration implements Node {
+  id: ID!
+  name: String!
 }
 
 type MeetingFrequency implements Node {
@@ -382,6 +389,27 @@ type MeetingDaysEdge {
 }
 
 """A connection to a list of items."""
+type MeetingDurationsConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [MeetingDurationsEdge]
+
+  """Total number of meeting days"""
+  totalCount: Int
+}
+
+"""An edge in a connection."""
+type MeetingDurationsEdge {
+  """The item at the end of the edge"""
+  node: MeetingDuration
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""A connection to a list of items."""
 type MeetingFrequenciesConnection {
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -475,6 +503,9 @@ type Mutation {
   createMeetingDay(input: CreateMeetingDayInput!): CreateMeetingDayPayload
   updateMeetingDay(input: UpdateMeetingDayInput!): UpdateMeetingDayPayload
   deleteMeetingDay(input: DeleteMeetingDayInput!): DeleteMeetingDayPayload
+  createMeetingDuration(input: CreateMeetingDurationInput!): CreateMeetingDurationPayload
+  updateMeetingDuration(input: UpdateMeetingDurationInput!): UpdateMeetingDurationPayload
+  deleteMeetingDuration(input: DeleteMeetingDurationInput!): DeleteMeetingDurationPayload
 }
 
 type CreateManufacturerPayload {
@@ -594,7 +625,7 @@ type CreateMSOPPayload {
 input CreateMSOPInput {
   manufacturerId: ID!
   meetingName: String!
-  meetingDuration: String!
+  durationId: ID!
   frequencyId: ID!
   meetingDayIds: [ID!]!
   agendas: String
@@ -614,7 +645,7 @@ input UpdateMSOPInput {
   id: ID!
   manufacturerId: ID!
   meetingName: String!
-  meetingDuration: String!
+  durationId: ID!
   frequencyId: ID!
   meetingDayIds: [ID!]!
   agendas: String
@@ -845,6 +876,39 @@ type DeleteMeetingDayPayload {
 }
 
 input DeleteMeetingDayInput {
+  id: ID!
+  clientMutationId: String
+}
+
+type CreateMeetingDurationPayload {
+  actionPointPriority: ActionPointPrioritiesEdge
+  clientMutationId: String
+}
+
+input CreateMeetingDurationInput {
+  manufacturerId: ID!
+  name: String!
+  clientMutationId: String
+}
+
+type UpdateMeetingDurationPayload {
+  actionPointPriority: ActionPointPrioritiesEdge
+  clientMutationId: String
+}
+
+input UpdateMeetingDurationInput {
+  id: ID!
+  manufacturerId: ID!
+  name: String!
+  clientMutationId: String
+}
+
+type DeleteMeetingDurationPayload {
+  deletedMeetingDurationId: ID!
+  clientMutationId: String
+}
+
+input DeleteMeetingDurationInput {
   id: ID!
   clientMutationId: String
 }
