@@ -33,6 +33,9 @@ export default class ManufacturerTypeResolver {
 		meetingDayTypeResolver,
 		meetingDayBusinessService,
 		meetingDayDataLoader,
+		meetingDurationTypeResolver,
+		meetingDurationBusinessService,
+		meetingDurationDataLoader,
 		meetingFrequencyTypeResolver,
 		meetingFrequencyBusinessService,
 		meetingFrequencyDataLoader,
@@ -106,7 +109,7 @@ export default class ManufacturerTypeResolver {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
 						meetingName: { type: GraphQLString },
-						meetingDuration: { type: GraphQLString },
+						durationId: { type: GraphQLID },
 						frequencyId: { type: GraphQLID },
 						meetingDayId: { type: GraphQLID },
 						departmentId: { type: GraphQLID },
@@ -231,6 +234,27 @@ export default class ManufacturerTypeResolver {
 						convertToRelayConnection(
 							searchCriteria,
 							await meetingDayBusinessService.search(Object.assign(searchCriteria, { manufacturerId: _.get('id') }))
+						),
+				},
+				meetingDuration: {
+					type: meetingDurationTypeResolver.getType(),
+					args: {
+						id: { type: new GraphQLNonNull(GraphQLID) },
+					},
+					resolve: async (_, { id }) => (id ? meetingDurationDataLoader.getMeetingDurationLoaderById().load(id) : null),
+				},
+				meetingDurations: {
+					type: meetingDurationTypeResolver.getConnectionDefinitionType().connectionType,
+					args: {
+						...connectionArgs,
+						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+						name: { type: GraphQLString },
+						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+					},
+					resolve: async (_, searchCriteria) =>
+						convertToRelayConnection(
+							searchCriteria,
+							await meetingDurationBusinessService.search(Object.assign(searchCriteria, { manufacturerId: _.get('id') }))
 						),
 				},
 				meetingFrequency: {

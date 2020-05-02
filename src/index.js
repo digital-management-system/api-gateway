@@ -16,6 +16,7 @@ import {
 	EmployeeBusinessService,
 	ManufacturerBusinessService,
 	MeetingDayBusinessService,
+	MeetingDurationBusinessService,
 	MeetingFrequencyBusinessService,
 	MSOPBusinessService,
 	UserBusinessService,
@@ -29,6 +30,7 @@ import {
 	EmployeeRepositoryService,
 	ManufacturerRepositoryService,
 	MeetingDayRepositoryService,
+	MeetingDurationRepositoryService,
 	MeetingFrequencyRepositoryService,
 	MSOPRepositoryService,
 	UserRepositoryService,
@@ -47,6 +49,7 @@ import {
 	EmployeeWithoutDepartmentTypeResolver,
 	ManufacturerTypeResolver,
 	MeetingDayTypeResolver,
+	MeetingDurationTypeResolver,
 	MeetingFrequencyTypeResolver,
 	MSOPTypeResolver,
 	RegisteredUserTypeResolver,
@@ -84,6 +87,9 @@ import {
 	createMeetingDay,
 	updateMeetingDay,
 	deleteMeetingDay,
+	createMeetingDuration,
+	updateMeetingDuration,
+	deleteMeetingDuration,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
 import {
@@ -95,10 +101,11 @@ import {
 	EmployeeDataLoader,
 	ManufacturerDataLoader,
 	MeetingDayDataLoader,
+	MeetingDurationDataLoader,
 	MeetingFrequencyDataLoader,
 	MSOPDataLoader,
 	UserDataLoader,
-} from './transport/loaders';
+} from './loaders';
 import setupNewManufacturer from './ManufacturerSetup';
 
 const loggingWinston = require('@google-cloud/logging-winston'); // eslint-disable-line no-undef
@@ -119,6 +126,7 @@ const setupContainer = (decodedSessionToken) => {
 		employeeRepositoryService: asClass(EmployeeRepositoryService).scoped(),
 		manufacturerRepositoryService: asClass(ManufacturerRepositoryService).scoped(),
 		meetingDayRepositoryService: asClass(MeetingDayRepositoryService).scoped(),
+		meetingDurationRepositoryService: asClass(MeetingDurationRepositoryService).scoped(),
 		meetingFrequencyRepositoryService: asClass(MeetingFrequencyRepositoryService).scoped(),
 		msopRepositoryService: asClass(MSOPRepositoryService).scoped(),
 		userRepositoryService: asClass(UserRepositoryService).scoped(),
@@ -131,6 +139,7 @@ const setupContainer = (decodedSessionToken) => {
 		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
 		manufacturerBusinessService: asClass(ManufacturerBusinessService).scoped(),
 		meetingDayBusinessService: asClass(MeetingDayBusinessService).scoped(),
+		meetingDurationBusinessService: asClass(MeetingDurationBusinessService).scoped(),
 		meetingFrequencyBusinessService: asClass(MeetingFrequencyBusinessService).scoped(),
 		msopBusinessService: asClass(MSOPBusinessService).scoped(),
 		userBusinessService: asClass(UserBusinessService).scoped(),
@@ -143,6 +152,7 @@ const setupContainer = (decodedSessionToken) => {
 		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
 		manufacturerDataLoader: asClass(ManufacturerDataLoader).scoped(),
 		meetingDayDataLoader: asClass(MeetingDayDataLoader).scoped(),
+		meetingDurationDataLoader: asClass(MeetingDurationDataLoader).scoped(),
 		meetingFrequencyDataLoader: asClass(MeetingFrequencyDataLoader).scoped(),
 		msopDataLoader: asClass(MSOPDataLoader).scoped(),
 		userDataLoader: asClass(UserDataLoader).scoped(),
@@ -162,6 +172,7 @@ const setupContainer = (decodedSessionToken) => {
 		employeeWithoutDepartmentTypeResolver: asClass(EmployeeWithoutDepartmentTypeResolver).scoped(),
 		manufacturerTypeResolver: asClass(ManufacturerTypeResolver).scoped(),
 		meetingDayTypeResolver: asClass(MeetingDayTypeResolver).scoped(),
+		meetingDurationTypeResolver: asClass(MeetingDurationTypeResolver).scoped(),
 		meetingFrequencyTypeResolver: asClass(MeetingFrequencyTypeResolver).scoped(),
 		msopTypeResolver: asClass(MSOPTypeResolver).scoped(),
 		registeredUserTypeResolver: asClass(RegisteredUserTypeResolver).scoped(),
@@ -208,6 +219,10 @@ const setupContainer = (decodedSessionToken) => {
 		createMeetingDay: asFunction(createMeetingDay).scoped(),
 		updateMeetingDay: asFunction(updateMeetingDay).scoped(),
 		deleteMeetingDay: asFunction(deleteMeetingDay).scoped(),
+
+		createMeetingDuration: asFunction(createMeetingDuration).scoped(),
+		updateMeetingDuration: asFunction(updateMeetingDuration).scoped(),
+		deleteMeetingDuration: asFunction(deleteMeetingDuration).scoped(),
 	});
 
 	return container;

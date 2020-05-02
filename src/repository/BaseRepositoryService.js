@@ -10,6 +10,7 @@ export default class BaseRepositoryService {
 		department: 'department',
 		employee: 'employee',
 		manufacturer: 'manufacturer',
+		meetingDuration: 'meetingDuration',
 		meetingDay: 'meetingDay',
 		meetingFrequency: 'meetingFrequency',
 		msop: 'msop',
@@ -32,6 +33,7 @@ export default class BaseRepositoryService {
 	getDepartmentCollection = () => this.getCollection(BaseRepositoryService.collectioNames.department);
 	getEmployeeCollection = () => this.getCollection(BaseRepositoryService.collectioNames.employee);
 	getManufacturerCollection = () => this.getCollection(BaseRepositoryService.collectioNames.manufacturer);
+	getMeetingDurationCollection = () => this.getCollection(BaseRepositoryService.collectioNames.meetingDuration);
 	getMeetingDayCollection = () => this.getCollection(BaseRepositoryService.collectioNames.meetingDay);
 	getMeetingFrequencyCollection = () => this.getCollection(BaseRepositoryService.collectioNames.meetingFrequency);
 	getMSOPCollection = () => this.getCollection(BaseRepositoryService.collectioNames.msop);

@@ -11,6 +11,7 @@ export { default as EmployeeTypeResolver } from './EmployeeTypeResolver';
 export { default as EmployeeWithoutDepartmentTypeResolver } from './EmployeeWithoutDepartmentTypeResolver';
 export { default as ManufacturerTypeResolver } from './ManufacturerTypeResolver';
 export { default as MeetingDayTypeResolver } from './MeetingDayTypeResolver';
+export { default as MeetingDurationTypeResolver } from './MeetingDurationTypeResolver';
 export { default as MeetingFrequencyTypeResolver } from './MeetingFrequencyTypeResolver';
 export { default as MSOPTypeResolver } from './MSOPTypeResolver';
 export { default as RegisteredUserTypeResolver } from './RegisteredUserTypeResolver';

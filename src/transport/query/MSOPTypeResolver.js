@@ -15,6 +15,8 @@ export default class MSOPTypeResolver {
 		meetingFrequencyDataLoader,
 		meetingDayTypeResolver,
 		meetingDayDataLoader,
+		meetingDurationTypeResolver,
+		meetingDurationDataLoader,
 		actionPointWithoutMSOPTypeResolver,
 		actionPointBusinessService,
 		actionPointDataLoader,
@@ -24,7 +26,10 @@ export default class MSOPTypeResolver {
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
 				meetingName: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('meetingName') },
-				meetingDuration: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('meetingDuration') },
+				duration: {
+					type: new GraphQLNonNull(meetingDurationTypeResolver.getType()),
+					resolve: async (_) => meetingDurationDataLoader.getMeetingDurationLoaderById().load(_.get('durationId')),
+				},
 				frequency: {
 					type: new GraphQLNonNull(meetingFrequencyTypeResolver.getType()),
 					resolve: async (_) => meetingFrequencyDataLoader.getMeetingFrequencyLoaderById().load(_.get('frequencyId')),

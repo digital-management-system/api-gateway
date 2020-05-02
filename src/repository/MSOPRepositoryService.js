@@ -7,7 +7,7 @@ export default class MSOPRepositoryService extends BaseRepositoryService {
 		const toDocument = ({
 			manufacturerId,
 			meetingName,
-			meetingDuration,
+			durationId,
 			frequencyId,
 			meetingDayIds,
 			agendas,
@@ -22,7 +22,7 @@ export default class MSOPRepositoryService extends BaseRepositoryService {
 			return {
 				manufacturer: this.getManufacturerCollection().doc(manufacturerId),
 				meetingName,
-				meetingDuration,
+				duration: this.getMeetingDurationCollection().doc(durationId),
 				frequency: this.getMeetingFrequencyCollection().doc(frequencyId),
 				meetingDays: meetingDays.toJS(),
 				agendas: agendas ? agendas : null,
@@ -38,6 +38,8 @@ export default class MSOPRepositoryService extends BaseRepositoryService {
 				.set('id', id)
 				.remove('manufacturer')
 				.set('manufacturerId', document.manufacturer.id)
+				.remove('duration')
+				.set('durationId', document.duration.id)
 				.remove('frequency')
 				.set('frequencyId', document.frequency.id)
 				.remove('meetingDays')
@@ -56,7 +58,7 @@ export default class MSOPRepositoryService extends BaseRepositoryService {
 			{
 				manufacturerId,
 				meetingName,
-				meetingDuration,
+				durationId,
 				frequencyId,
 				meetingDayId,
 				departmentId,
@@ -79,8 +81,8 @@ export default class MSOPRepositoryService extends BaseRepositoryService {
 				collectionWithWhereClause = collectionWithWhereClause.where('meetingName', '==', meetingName);
 			}
 
-			if (meetingDuration) {
-				collectionWithWhereClause = collectionWithWhereClause.where('meetingDuration', '==', meetingDuration);
+			if (durationId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('duration', '==', this.getMeetingDurationCollection().doc(durationId));
 			}
 
 			if (frequencyId) {
