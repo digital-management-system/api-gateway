@@ -2,13 +2,9 @@ import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLString
 import { connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
-import RelayHelper from './RelayHelper';
-import Common from './Common';
 
 export default class RegisteredUserTypeResolver {
-	constructor({ userBusinessService }) {
-		this.userBusinessService = userBusinessService;
-
+	constructor() {
 		this.registeredUserType = new GraphQLObjectType({
 			name: 'RegisteredUser',
 			fields: {
@@ -24,7 +20,7 @@ export default class RegisteredUserTypeResolver {
 					description: 'Total number of registeredUsers',
 				},
 			},
-			name: 'RegisteredUserType',
+			name: 'RegisteredUsers',
 			nodeType: this.registeredUserType,
 		});
 	}
@@ -32,18 +28,4 @@ export default class RegisteredUserTypeResolver {
 	getType = () => this.registeredUserType;
 
 	getConnectionDefinitionType = () => this.registeredUserConnectionType;
-
-	getRegisteredUsers = async (searchArgs) => {
-		const { emails } = searchArgs;
-		const users = await this.userBusinessService.searchEmployee({ emails });
-		const totalCount = users.count();
-
-		if (totalCount === 0) {
-			return Common.getEmptyResult();
-		}
-
-		const { limit, skip, hasNextPage, hasPreviousPage } = RelayHelper.getLimitAndSkipValue(searchArgs, totalCount, 10, 1000);
-
-		return Common.convertResultsToRelayConnectionResponse(users, skip, limit, totalCount, hasNextPage, hasPreviousPage);
-	};
 }

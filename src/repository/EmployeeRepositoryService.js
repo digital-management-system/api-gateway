@@ -3,67 +3,82 @@ import Immutable, { List, Set } from 'immutable';
 import BaseRepositoryService from './BaseRepositoryService';
 
 export default class EmployeeRepositoryService extends BaseRepositoryService {
-	create = async (info) => (await this.getEmployeeCollection().add(this.getEmployeeDocument(info))).id;
+	constructor() {
+		const toDocument = ({ employeeReference, position, mobile, userId, departmentIds, reportingToEmployeeId, manufacturerId }) => {
+			const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
 
-	read = async (id) => {
-		const employee = (await this.getEmployeeCollection().doc(id).get()).data();
+			return {
+				manufacturer: this.getManufacturerCollection().doc(manufacturerId),
+				employeeReference: employeeReference ? employeeReference : null,
+				position: position ? position : null,
+				mobile: mobile ? mobile : null,
+				user: this.getUserCollection().doc(userId),
+				departments: departments.toJS(),
+				reportingToEmployee: reportingToEmployeeId ? this.getEmployeeCollection().doc(reportingToEmployeeId) : null,
+			};
+		};
 
-		return employee ? this.createReturnObject(employee, id) : null;
-	};
+		const toObject = (document, id) =>
+			Immutable.fromJS(document)
+				.set('id', id)
+				.remove('manufacturer')
+				.set('manufacturerId', document.manufacturer.id)
+				.remove('user')
+				.set('userId', document.user.id)
+				.remove('departments')
+				.set('departmentIds', List(document.departments.map((department) => department.id)))
+				.remove('reportingToEmployee')
+				.set('reportingToEmployeeId', document.reportingToEmployee ? document.reportingToEmployee.id : null);
 
-	update = async ({ id, ...info }) => {
-		await this.getEmployeeCollection().doc(id).update(this.getEmployeeDocument(info));
+		const buildWhereClause = (
+			collection,
+			{ manufacturerId, employeeReference, position, mobile, departmentId, userId, reportingToEmployeeId }
+		) => {
+			let collectionWithWhereClause = collection;
 
-		return id;
-	};
-
-	delete = async (id) => {
-		await this.getEmployeeCollection().doc(id).delete();
-
-		return id;
-	};
-
-	search = async ({ employeeIds }) => {
-		let employees = List();
-
-		if (!employeeIds || employeeIds.length === 0) {
-			const snapshot = await this.getEmployeeCollection().get();
-
-			if (!snapshot.empty) {
-				snapshot.forEach((employee) => {
-					employees = employees.push(this.createReturnObject(employee.data(), employee.id));
-				});
+			if (manufacturerId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'manufacturer',
+					'==',
+					this.getManufacturerCollection().doc(manufacturerId)
+				);
 			}
 
-			return employees;
-		}
+			if (employeeReference) {
+				collectionWithWhereClause = collectionWithWhereClause.where('employeeReference', '==', employeeReference);
+			}
 
-		return Immutable.fromJS(await Promise.all(employeeIds.map((id) => this.read(id)))).filter((employee) => employee !== null);
-	};
+			if (position) {
+				collectionWithWhereClause = collectionWithWhereClause.where('position', '==', position);
+			}
 
-	getEmployeeDocument = ({ employeeReference, position, mobile, userId, departmentIds, reportingToEmployeeId, manufacturerId }) => {
-		const departments = departmentIds ? Set(departmentIds).map((departmentId) => this.getDepartmentCollection().doc(departmentId)) : Set();
+			if (mobile) {
+				collectionWithWhereClause = collectionWithWhereClause.where('mobile', '==', mobile);
+			}
 
-		return {
-			manufacturer: this.getManufacturerCollection().doc(manufacturerId),
-			employeeReference: employeeReference ? employeeReference : null,
-			position: position ? position : null,
-			mobile: mobile ? mobile : null,
-			user: this.getUserCollection().doc(userId),
-			departments: departments.toJS(),
-			reportingToEmployee: reportingToEmployeeId ? this.getEmployeeCollection().doc(reportingToEmployeeId) : null,
+			if (departmentId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'departments',
+					'array-contains',
+					this.getDepartmentCollection().doc(departmentId)
+				);
+			}
+
+			if (userId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('user', '==', this.getUserCollection().doc(userId));
+			}
+
+			if (reportingToEmployeeId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'reportingToEmployee',
+					'==',
+					this.getEmployeeCollection().doc(reportingToEmployeeId)
+				);
+			}
+
+			return collectionWithWhereClause;
 		};
-	};
 
-	createReturnObject = (employee, id) =>
-		Immutable.fromJS(employee)
-			.set('id', id)
-			.remove('manufacturer')
-			.set('manufacturerId', employee.manufacturer.id)
-			.remove('user')
-			.set('userId', employee.user.id)
-			.remove('departments')
-			.set('departmentIds', List(employee.departments.map((department) => department.id)))
-			.remove('reportingToEmployee')
-			.set('reportingToEmployeeId', employee.reportingToEmployee ? employee.reportingToEmployee.id : null);
+		super(BaseRepositoryService.collectioNames.employee, toDocument, toObject, buildWhereClause);
+	}
 }

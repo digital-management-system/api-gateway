@@ -4,94 +4,121 @@ import dayjs from 'dayjs';
 import BaseRepositoryService from './BaseRepositoryService';
 
 export default class ActionPointRepositoryService extends BaseRepositoryService {
-	create = async (info) => (await this.getActionPointCollection().add(this.getActionPointDocument(info))).id;
+	constructor() {
+		const toDocument = ({
+			manufacturerId,
+			msopId,
+			assigneeId,
+			departmentId,
+			assignedDate,
+			dueDate,
+			priorityId,
+			statusId,
+			referenceIds,
+			comments,
+		}) => {
+			const references = referenceIds
+				? Set(referenceIds).map((referenceId) => this.getActionPointReferenceCollection().doc(referenceId))
+				: Set();
 
-	read = async (id) => {
-		const actionPoint = (await this.getActionPointCollection().doc(id).get()).data();
+			return {
+				manufacturer: this.getManufacturerCollection().doc(manufacturerId),
+				msop: this.getMSOPCollection().doc(msopId),
+				assignee: this.getEmployeeCollection().doc(assigneeId),
+				department: this.getDepartmentCollection().doc(departmentId),
+				assignedDate: dayjs(assignedDate).toDate(),
+				dueDate: dueDate ? dayjs(dueDate).toDate() : null,
+				priority: this.getActionPointPriorityCollection().doc(priorityId),
+				status: this.getActionPointStatusCollection().doc(statusId),
+				references: references.toJS(),
+				comments: comments ? comments : null,
+			};
+		};
 
-		return actionPoint ? this.createReturnObject(actionPoint, id) : null;
-	};
+		const toObject = (document, id) => {
+			let returnObject = Immutable.fromJS(document)
+				.set('id', id)
+				.remove('manufacturer')
+				.set('manufacturerId', document.manufacturer.id)
+				.remove('msop')
+				.set('msopId', document.msop.id)
+				.remove('assignee')
+				.set('assigneeId', document.assignee.id)
+				.remove('department')
+				.set('departmentId', document.department.id)
+				.remove('assignedDate')
+				.set('assignedDate', dayjs(document.assignedDate).toISOString())
+				.remove('priority')
+				.set('priorityId', document.priority.id)
+				.remove('status')
+				.set('statusId', document.status.id)
+				.remove('references')
+				.set('referenceIds', List(document.references.map((reference) => reference.id)));
 
-	update = async ({ id, ...info }) => {
-		await this.getActionPointCollection().doc(id).update(this.getActionPointDocument(info));
-
-		return id;
-	};
-
-	delete = async (id) => {
-		await this.getActionPointCollection().doc(id).delete();
-
-		return id;
-	};
-
-	search = async ({ actionPointIds }) => {
-		let actionPoints = List();
-
-		if (!actionPointIds || actionPointIds.length === 0) {
-			const snapshot = await this.getActionPointCollection().get();
-
-			if (!snapshot.empty) {
-				snapshot.forEach((actionPoint) => {
-					actionPoints = actionPoints.push(this.createReturnObject(actionPoint.data(), actionPoint.id));
-				});
+			if (document.dueDate) {
+				returnObject = returnObject.remove('dueDate').set('dueDate', dayjs(document.dueDate).toISOString());
 			}
 
-			return actionPoints;
-		}
-
-		return Immutable.fromJS(await Promise.all(actionPointIds.map((id) => this.read(id)))).filter((actionPoint) => actionPoint !== null);
-	};
-
-	getActionPointDocument = ({
-		manufacturerId,
-		msopId,
-		assigneeId,
-		departmentId,
-		assignedDate,
-		dueDate,
-		priority,
-		status,
-		actionReferenceIds,
-		comments,
-	}) => {
-		const actionReferences = actionReferenceIds
-			? Set(actionReferenceIds).map((actionReferenceId) => this.getActionReferenceCollection().doc(actionReferenceId))
-			: Set();
-
-		return {
-			manufacturer: this.getManufacturerCollection().doc(manufacturerId),
-			msop: this.getMSOPCollection().doc(msopId),
-			assignee: this.getEmployeeCollection().doc(assigneeId),
-			department: this.getDepartmentCollection().doc(departmentId),
-			assignedDate: dayjs(assignedDate).toDate(),
-			dueDate: dueDate ? dayjs(dueDate).toDate() : null,
-			staprioritytus: priority ? priority : null,
-			status: status ? status : null,
-			actionReferences: actionReferences.toJS(),
-			comments: comments ? comments : null,
+			return returnObject;
 		};
-	};
 
-	createReturnObject = (actionPoint, id) => {
-		let returnObject = Immutable.fromJS(actionPoint)
-			.set('id', id)
-			.remove('manufacturer')
-			.set('manufacturerId', actionPoint.manufacturer.id)
-			.remove('msop')
-			.set('msopId', actionPoint.msop.id)
-			.remove('assignee')
-			.set('assigneeId', actionPoint.assignee.id)
-			.remove('department')
-			.set('departmentId', actionPoint.department.id)
-			.remove('actionReferences')
-			.set('actionReferenceIds', List(actionPoint.actionReferences.map((actionReference) => actionReference.id)))
-			.remove('assignedDate')
-			.set('assignedDate', dayjs(actionPoint.assignedDate).toISOString());
+		const buildWhereClause = (
+			collection,
+			{ manufacturerId, msopId, assigneeId, departmentId, assignedDate, dueDate, priorityId, statusId, referenceId }
+		) => {
+			let collectionWithWhereClause = collection;
 
-		if (actionPoint.dueDate) {
-			returnObject = returnObject.remove('dueDate').set('dueDate', dayjs(actionPoint.dueDate).toISOString());
-		}
+			if (manufacturerId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'manufacturer',
+					'==',
+					this.getManufacturerCollection().doc(manufacturerId)
+				);
+			}
 
-		return returnObject;
-	};
+			if (msopId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('msop', '==', this.getMSOPCollection().doc(msopId));
+			}
+
+			if (assigneeId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('assignee', '==', this.getEmployeeCollection().doc(assigneeId));
+			}
+
+			if (departmentId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('department', '==', this.getDepartmentCollection().doc(departmentId));
+			}
+
+			if (assignedDate) {
+				collectionWithWhereClause = collectionWithWhereClause.where('assignedDate', '==', dayjs(assignedDate).toDate());
+			}
+
+			if (dueDate) {
+				collectionWithWhereClause = collectionWithWhereClause.where('dueDate', '==', dayjs(dueDate).toDate());
+			}
+
+			if (priorityId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'priority',
+					'==',
+					this.getActionPointPriorityCollection().doc(priorityId)
+				);
+			}
+
+			if (statusId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('status', '==', this.getActionPointStatusCollection().doc(statusId));
+			}
+
+			if (referenceId) {
+				collectionWithWhereClause = collectionWithWhereClause.where(
+					'references',
+					'array-contains',
+					this.getActionPointReferenceCollection().doc(referenceId)
+				);
+			}
+
+			return collectionWithWhereClause;
+		};
+
+		super(BaseRepositoryService.collectioNames.actionPoint, toDocument, toObject, buildWhereClause);
+	}
 }

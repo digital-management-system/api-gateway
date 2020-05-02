@@ -6,6 +6,6 @@ export default class UserBusinessService {
 	read = async (id) => this.userRepositoryService.readById(id);
 	readEmployee = async (email) => this.userRepositoryService.readEmployee(email);
 	readManufacturer = async (email) => this.userRepositoryService.readManufacturer(email);
-	searchEmployee = async (searchArgs) => this.userRepositoryService.searchEmployee(searchArgs);
-	searchManufacturer = async (searchArgs) => this.userRepositoryService.searchManufacturer(searchArgs);
+	searchEmployee = async (searchCriteria) => this.userRepositoryService.searchEmployee(searchCriteria);
+	searchManufacturer = async (searchCriteria) => this.userRepositoryService.searchManufacturer(searchCriteria);
 }

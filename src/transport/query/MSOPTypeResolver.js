@@ -1,24 +1,38 @@
 import { GraphQLList, GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLString } from 'graphql';
-import { connectionDefinitions } from 'graphql-relay';
+import { connectionArgs, connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
-import RelayHelper from './RelayHelper';
-import Common from './Common';
-import MSOPMeetingFrequency from './MSOPMeetingFrequency';
-import MSOPMeetingDay from './MSOPMeetingDay';
+import SortingOptionPair from './SortingOptionPair';
 
 export default class MSOPTypeResolver {
-	constructor({ msopBusinessService, departmentTypeResolver, departmentDataLoader, employeeTypeResolver, employeeDataLoader }) {
-		this.msopBusinessService = msopBusinessService;
-
+	constructor({
+		convertToRelayConnection,
+		departmentTypeResolver,
+		departmentDataLoader,
+		employeeTypeResolver,
+		employeeDataLoader,
+		meetingFrequencyTypeResolver,
+		meetingFrequencyDataLoader,
+		meetingDayTypeResolver,
+		meetingDayDataLoader,
+		actionPointWithoutMSOPTypeResolver,
+		actionPointBusinessService,
+		actionPointDataLoader,
+	}) {
 		this.msopType = new GraphQLObjectType({
 			name: 'MSOP',
 			fields: {
 				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
 				meetingName: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('meetingName') },
 				meetingDuration: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('meetingDuration') },
-				frequency: { type: new GraphQLNonNull(MSOPMeetingFrequency), resolve: (_) => _.get('Frequency') },
-				meetingDays: { type: new GraphQLList(MSOPMeetingDay), resolve: (_) => _.get('meetingDays').toArray() },
+				frequency: {
+					type: new GraphQLNonNull(meetingFrequencyTypeResolver.getType()),
+					resolve: async (_) => meetingFrequencyDataLoader.getMeetingFrequencyLoaderById().load(_.get('frequencyId')),
+				},
+				meetingDays: {
+					type: new GraphQLNonNull(new GraphQLList(meetingDayTypeResolver.getType())),
+					resolve: async (_) => meetingDayDataLoader.getMeetingDayLoaderById().loadMany(_.get('meetingDayIds').toArray()),
+				},
 				agendas: { type: GraphQLString, resolve: (_) => _.get('agendas') },
 				department: {
 					type: new GraphQLNonNull(departmentTypeResolver.getType()),
@@ -36,6 +50,33 @@ export default class MSOPTypeResolver {
 					type: new GraphQLNonNull(new GraphQLList(employeeTypeResolver.getType())),
 					resolve: async (_) => employeeDataLoader.getEmployeeLoaderById().loadMany(_.get('attendeeIds').toArray()),
 				},
+				actionPoint: {
+					type: actionPointWithoutMSOPTypeResolver.getType(),
+					args: {
+						id: { type: new GraphQLNonNull(GraphQLID) },
+					},
+					resolve: async (_, { id }) => (id ? actionPointDataLoader.getActionPointLoaderById().load(id) : null),
+				},
+				actionPoints: {
+					type: actionPointWithoutMSOPTypeResolver.getConnectionDefinitionType().connectionType,
+					args: {
+						...connectionArgs,
+						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
+						assigneeId: { type: GraphQLID },
+						departmentId: { type: GraphQLID },
+						assignedDate: { type: GraphQLString },
+						dueDate: { type: GraphQLString },
+						priorityId: { type: GraphQLID },
+						statusId: { type: GraphQLID },
+						referenceId: { type: GraphQLID },
+						sortingOptions: { type: new GraphQLList(new GraphQLNonNull(SortingOptionPair)) },
+					},
+					resolve: async (_, searchCriteria) =>
+						convertToRelayConnection(
+							searchCriteria,
+							await actionPointBusinessService.search(Object.assign(searchCriteria, { msopId: _.get('id') }))
+						),
+				},
 			},
 			interfaces: [NodeInterface],
 		});
@@ -46,7 +87,7 @@ export default class MSOPTypeResolver {
 					description: 'Total number of MSOPs',
 				},
 			},
-			name: 'MSOPType',
+			name: 'MSOPs',
 			nodeType: this.msopType,
 		});
 	}
@@ -54,18 +95,4 @@ export default class MSOPTypeResolver {
 	getType = () => this.msopType;
 
 	getConnectionDefinitionType = () => this.msopConnectionType;
-
-	getMSOPs = async (searchArgs) => {
-		const { msopIds } = searchArgs;
-		const msops = await this.msopBusinessService.search({ msopIds });
-		const totalCount = msops.length;
-
-		if (totalCount === 0) {
-			return Common.getEmptyResult();
-		}
-
-		const { limit, skip, hasNextPage, hasPreviousPage } = RelayHelper.getLimitAndSkipValue(searchArgs, totalCount, 10, 1000);
-
-		return Common.convertResultsToRelayConnectionResponse(msops, skip, limit, totalCount, hasNextPage, hasPreviousPage);
-	};
 }

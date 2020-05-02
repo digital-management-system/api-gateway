@@ -8,34 +8,49 @@ import { asValue, asFunction, asClass, createContainer } from 'awilix';
 
 import logger from './Logger';
 import {
-	UserBusinessService,
-	ManufacturerBusinessService,
+	ActionPointPriorityBusinessService,
+	ActionPointReferenceBusinessService,
+	ActionPointBusinessService,
+	ActionPointStatusBusinessService,
 	DepartmentBusinessService,
 	EmployeeBusinessService,
+	ManufacturerBusinessService,
+	MeetingDayBusinessService,
+	MeetingFrequencyBusinessService,
 	MSOPBusinessService,
-	ActionReferenceBusinessService,
-	ActionPointBusinessService,
+	UserBusinessService,
 } from './business';
 import {
-	UserRepositoryService,
-	ManufacturerRepositoryService,
+	ActionPointPriorityRepositoryService,
+	ActionPointReferenceRepositoryService,
+	ActionPointRepositoryService,
+	ActionPointStatusRepositoryService,
 	DepartmentRepositoryService,
 	EmployeeRepositoryService,
+	ManufacturerRepositoryService,
+	MeetingDayRepositoryService,
+	MeetingFrequencyRepositoryService,
 	MSOPRepositoryService,
-	ActionReferenceRepositoryService,
-	ActionPointRepositoryService,
+	UserRepositoryService,
 } from './repository';
 import {
+	convertToRelayConnection,
 	getRootQuery,
 	getUserType,
-	ManufacturerTypeResolver,
-	DepartmentTypeResolver,
-	RegisteredUserTypeResolver,
-	EmployeeTypeResolver,
-	ReportingEmployeeTypeResolver,
-	MSOPTypeResolver,
-	ActionReferenceTypeResolver,
+	ActionPointPriorityTypeResolver,
+	ActionPointReferenceTypeResolver,
+	ActionPointStatusTypeResolver,
 	ActionPointTypeResolver,
+	ActionPointWithoutMSOPTypeResolver,
+	DepartmentTypeResolver,
+	EmployeeTypeResolver,
+	EmployeeWithoutDepartmentTypeResolver,
+	ManufacturerTypeResolver,
+	MeetingDayTypeResolver,
+	MeetingFrequencyTypeResolver,
+	MSOPTypeResolver,
+	RegisteredUserTypeResolver,
+	ReportingEmployeeTypeResolver,
 } from './transport/query';
 import {
 	getRootMutation,
@@ -51,23 +66,40 @@ import {
 	createMSOP,
 	updateMSOP,
 	deleteMSOP,
-	createActionReference,
-	updateActionReference,
-	deleteActionReference,
 	createActionPoint,
 	updateActionPoint,
 	deleteActionPoint,
+	createActionPointPriority,
+	updateActionPointPriority,
+	deleteActionPointPriority,
+	createActionPointReference,
+	updateActionPointReference,
+	deleteActionPointReference,
+	createActionPointStatus,
+	updateActionPointStatus,
+	deleteActionPointStatus,
+	createMeetingFrequency,
+	updateMeetingFrequency,
+	deleteMeetingFrequency,
+	createMeetingDay,
+	updateMeetingDay,
+	deleteMeetingDay,
 } from './transport/mutation';
 import { getRootSchema } from './transport';
 import {
-	UserDataLoader,
-	ManufacturerDataLoader,
+	ActionPointPriorityDataLoader,
+	ActionPointReferenceDataLoader,
+	ActionPointDataLoader,
+	ActionPointStatusDataLoader,
 	DepartmentDataLoader,
 	EmployeeDataLoader,
+	ManufacturerDataLoader,
+	MeetingDayDataLoader,
+	MeetingFrequencyDataLoader,
 	MSOPDataLoader,
-	ActionReferenceDataLoader,
-	ActionPointDataLoader,
+	UserDataLoader,
 } from './transport/loaders';
+import setupNewManufacturer from './ManufacturerSetup';
 
 const loggingWinston = require('@google-cloud/logging-winston'); // eslint-disable-line no-undef
 
@@ -77,48 +109,65 @@ const setupContainer = (decodedSessionToken) => {
 	container.register({
 		logger: asValue(logger),
 		decodedSessionToken: asValue(decodedSessionToken),
+		setupNewManufacturer: asFunction(setupNewManufacturer),
 
-		userDataLoader: asClass(UserDataLoader).scoped(),
-		userBusinessService: asClass(UserBusinessService).scoped(),
+		actionPointPriorityRepositoryService: asClass(ActionPointPriorityRepositoryService).scoped(),
+		actionPointReferenceRepositoryService: asClass(ActionPointReferenceRepositoryService).scoped(),
+		actionPointRepositoryService: asClass(ActionPointRepositoryService).scoped(),
+		actionPointStatusRepositoryService: asClass(ActionPointStatusRepositoryService).scoped(),
+		departmentRepositoryService: asClass(DepartmentRepositoryService).scoped(),
+		employeeRepositoryService: asClass(EmployeeRepositoryService).scoped(),
+		manufacturerRepositoryService: asClass(ManufacturerRepositoryService).scoped(),
+		meetingDayRepositoryService: asClass(MeetingDayRepositoryService).scoped(),
+		meetingFrequencyRepositoryService: asClass(MeetingFrequencyRepositoryService).scoped(),
+		msopRepositoryService: asClass(MSOPRepositoryService).scoped(),
 		userRepositoryService: asClass(UserRepositoryService).scoped(),
 
-		manufacturerDataLoader: asClass(ManufacturerDataLoader).scoped(),
-		manufacturerBusinessService: asClass(ManufacturerBusinessService).scoped(),
-		manufacturerRepositoryService: asClass(ManufacturerRepositoryService).scoped(),
-
-		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
-		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
-		departmentRepositoryService: asClass(DepartmentRepositoryService).scoped(),
-
-		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
-		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
-		employeeRepositoryService: asClass(EmployeeRepositoryService).scoped(),
-
-		msopDataLoader: asClass(MSOPDataLoader).scoped(),
-		msopBusinessService: asClass(MSOPBusinessService).scoped(),
-		msopRepositoryService: asClass(MSOPRepositoryService).scoped(),
-
-		actionReferenceDataLoader: asClass(ActionReferenceDataLoader).scoped(),
-		actionReferenceBusinessService: asClass(ActionReferenceBusinessService).scoped(),
-		actionReferenceRepositoryService: asClass(ActionReferenceRepositoryService).scoped(),
-
-		actionPointDataLoader: asClass(ActionPointDataLoader).scoped(),
+		actionPointPriorityBusinessService: asClass(ActionPointPriorityBusinessService).scoped(),
+		actionPointReferenceBusinessService: asClass(ActionPointReferenceBusinessService).scoped(),
 		actionPointBusinessService: asClass(ActionPointBusinessService).scoped(),
-		actionPointRepositoryService: asClass(ActionPointRepositoryService).scoped(),
+		actionPointStatusBusinessService: asClass(ActionPointStatusBusinessService).scoped(),
+		departmentBusinessService: asClass(DepartmentBusinessService).scoped(),
+		employeeBusinessService: asClass(EmployeeBusinessService).scoped(),
+		manufacturerBusinessService: asClass(ManufacturerBusinessService).scoped(),
+		meetingDayBusinessService: asClass(MeetingDayBusinessService).scoped(),
+		meetingFrequencyBusinessService: asClass(MeetingFrequencyBusinessService).scoped(),
+		msopBusinessService: asClass(MSOPBusinessService).scoped(),
+		userBusinessService: asClass(UserBusinessService).scoped(),
 
+		actionPointPriorityDataLoader: asClass(ActionPointPriorityDataLoader).scoped(),
+		actionPointReferenceDataLoader: asClass(ActionPointReferenceDataLoader).scoped(),
+		actionPointDataLoader: asClass(ActionPointDataLoader).scoped(),
+		actionPointStatusDataLoader: asClass(ActionPointStatusDataLoader).scoped(),
+		departmentDataLoader: asClass(DepartmentDataLoader).scoped(),
+		employeeDataLoader: asClass(EmployeeDataLoader).scoped(),
+		manufacturerDataLoader: asClass(ManufacturerDataLoader).scoped(),
+		meetingDayDataLoader: asClass(MeetingDayDataLoader).scoped(),
+		meetingFrequencyDataLoader: asClass(MeetingFrequencyDataLoader).scoped(),
+		msopDataLoader: asClass(MSOPDataLoader).scoped(),
+		userDataLoader: asClass(UserDataLoader).scoped(),
+
+		convertToRelayConnection: asFunction(convertToRelayConnection).scoped(),
 		getRootSchema: asFunction(getRootSchema).scoped(),
 		getRootQuery: asFunction(getRootQuery).scoped(),
-		getRootMutation: asFunction(getRootMutation).scoped(),
 		getUserType: asFunction(getUserType).scoped(),
 
-		manufacturerTypeResolver: asClass(ManufacturerTypeResolver).scoped(),
-		departmentTypeResolver: asClass(DepartmentTypeResolver).scoped(),
-		registeredUserTypeResolver: asClass(RegisteredUserTypeResolver).scoped(),
-		employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
-		reportingEmployeeTypeResolver: asClass(ReportingEmployeeTypeResolver).scoped(),
-		msopTypeResolver: asClass(MSOPTypeResolver).scoped(),
-		actionReferenceTypeResolver: asClass(ActionReferenceTypeResolver).scoped(),
+		actionPointPriorityTypeResolver: asClass(ActionPointPriorityTypeResolver).scoped(),
+		actionPointReferenceTypeResolver: asClass(ActionPointReferenceTypeResolver).scoped(),
+		actionPointStatusTypeResolver: asClass(ActionPointStatusTypeResolver).scoped(),
 		actionPointTypeResolver: asClass(ActionPointTypeResolver).scoped(),
+		actionPointWithoutMSOPTypeResolver: asClass(ActionPointWithoutMSOPTypeResolver).scoped(),
+		departmentTypeResolver: asClass(DepartmentTypeResolver).scoped(),
+		employeeTypeResolver: asClass(EmployeeTypeResolver).scoped(),
+		employeeWithoutDepartmentTypeResolver: asClass(EmployeeWithoutDepartmentTypeResolver).scoped(),
+		manufacturerTypeResolver: asClass(ManufacturerTypeResolver).scoped(),
+		meetingDayTypeResolver: asClass(MeetingDayTypeResolver).scoped(),
+		meetingFrequencyTypeResolver: asClass(MeetingFrequencyTypeResolver).scoped(),
+		msopTypeResolver: asClass(MSOPTypeResolver).scoped(),
+		registeredUserTypeResolver: asClass(RegisteredUserTypeResolver).scoped(),
+		reportingEmployeeTypeResolver: asClass(ReportingEmployeeTypeResolver).scoped(),
+
+		getRootMutation: asFunction(getRootMutation).scoped(),
 
 		createManufacturer: asFunction(createManufacturer).scoped(),
 		updateManufacturer: asFunction(updateManufacturer).scoped(),
@@ -136,13 +185,29 @@ const setupContainer = (decodedSessionToken) => {
 		updateMSOP: asFunction(updateMSOP).scoped(),
 		deleteMSOP: asFunction(deleteMSOP).scoped(),
 
-		createActionReference: asFunction(createActionReference).scoped(),
-		updateActionReference: asFunction(updateActionReference).scoped(),
-		deleteActionReference: asFunction(deleteActionReference).scoped(),
-
 		createActionPoint: asFunction(createActionPoint).scoped(),
 		updateActionPoint: asFunction(updateActionPoint).scoped(),
 		deleteActionPoint: asFunction(deleteActionPoint).scoped(),
+
+		createActionPointPriority: asFunction(createActionPointPriority).scoped(),
+		updateActionPointPriority: asFunction(updateActionPointPriority).scoped(),
+		deleteActionPointPriority: asFunction(deleteActionPointPriority).scoped(),
+
+		createActionPointReference: asFunction(createActionPointReference).scoped(),
+		updateActionPointReference: asFunction(updateActionPointReference).scoped(),
+		deleteActionPointReference: asFunction(deleteActionPointReference).scoped(),
+
+		createActionPointStatus: asFunction(createActionPointStatus).scoped(),
+		updateActionPointStatus: asFunction(updateActionPointStatus).scoped(),
+		deleteActionPointStatus: asFunction(deleteActionPointStatus).scoped(),
+
+		createMeetingFrequency: asFunction(createMeetingFrequency).scoped(),
+		updateMeetingFrequency: asFunction(updateMeetingFrequency).scoped(),
+		deleteMeetingFrequency: asFunction(deleteMeetingFrequency).scoped(),
+
+		createMeetingDay: asFunction(createMeetingDay).scoped(),
+		updateMeetingDay: asFunction(updateMeetingDay).scoped(),
+		deleteMeetingDay: asFunction(deleteMeetingDay).scoped(),
 	});
 
 	return container;
@@ -196,4 +261,15 @@ const createServer = async () => {
 	return expressServer;
 };
 
-export { createServer, setupContainer };
+const handleUserSignUp = async (userId, { userType }) => {
+	if (userType !== 'manufacturer') {
+		return null;
+	}
+
+	const container = setupContainer({ user_id: userId });
+	const setupNewManufacturer = container.resolve('setupNewManufacturer');
+
+	await setupNewManufacturer(userId);
+};
+
+export { createServer, setupContainer, handleUserSignUp };

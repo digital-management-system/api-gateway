@@ -1,50 +1,30 @@
-import Immutable, { List } from 'immutable';
+import Immutable from 'immutable';
 
 import BaseRepositoryService from './BaseRepositoryService';
 
 export default class ManufacturerRepositoryService extends BaseRepositoryService {
-	create = async (info) => (await this.getManufacturerCollection().add(this.getManufacturerDocument(info))).id;
+	constructor() {
+		const toDocument = ({ name, userId }) => ({
+			name,
+			user: this.getUserCollection().doc(userId),
+		});
 
-	read = async (id) => {
-		const manufacturer = (await this.getManufacturerCollection().doc(id).get()).data();
+		const toObject = (document, id) => Immutable.fromJS(document).set('id', id).remove('user').set('userId', document.user.id);
 
-		return manufacturer ? this.createReturnObject(manufacturer, id) : null;
-	};
+		const buildWhereClause = (collection, { userId, name }) => {
+			let collectionWithWhereClause = collection;
 
-	update = async ({ id, ...info }) => {
-		await this.getManufacturerCollection().doc(id).update(this.getManufacturerDocument(info));
-
-		return id;
-	};
-
-	delete = async (id) => {
-		await this.getManufacturerCollection().doc(id).delete();
-
-		return id;
-	};
-
-	search = async ({ manufacturerIds }) => {
-		let manufacturers = List();
-
-		if (!manufacturerIds || manufacturerIds.length === 0) {
-			const snapshot = await this.getManufacturerCollection().get();
-
-			if (!snapshot.empty) {
-				snapshot.forEach((manufacturer) => {
-					manufacturers = manufacturers.push(this.createReturnObject(manufacturer.data(), manufacturer.id));
-				});
+			if (userId) {
+				collectionWithWhereClause = collectionWithWhereClause.where('user', '==', this.getUserCollection().doc(userId));
 			}
 
-			return manufacturers;
-		}
+			if (name) {
+				collectionWithWhereClause = collectionWithWhereClause.where('name', '==', name);
+			}
 
-		return Immutable.fromJS(await Promise.all(manufacturerIds.map((id) => this.read(id)))).filter((manufacturer) => manufacturer !== null);
-	};
+			return collectionWithWhereClause;
+		};
 
-	getManufacturerDocument = ({ name, userId }) => ({
-		name,
-		user: this.getUserCollection().doc(userId),
-	});
-
-	createReturnObject = (manufacturer, id) => Immutable.fromJS(manufacturer).set('id', id).remove('user').set('userId', manufacturer.user.id);
+		super(BaseRepositoryService.collectioNames.manufacturer, toDocument, toObject, buildWhereClause);
+	}
 }
