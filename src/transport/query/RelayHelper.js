@@ -99,16 +99,14 @@ const getLimitAndSkipValue = (searchCriteria, count, defaultPageSize, maximumPag
 	};
 };
 
-const convertToRelayConnection = () => {
-	return (searchCriteria, items) => {
-		if (items.length === 0) {
-			return getEmptyResult();
-		}
+const convertToRelayConnection = () => (searchCriteria, items) => {
+	if (items.length === 0) {
+		return getEmptyResult();
+	}
 
-		const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchCriteria, items.length, 10, 1000);
+	const { limit, skip, hasNextPage, hasPreviousPage } = getLimitAndSkipValue(searchCriteria, items.length, 10, 1000);
 
-		return convertResultsToRelayConnectionResponse(items, skip, limit, items.length, hasNextPage, hasPreviousPage);
-	};
+	return convertResultsToRelayConnectionResponse(items, skip, limit, items.length, hasNextPage, hasPreviousPage);
 };
 
 export default convertToRelayConnection;

@@ -4,7 +4,13 @@ import { connectionArgs } from 'graphql-relay';
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
 
+const getUserFields = () => ({
+	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+	email: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('email') },
+});
+
 const getUserType = ({
+	getUserFields,
 	convertToRelayConnection,
 	manufacturerTypeResolver,
 	manufacturerBusinessService,
@@ -16,8 +22,7 @@ const getUserType = ({
 	new GraphQLObjectType({
 		name: 'User',
 		fields: {
-			id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-			email: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('email') },
+			...getUserFields,
 			manufacturer: {
 				type: manufacturerTypeResolver.getType(),
 				args: {
@@ -60,4 +65,4 @@ const getUserType = ({
 		interfaces: [NodeInterface],
 	});
 
-export default getUserType;
+export { getUserFields, getUserType };
