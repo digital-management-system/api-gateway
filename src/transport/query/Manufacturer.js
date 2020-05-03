@@ -1,41 +1,78 @@
-import { GraphQLInt, GraphQLID, GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList } from 'graphql';
+import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLNonNull, GraphQLInt, GraphQLList } from 'graphql';
 import { connectionArgs, connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
 
-export default class ManufacturerTypeResolver {
+const getManufacturerFields = () => ({
+	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+	name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+});
+
+const getManufacturerType = ({ getManufacturerFields }) =>
+	new GraphQLObjectType({
+		name: 'ManufacturerProperties',
+		fields: {
+			...getManufacturerFields,
+		},
+		interfaces: [NodeInterface],
+	});
+
+const getManufacturerConnectionType = ({ getManufacturerType }) =>
+	connectionDefinitions({
+		name: 'ManufacturersProperties',
+		nodeType: getManufacturerType,
+		connectionFields: {
+			totalCount: {
+				type: GraphQLInt,
+				description: 'Total number of manufacturers',
+			},
+		},
+	});
+
+class ManufacturerTypeResolver {
 	constructor({
+		getManufacturerFields,
 		convertToRelayConnection,
 		registeredUserTypeResolver,
 		userDataLoader,
+
 		departmentTypeResolver,
 		departmentBusinessService,
 		departmentDataLoader,
+
 		employeeTypeResolver,
 		employeeBusinessService,
 		employeeDataLoader,
+
 		msopTypeResolver,
 		msopBusinessService,
 		msopDataLoader,
+
 		actionPointPriorityTypeResolver,
 		actionPointPriorityBusinessService,
 		actionPointPriorityDataLoader,
+
 		actionPointReferenceTypeResolver,
 		actionPointReferenceBusinessService,
 		actionPointReferenceDataLoader,
+
 		actionPointStatusTypeResolver,
 		actionPointStatusBusinessService,
 		actionPointStatusDataLoader,
+
 		actionPointTypeResolver,
 		actionPointBusinessService,
 		actionPointDataLoader,
+
 		meetingDayTypeResolver,
 		meetingDayBusinessService,
 		meetingDayDataLoader,
+
 		meetingDurationTypeResolver,
 		meetingDurationBusinessService,
 		meetingDurationDataLoader,
+
 		meetingFrequencyTypeResolver,
 		meetingFrequencyBusinessService,
 		meetingFrequencyDataLoader,
@@ -43,8 +80,7 @@ export default class ManufacturerTypeResolver {
 		this.manufacturerType = new GraphQLObjectType({
 			name: 'Manufacturer',
 			fields: {
-				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+				...getManufacturerFields,
 				user: {
 					type: new GraphQLNonNull(registeredUserTypeResolver.getType()),
 					resolve: async (_) => userDataLoader.getUserLoaderById().load(_.get('userId')),
@@ -283,14 +319,14 @@ export default class ManufacturerTypeResolver {
 		});
 
 		this.manufacturerConnectionType = connectionDefinitions({
+			name: 'Manufacturers',
+			nodeType: this.manufacturerType,
 			connectionFields: {
 				totalCount: {
 					type: GraphQLInt,
 					description: 'Total number of manufacturers',
 				},
 			},
-			name: 'Manufacturers',
-			nodeType: this.manufacturerType,
 		});
 	}
 
@@ -298,3 +334,5 @@ export default class ManufacturerTypeResolver {
 
 	getConnectionDefinitionType = () => this.manufacturerConnectionType;
 }
+
+export { getManufacturerFields, getManufacturerType, getManufacturerConnectionType, ManufacturerTypeResolver };
