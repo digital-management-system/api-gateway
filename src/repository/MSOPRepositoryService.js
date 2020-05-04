@@ -1,4 +1,4 @@
-import Immutable, { List } from 'immutable';
+import Immutable, { List, Set } from 'immutable';
 
 import BaseRepositoryService from './BaseRepositoryService';
 
