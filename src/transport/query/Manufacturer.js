@@ -3,97 +3,74 @@ import { connectionArgs, connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
+import RegisteredUser from './RegisteredUser';
+import Department from './Department';
+import Employee from './Employee';
+import ActionPoint from './ActionPoint';
+import ActionPointPriority from './ActionPointPriority';
+import ActionPointReference from './ActionPointReference';
+import ActionPointStatus from './ActionPointStatus';
+import MeetingDuration from './MeetingDuration';
+import MeetingDay from './MeetingDay';
+import MeetingFrequency from './MeetingFrequency';
+import MSOP from './MSOP';
 
-const getManufacturerFields = () => ({
-	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-	name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-});
+export default class Manufacturer {
+	static singleType = null;
+	static connectionDefinitionType = null;
 
-const getManufacturerType = ({ getManufacturerFields }) =>
-	new GraphQLObjectType({
-		name: 'ManufacturerProperties',
-		fields: {
-			...getManufacturerFields,
-		},
-		interfaces: [NodeInterface],
-	});
-
-const getManufacturerConnectionType = ({ getManufacturerType }) =>
-	connectionDefinitions({
-		name: 'ManufacturersProperties',
-		nodeType: getManufacturerType,
-		connectionFields: {
-			totalCount: {
-				type: GraphQLInt,
-				description: 'Total number of manufacturers',
-			},
-		},
-	});
-
-class ManufacturerTypeResolver {
 	constructor({
-		getManufacturerFields,
 		convertToRelayConnection,
-		registeredUserTypeResolver,
 		userDataLoader,
 
-		departmentTypeResolver,
 		departmentBusinessService,
 		departmentDataLoader,
 
-		employeeTypeResolver,
 		employeeBusinessService,
 		employeeDataLoader,
 
-		msopTypeResolver,
 		msopBusinessService,
 		msopDataLoader,
 
-		actionPointPriorityTypeResolver,
 		actionPointPriorityBusinessService,
 		actionPointPriorityDataLoader,
 
-		actionPointReferenceTypeResolver,
 		actionPointReferenceBusinessService,
 		actionPointReferenceDataLoader,
 
-		actionPointStatusTypeResolver,
 		actionPointStatusBusinessService,
 		actionPointStatusDataLoader,
 
-		actionPointTypeResolver,
 		actionPointBusinessService,
 		actionPointDataLoader,
 
-		meetingDayTypeResolver,
 		meetingDayBusinessService,
 		meetingDayDataLoader,
 
-		meetingDurationTypeResolver,
 		meetingDurationBusinessService,
 		meetingDurationDataLoader,
 
-		meetingFrequencyTypeResolver,
 		meetingFrequencyBusinessService,
 		meetingFrequencyDataLoader,
 	}) {
-		this.manufacturerType = new GraphQLObjectType({
+		Manufacturer.singleType = new GraphQLObjectType({
 			name: 'Manufacturer',
-			fields: {
-				...getManufacturerFields,
+			fields: () => ({
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
 				user: {
-					type: new GraphQLNonNull(registeredUserTypeResolver.getType()),
+					type: new GraphQLNonNull(RegisteredUser.singleType),
 					resolve: async (_) => userDataLoader.getUserLoaderById().load(_.get('userId')),
 				},
 				department: {
-					type: departmentTypeResolver.getType(),
+					type: Department.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? departmentDataLoader.getDepartmentLoaderById().load(id) : null),
 				},
 				departments: {
-					type: departmentTypeResolver.getConnectionDefinitionType().connectionType,
+					type: Department.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -108,14 +85,14 @@ class ManufacturerTypeResolver {
 						),
 				},
 				employee: {
-					type: employeeTypeResolver.getType(),
+					type: Employee.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? employeeDataLoader.getEmployeeLoaderById().load(id) : null),
 				},
 				employees: {
-					type: employeeTypeResolver.getConnectionDefinitionType().connectionType,
+					type: Employee.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -133,14 +110,14 @@ class ManufacturerTypeResolver {
 						),
 				},
 				msop: {
-					type: msopTypeResolver.getType(),
+					type: MSOP.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? msopDataLoader.getMSOPLoaderById().load(id) : null),
 				},
 				msops: {
-					type: msopTypeResolver.getConnectionDefinitionType().connectionType,
+					type: MSOP.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -161,14 +138,14 @@ class ManufacturerTypeResolver {
 						),
 				},
 				actionPointPriority: {
-					type: actionPointPriorityTypeResolver.getType(),
+					type: ActionPointPriority.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? actionPointPriorityDataLoader.getActionPointPriorityLoaderById().load(id) : null),
 				},
 				actionPointPriorities: {
-					type: actionPointPriorityTypeResolver.getConnectionDefinitionType().connectionType,
+					type: ActionPointPriority.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -182,14 +159,14 @@ class ManufacturerTypeResolver {
 						),
 				},
 				actionPointReference: {
-					type: actionPointReferenceTypeResolver.getType(),
+					type: ActionPointReference.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? actionPointReferenceDataLoader.getActionPointReferenceLoaderById().load(id) : null),
 				},
 				actionPointReferences: {
-					type: actionPointReferenceTypeResolver.getConnectionDefinitionType().connectionType,
+					type: ActionPointReference.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -199,18 +176,18 @@ class ManufacturerTypeResolver {
 					resolve: async (_, searchCriteria) =>
 						convertToRelayConnection(
 							searchCriteria,
-							await actionPointReferenceBusinessService(Object.assign(searchCriteria, { manufacturerId: _.get('id') }))
+							await actionPointReferenceBusinessService.search(Object.assign(searchCriteria, { manufacturerId: _.get('id') }))
 						),
 				},
 				actionPointStatus: {
-					type: actionPointStatusTypeResolver.getType(),
+					type: ActionPointStatus.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? actionPointStatusDataLoader.getActionPointStatusLoaderById().load(id) : null),
 				},
 				actionPointStatuses: {
-					type: actionPointStatusTypeResolver.getConnectionDefinitionType().connectionType,
+					type: ActionPointStatus.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -224,14 +201,14 @@ class ManufacturerTypeResolver {
 						),
 				},
 				actionPoint: {
-					type: actionPointTypeResolver.getType(),
+					type: ActionPoint.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? actionPointDataLoader.getActionPointLoaderById().load(id) : null),
 				},
 				actionPoints: {
-					type: actionPointTypeResolver.getConnectionDefinitionType().connectionType,
+					type: ActionPoint.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -252,14 +229,14 @@ class ManufacturerTypeResolver {
 						),
 				},
 				meetingDay: {
-					type: meetingDayTypeResolver.getType(),
+					type: MeetingDay.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? meetingDayDataLoader.getMeetingDayLoaderById().load(id) : null),
 				},
 				meetingDays: {
-					type: meetingDayTypeResolver.getConnectionDefinitionType().connectionType,
+					type: MeetingDay.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -273,14 +250,14 @@ class ManufacturerTypeResolver {
 						),
 				},
 				meetingDuration: {
-					type: meetingDurationTypeResolver.getType(),
+					type: MeetingDuration.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? meetingDurationDataLoader.getMeetingDurationLoaderById().load(id) : null),
 				},
 				meetingDurations: {
-					type: meetingDurationTypeResolver.getConnectionDefinitionType().connectionType,
+					type: MeetingDuration.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -294,14 +271,14 @@ class ManufacturerTypeResolver {
 						),
 				},
 				meetingFrequency: {
-					type: meetingFrequencyTypeResolver.getType(),
+					type: MeetingFrequency.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? meetingFrequencyDataLoader.getMeetingFrequencyLoaderById().load(id) : null),
 				},
 				meetingFrequencies: {
-					type: meetingFrequencyTypeResolver.getConnectionDefinitionType().connectionType,
+					type: MeetingFrequency.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -314,13 +291,13 @@ class ManufacturerTypeResolver {
 							await meetingFrequencyBusinessService.search(Object.assign(searchCriteria, { manufacturerId: _.get('id') }))
 						),
 				},
-			},
+			}),
 			interfaces: [NodeInterface],
 		});
 
-		this.manufacturerConnectionType = connectionDefinitions({
+		Manufacturer.connectionDefinitionType = connectionDefinitions({
 			name: 'Manufacturers',
-			nodeType: this.manufacturerType,
+			nodeType: Manufacturer.singleType,
 			connectionFields: {
 				totalCount: {
 					type: GraphQLInt,
@@ -330,9 +307,7 @@ class ManufacturerTypeResolver {
 		});
 	}
 
-	getType = () => this.manufacturerType;
+	getType = () => Manufacturer.singleType;
 
-	getConnectionDefinitionType = () => this.manufacturerConnectionType;
+	getConnectionDefinitionType = () => Manufacturer.connectionDefinitionType;
 }
-
-export { getManufacturerFields, getManufacturerType, getManufacturerConnectionType, ManufacturerTypeResolver };

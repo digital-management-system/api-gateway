@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const updateActionPointReference = ({ actionPointReferenceTypeResolver, actionPointReferenceBusinessService, actionPointReferenceDataLoader }) =>
+const updateActionPointReference = ({ actionPointReference, actionPointReferenceBusinessService, actionPointReferenceDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateActionPointReference',
 		inputFields: {
@@ -11,7 +11,7 @@ const updateActionPointReference = ({ actionPointReferenceTypeResolver, actionPo
 		},
 		outputFields: {
 			actionPointReference: {
-				type: actionPointReferenceTypeResolver.getConnectionDefinitionType().edgeType,
+				type: actionPointReference.getConnectionDefinitionType().edgeType,
 				resolve: async ({ id }) => ({
 					cursor: id,
 					node: await actionPointReferenceDataLoader.getActionPointReferenceLoaderById().load(id),

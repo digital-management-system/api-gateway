@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const createMeetingDuration = ({ actionPointPriorityTypeResolver, actionPointPriorityBusinessService, actionPointPriorityDataLoader }) =>
+const createMeetingDuration = ({ actionPointPriority, actionPointPriorityBusinessService, actionPointPriorityDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'CreateMeetingDuration',
 		inputFields: {
@@ -10,7 +10,7 @@ const createMeetingDuration = ({ actionPointPriorityTypeResolver, actionPointPri
 		},
 		outputFields: {
 			actionPointPriority: {
-				type: actionPointPriorityTypeResolver.getConnectionDefinitionType().edgeType,
+				type: actionPointPriority.getConnectionDefinitionType().edgeType,
 				resolve: async ({ id }) => ({
 					cursor: id,
 					node: await actionPointPriorityDataLoader.getMeetingDurationLoaderById().load(id),

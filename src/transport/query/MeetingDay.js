@@ -1,59 +1,30 @@
 import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
+
 import { NodeInterface } from '../interface';
+import Manufacturer from './Manufacturer';
 
-const manufacturerType = new GraphQLObjectType({
-	name: 'MeetingDay_ManufacturerProperties',
-	fields: {
-		id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-		name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	},
-	interfaces: [NodeInterface],
-});
+export default class MeetingDay {
+	static singleType = null;
+	static connectionDefinitionType = null;
 
-const getMeetingDayFields = ({ manufacturerDataLoader }) => ({
-	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-	name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	manufacturer: {
-		type: new GraphQLNonNull(manufacturerType),
-		resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
-	},
-});
-
-const getMeetingDayType = ({ getMeetingDayFields }) =>
-	new GraphQLObjectType({
-		name: 'MeetingDayProperties',
-		fields: {
-			...getMeetingDayFields,
-		},
-		interfaces: [NodeInterface],
-	});
-
-const getMeetingDayConnectionType = ({ getMeetingDayType }) =>
-	connectionDefinitions({
-		name: 'MeetingDaysProperties',
-		nodeType: getMeetingDayType,
-		connectionFields: {
-			totalCount: {
-				type: GraphQLInt,
-				description: 'Total number of meeting days',
-			},
-		},
-	});
-
-class MeetingDayTypeResolver {
-	constructor({ getMeetingDayFields }) {
-		this.meetingDayType = new GraphQLObjectType({
+	constructor({ manufacturerDataLoader }) {
+		MeetingDay.singleType = new GraphQLObjectType({
 			name: 'MeetingDay',
-			fields: {
-				...getMeetingDayFields,
-			},
+			fields: () => ({
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+				manufacturer: {
+					type: new GraphQLNonNull(Manufacturer.singleType),
+					resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
+				},
+			}),
 			interfaces: [NodeInterface],
 		});
 
-		this.meetingDayConnectionType = connectionDefinitions({
+		MeetingDay.connectionDefinitionType = connectionDefinitions({
 			name: 'MeetingDays',
-			nodeType: this.meetingDayType,
+			nodeType: MeetingDay.singleType,
 			connectionFields: {
 				totalCount: {
 					type: GraphQLInt,
@@ -63,9 +34,7 @@ class MeetingDayTypeResolver {
 		});
 	}
 
-	getType = () => this.meetingDayType;
+	getType = () => MeetingDay.singleType;
 
-	getConnectionDefinitionType = () => this.meetingDayConnectionType;
+	getConnectionDefinitionType = () => MeetingDay.connectionDefinitionType;
 }
-
-export { getMeetingDayFields, getMeetingDayType, getMeetingDayConnectionType, MeetingDayTypeResolver };

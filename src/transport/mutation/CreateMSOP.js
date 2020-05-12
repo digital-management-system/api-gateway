@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLID, GraphQLList, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const createMSOP = ({ msopTypeResolver, msopBusinessService, msopDataLoader }) =>
+const createMSOP = ({ msop, msopBusinessService, msopDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'CreateMSOP',
 		inputFields: {
@@ -18,7 +18,7 @@ const createMSOP = ({ msopTypeResolver, msopBusinessService, msopDataLoader }) =
 		},
 		outputFields: {
 			msop: {
-				type: msopTypeResolver.getConnectionDefinitionType().edgeType,
+				type: msop.getConnectionDefinitionType().edgeType,
 				resolve: async ({ id }) => ({
 					cursor: id,
 					node: await msopDataLoader.getMSOPLoaderById().load(id),

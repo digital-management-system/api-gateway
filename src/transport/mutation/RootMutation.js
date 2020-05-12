@@ -37,7 +37,7 @@ const getRootMutation = ({
 }) =>
 	new GraphQLObjectType({
 		name: 'Mutation',
-		fields: {
+		fields: () => ({
 			createManufacturer,
 			updateManufacturer,
 			deleteManufacturer,
@@ -71,7 +71,7 @@ const getRootMutation = ({
 			createMeetingDuration,
 			updateMeetingDuration,
 			deleteMeetingDuration,
-		},
+		}),
 	});
 
 export default getRootMutation;

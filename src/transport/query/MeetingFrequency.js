@@ -1,59 +1,30 @@
 import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
+
 import { NodeInterface } from '../interface';
+import Manufacturer from './Manufacturer';
 
-const manufacturerType = new GraphQLObjectType({
-	name: 'MeetingFrequency_ManufacturerProperties',
-	fields: {
-		id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-		name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	},
-	interfaces: [NodeInterface],
-});
+export default class MeetingFrequency {
+	static singleType = null;
+	static connectionDefinitionType = null;
 
-const getMeetingFrequencyFields = ({ manufacturerDataLoader }) => ({
-	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-	name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	manufacturer: {
-		type: new GraphQLNonNull(manufacturerType),
-		resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
-	},
-});
-
-const getMeetingFrequencyType = ({ getMeetingFrequencyFields }) =>
-	new GraphQLObjectType({
-		name: 'MeetingFrequencyProperties',
-		fields: {
-			...getMeetingFrequencyFields,
-		},
-		interfaces: [NodeInterface],
-	});
-
-const getMeetingFrequencyConnectionType = ({ getMeetingFrequencyType }) =>
-	connectionDefinitions({
-		name: 'MeetingFrequenciesProperties',
-		nodeType: getMeetingFrequencyType,
-		connectionFields: {
-			totalCount: {
-				type: GraphQLInt,
-				description: 'Total number of meeting frequencies',
-			},
-		},
-	});
-
-class MeetingFrequencyTypeResolver {
-	constructor({ getMeetingFrequencyFields }) {
-		this.meetingFrequencyType = new GraphQLObjectType({
+	constructor({ manufacturerDataLoader }) {
+		MeetingFrequency.singleType = new GraphQLObjectType({
 			name: 'MeetingFrequency',
-			fields: {
-				...getMeetingFrequencyFields,
-			},
+			fields: () => ({
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+				manufacturer: {
+					type: new GraphQLNonNull(Manufacturer.singleType),
+					resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
+				},
+			}),
 			interfaces: [NodeInterface],
 		});
 
-		this.meetingFrequencyConnectionType = connectionDefinitions({
+		MeetingFrequency.connectionDefinitionType = connectionDefinitions({
 			name: 'MeetingFrequencies',
-			nodeType: this.meetingFrequencyType,
+			nodeType: MeetingFrequency.singleType,
 			connectionFields: {
 				totalCount: {
 					type: GraphQLInt,
@@ -63,9 +34,7 @@ class MeetingFrequencyTypeResolver {
 		});
 	}
 
-	getType = () => this.meetingFrequencyType;
+	getType = () => MeetingFrequency.singleType;
 
-	getConnectionDefinitionType = () => this.meetingFrequencyConnectionType;
+	getConnectionDefinitionType = () => MeetingFrequency.connectionDefinitionType;
 }
-
-export { getMeetingFrequencyFields, getMeetingFrequencyType, getMeetingFrequencyConnectionType, MeetingFrequencyTypeResolver };

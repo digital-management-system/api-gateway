@@ -2,70 +2,40 @@ import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLNonNull, GraphQLInt
 import { connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
+import Manufacturer from './Manufacturer';
+import Department from './Department';
+import Employee from './Employee';
+import ActionPointStatus from './ActionPointStatus';
+import ActionPointReference from './ActionPointReference';
+import ActionPointPriority from './ActionPointPriority';
 
-const manufacturerType = new GraphQLObjectType({
-	name: 'ActionPoint_ManufacturerProperties',
-	fields: {
-		id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-		name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	},
-	interfaces: [NodeInterface],
-});
+export default class ActionPoint {
+	static singleType = null;
+	static connectionDefinitionType = null;
 
-const getActionPointFields = ({ manufacturerDataLoader }) => ({
-	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-	assignedDate: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('assignedDate') },
-	dueDate: { type: GraphQLString, resolve: (_) => _.get('dueDate') },
-	comments: { type: GraphQLString, resolve: (_) => _.get('comments') },
-	manufacturer: {
-		type: new GraphQLNonNull(manufacturerType),
-		resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
-	},
-});
-
-const getActionPointType = ({ getActionPointFields }) =>
-	new GraphQLObjectType({
-		name: 'ActionPointProperties',
-		fields: {
-			...getActionPointFields,
-		},
-		interfaces: [NodeInterface],
-	});
-
-const getActionPointConnectionType = ({ getActionPointType }) =>
-	connectionDefinitions({
-		name: 'ActionPointsProperties',
-		nodeType: getActionPointType,
-		connectionFields: {
-			totalCount: {
-				type: GraphQLInt,
-				description: 'Total number of action points',
-			},
-		},
-	});
-
-class ActionPointTypeResolver {
 	constructor({
-		getActionPointFields,
+		manufacturerDataLoader,
 		msopDataLoader,
-		msopTypeResolver,
+		msop,
 		actionPointPriorityDataLoader,
 		actionPointStatusDataLoader,
 		actionPointReferenceDataLoader,
 		employeeDataLoader,
 		departmentDataLoader,
-		getEmployeeType,
-		getActionPointPriorityType,
-		getActionPointReferenceType,
-		getActionPointStatusType,
-		getDepartmentType,
 	}) {
-		this.actionPointType = new GraphQLObjectType({
+		ActionPoint.singleType = new GraphQLObjectType({
 			name: 'ActionPoint',
-			fields: {
-				...getActionPointFields,
+			fields: () => ({
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				assignedDate: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('assignedDate') },
+				dueDate: { type: GraphQLString, resolve: (_) => _.get('dueDate') },
+				comments: { type: GraphQLString, resolve: (_) => _.get('comments') },
+				manufacturer: {
+					type: new GraphQLNonNull(Manufacturer.singleType),
+					resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
+				},
 				msop: {
-					type: msopTypeResolver.getType(),
+					type: msop.getType(),
 					resolve: async (_) => {
 						const msopId = _.get('msopId');
 
@@ -73,7 +43,7 @@ class ActionPointTypeResolver {
 					},
 				},
 				assignee: {
-					type: getEmployeeType('ActionPointTypeResolver_EmployeeProperties'),
+					type: Employee.singleType,
 					resolve: async (_) => {
 						const assigneeId = _.get('assigneeId');
 
@@ -81,11 +51,11 @@ class ActionPointTypeResolver {
 					},
 				},
 				department: {
-					type: new GraphQLNonNull(getDepartmentType),
+					type: new GraphQLNonNull(Department.singleType),
 					resolve: async (_) => departmentDataLoader.getDepartmentLoaderById().load(_.get('departmentId')),
 				},
 				priority: {
-					type: getActionPointPriorityType,
+					type: ActionPointPriority.singleType,
 					resolve: async (_) => {
 						const priorityId = _.get('priorityId');
 
@@ -93,7 +63,7 @@ class ActionPointTypeResolver {
 					},
 				},
 				status: {
-					type: getActionPointStatusType,
+					type: ActionPointStatus.singleType,
 					resolve: async (_) => {
 						const statusId = _.get('statusId');
 
@@ -101,17 +71,17 @@ class ActionPointTypeResolver {
 					},
 				},
 				references: {
-					type: new GraphQLNonNull(new GraphQLList(getActionPointReferenceType)),
+					type: new GraphQLNonNull(new GraphQLList(ActionPointReference.singleType)),
 					resolve: async (_) =>
 						actionPointReferenceDataLoader.getActionPointReferenceLoaderById().loadMany(_.get('referenceIds').toArray()),
 				},
-			},
+			}),
 			interfaces: [NodeInterface],
 		});
 
-		this.actionPointConnectionType = connectionDefinitions({
+		ActionPoint.connectionDefinitionType = connectionDefinitions({
 			name: 'ActionPoints',
-			nodeType: this.actionPointType,
+			nodeType: ActionPoint.singleType,
 			connectionFields: {
 				totalCount: {
 					type: GraphQLInt,
@@ -121,9 +91,7 @@ class ActionPointTypeResolver {
 		});
 	}
 
-	getType = () => this.actionPointType;
+	getType = () => ActionPoint.singleType;
 
-	getConnectionDefinitionType = () => this.actionPointConnectionType;
+	getConnectionDefinitionType = () => ActionPoint.connectionDefinitionType;
 }
-
-export { getActionPointFields, getActionPointType, getActionPointConnectionType, ActionPointTypeResolver };

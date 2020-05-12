@@ -3,73 +3,42 @@ import { connectionArgs, connectionDefinitions } from 'graphql-relay';
 
 import { NodeInterface } from '../interface';
 import SortingOptionPair from './SortingOptionPair';
+import Manufacturer from './Manufacturer';
+import Employee from './Employee';
+import ActionPoint from './ActionPoint';
+import MSOP from './MSOP';
 
-const manufacturerType = new GraphQLObjectType({
-	name: 'Department_ManufacturerProperties',
-	fields: {
-		id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-		name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	},
-	interfaces: [NodeInterface],
-});
+export default class Department {
+	static singleType = null;
+	static connectionDefinitionType = null;
 
-const getDepartmentFields = ({ manufacturerDataLoader }) => ({
-	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-	name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	description: { type: GraphQLString, resolve: (_) => _.get('description') },
-	manufacturer: {
-		type: new GraphQLNonNull(manufacturerType),
-		resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
-	},
-});
-
-const getDepartmentType = ({ getDepartmentFields }) =>
-	new GraphQLObjectType({
-		name: 'DepartmentProperties',
-		fields: {
-			...getDepartmentFields,
-		},
-		interfaces: [NodeInterface],
-	});
-
-const getDepartmentConnectionType = ({ getDepartmentType }) =>
-	connectionDefinitions({
-		name: 'DepartmentsProperties',
-		nodeType: getDepartmentType,
-		connectionFields: {
-			totalCount: {
-				type: GraphQLInt,
-				description: 'Total number of departments',
-			},
-		},
-	});
-
-class DepartmentTypeResolver {
 	constructor({
-		getDepartmentFields,
 		convertToRelayConnection,
 		employeeBusinessService,
 		employeeDataLoader,
-		getEmployeeType,
-		getEmployeeConnectionType,
-		getMSOPConnectionType,
 		msopBusinessService,
-		getActionPointConnectionType,
 		actionPointBusinessService,
+		manufacturerDataLoader,
 	}) {
-		this.departmentType = new GraphQLObjectType({
+		Department.singleType = new GraphQLObjectType({
 			name: 'Department',
-			fields: {
-				...getDepartmentFields,
+			fields: () => ({
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+				description: { type: GraphQLString, resolve: (_) => _.get('description') },
+				manufacturer: {
+					type: new GraphQLNonNull(Manufacturer.singleType),
+					resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
+				},
 				employee: {
-					type: getEmployeeType('DepartmentTypeResolver_EmployeeProperties'),
+					type: Employee.singleType,
 					args: {
 						id: { type: new GraphQLNonNull(GraphQLID) },
 					},
 					resolve: async (_, { id }) => (id ? employeeDataLoader.getEmployeeLoaderById().load(id) : null),
 				},
 				employees: {
-					type: getEmployeeConnectionType('DepartmentTypeResolver_Connection_EmployeeProperties').connectionType,
+					type: Employee.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -87,7 +56,7 @@ class DepartmentTypeResolver {
 						),
 				},
 				msops: {
-					type: getMSOPConnectionType.connectionType,
+					type: MSOP.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -107,7 +76,7 @@ class DepartmentTypeResolver {
 						),
 				},
 				actionPoints: {
-					type: getActionPointConnectionType.connectionType,
+					type: ActionPoint.connectionDefinitionType.connectionType,
 					args: {
 						...connectionArgs,
 						ids: { type: new GraphQLList(new GraphQLNonNull(GraphQLID)) },
@@ -126,13 +95,13 @@ class DepartmentTypeResolver {
 							await actionPointBusinessService.search(Object.assign(searchCriteria, { departmentId: _.get('id') }))
 						),
 				},
-			},
+			}),
 			interfaces: [NodeInterface],
 		});
 
-		this.departmentConnectionType = connectionDefinitions({
+		Department.connectionDefinitionType = connectionDefinitions({
 			name: 'Departments',
-			nodeType: this.departmentType,
+			nodeType: Department.singleType,
 			connectionFields: {
 				totalCount: {
 					type: GraphQLInt,
@@ -142,9 +111,7 @@ class DepartmentTypeResolver {
 		});
 	}
 
-	getType = () => this.departmentType;
+	getType = () => Department.singleType;
 
-	getConnectionDefinitionType = () => this.departmentConnectionType;
+	getConnectionDefinitionType = () => Department.connectionDefinitionType;
 }
-
-export { getDepartmentFields, getDepartmentType, getDepartmentConnectionType, DepartmentTypeResolver };
