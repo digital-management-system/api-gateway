@@ -1,7 +1,7 @@
 import { GraphQLList, GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const createEmployee = ({ employeeTypeResolver, employeeBusinessService, employeeDataLoader }) =>
+const createEmployee = ({ employee, employeeBusinessService, employeeDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'CreateEmployee',
 		inputFields: {
@@ -15,7 +15,7 @@ const createEmployee = ({ employeeTypeResolver, employeeBusinessService, employe
 		},
 		outputFields: {
 			employee: {
-				type: employeeTypeResolver.getConnectionDefinitionType().edgeType,
+				type: employee.getConnectionDefinitionType().edgeType,
 				resolve: async ({ id }) => ({
 					cursor: id,
 					node: await employeeDataLoader.getEmployeeLoaderById().load(id),

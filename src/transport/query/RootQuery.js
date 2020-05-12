@@ -1,11 +1,13 @@
 import { GraphQLObjectType } from 'graphql';
 
-const getRootQuery = ({ getUserType, userBusinessService, decodedSessionToken }) =>
+import User from './User';
+
+const getRootQuery = ({ userBusinessService, decodedSessionToken }) =>
 	new GraphQLObjectType({
 		name: 'Query',
-		fields: {
-			user: { type: getUserType, resolve: async () => userBusinessService.read(decodedSessionToken.user_id) },
-		},
+		fields: () => ({
+			user: { type: User.singleType, resolve: async () => userBusinessService.read(decodedSessionToken.user_id) },
+		}),
 	});
 
 export default getRootQuery;

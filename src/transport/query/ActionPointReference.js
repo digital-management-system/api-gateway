@@ -1,59 +1,30 @@
 import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
+
 import { NodeInterface } from '../interface';
+import Manufacturer from './Manufacturer';
 
-const manufacturerType = new GraphQLObjectType({
-	name: 'ActionPointReference_ManufacturerProperties',
-	fields: {
-		id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-		name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	},
-	interfaces: [NodeInterface],
-});
+export default class ActionPointReference {
+	static singleType = null;
+	static connectionDefinitionType = null;
 
-const getActionPointReferenceFields = ({ manufacturerDataLoader }) => ({
-	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-	name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	manufacturer: {
-		type: new GraphQLNonNull(manufacturerType),
-		resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
-	},
-});
-
-const getActionPointReferenceType = ({ getActionPointReferenceFields }) =>
-	new GraphQLObjectType({
-		name: 'ActionPointReferenceProperties',
-		fields: {
-			...getActionPointReferenceFields,
-		},
-		interfaces: [NodeInterface],
-	});
-
-const getActionPointReferenceConnectionType = ({ getActionPointReferenceType }) =>
-	connectionDefinitions({
-		name: 'ActionPointReferencesProperties',
-		nodeType: getActionPointReferenceType,
-		connectionFields: {
-			totalCount: {
-				type: GraphQLInt,
-				description: 'Total number of action point references',
-			},
-		},
-	});
-
-class ActionPointReferenceTypeResolver {
-	constructor({ getActionPointReferenceFields }) {
-		this.actionPointReferenceType = new GraphQLObjectType({
+	constructor({ manufacturerDataLoader }) {
+		ActionPointReference.singleType = new GraphQLObjectType({
 			name: 'ActionPointReference',
-			fields: {
-				...getActionPointReferenceFields,
-			},
+			fields: () => ({
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+				manufacturer: {
+					type: new GraphQLNonNull(Manufacturer.singleType),
+					resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
+				},
+			}),
 			interfaces: [NodeInterface],
 		});
 
-		this.actionPointReferenceConnectionType = connectionDefinitions({
+		ActionPointReference.connectionDefinitionType = connectionDefinitions({
 			name: 'ActionPointReferences',
-			nodeType: this.actionPointReferenceType,
+			nodeType: ActionPointReference.singleType,
 			connectionFields: {
 				totalCount: {
 					type: GraphQLInt,
@@ -63,9 +34,7 @@ class ActionPointReferenceTypeResolver {
 		});
 	}
 
-	getType = () => this.actionPointReferenceType;
+	getType = () => ActionPointReference.singleType;
 
-	getConnectionDefinitionType = () => this.actionPointReferenceConnectionType;
+	getConnectionDefinitionType = () => ActionPointReference.connectionDefinitionType;
 }
-
-export { getActionPointReferenceFields, getActionPointReferenceType, getActionPointReferenceConnectionType, ActionPointReferenceTypeResolver };

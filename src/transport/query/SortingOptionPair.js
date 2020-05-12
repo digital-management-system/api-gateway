@@ -14,8 +14,8 @@ const sortingDirection = new GraphQLEnumType({
 
 export default new GraphQLInputObjectType({
 	name: 'SortingOptionPair',
-	fields: {
+	fields: () => ({
 		name: { type: new GraphQLNonNull(GraphQLString) },
 		direction: { type: new GraphQLNonNull(sortingDirection) },
-	},
+	}),
 });

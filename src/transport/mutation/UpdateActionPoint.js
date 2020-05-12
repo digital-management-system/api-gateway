@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLID, GraphQLString, GraphQLList } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const updateActionPoint = ({ actionPointTypeResolver, actionPointBusinessService, actionPointDataLoader }) =>
+const updateActionPoint = ({ actionPoint, actionPointBusinessService, actionPointDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateActionPoint',
 		inputFields: {
@@ -19,7 +19,7 @@ const updateActionPoint = ({ actionPointTypeResolver, actionPointBusinessService
 		},
 		outputFields: {
 			actionPoint: {
-				type: actionPointTypeResolver.getConnectionDefinitionType().edgeType,
+				type: actionPoint.getConnectionDefinitionType().edgeType,
 				resolve: async ({ id }) => ({
 					cursor: id,
 					node: await actionPointDataLoader.getActionPointLoaderById().load(id),

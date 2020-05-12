@@ -1,59 +1,30 @@
 import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
 import { connectionDefinitions } from 'graphql-relay';
+
 import { NodeInterface } from '../interface';
+import Manufacturer from './Manufacturer';
 
-const manufacturerType = new GraphQLObjectType({
-	name: 'ActionPointStatus_ManufacturerProperties',
-	fields: {
-		id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-		name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	},
-	interfaces: [NodeInterface],
-});
+export default class ActionPointStatus {
+	static singleType = null;
+	static connectionDefinitionType = null;
 
-const getActionPointStatusFields = ({ manufacturerDataLoader }) => ({
-	id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
-	name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
-	manufacturer: {
-		type: new GraphQLNonNull(manufacturerType),
-		resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
-	},
-});
-
-const getActionPointStatusType = ({ getActionPointStatusFields }) =>
-	new GraphQLObjectType({
-		name: 'ActionPointStatusProperties',
-		fields: {
-			...getActionPointStatusFields,
-		},
-		interfaces: [NodeInterface],
-	});
-
-const getActionPointStatusConnectionType = ({ getActionPointStatusType }) =>
-	connectionDefinitions({
-		name: 'ActionPointStatusProperties',
-		nodeType: getActionPointStatusType,
-		connectionFields: {
-			totalCount: {
-				type: GraphQLInt,
-				description: 'Total number of action point statuses',
-			},
-		},
-	});
-
-class ActionPointStatusTypeResolver {
-	constructor({ getActionPointStatusFields }) {
-		this.actionPointStatusType = new GraphQLObjectType({
+	constructor({ manufacturerDataLoader }) {
+		ActionPointStatus.singleType = new GraphQLObjectType({
 			name: 'ActionPointStatus',
-			fields: {
-				...getActionPointStatusFields,
-			},
+			fields: () => ({
+				id: { type: new GraphQLNonNull(GraphQLID), resolve: (_) => _.get('id') },
+				name: { type: new GraphQLNonNull(GraphQLString), resolve: (_) => _.get('name') },
+				manufacturer: {
+					type: new GraphQLNonNull(Manufacturer.singleType),
+					resolve: async (_) => manufacturerDataLoader.getManufacturerLoaderById().load(_.get('manufacturerId')),
+				},
+			}),
 			interfaces: [NodeInterface],
 		});
 
-		this.actionPointStatusConnectionType = connectionDefinitions({
+		ActionPointStatus.connectionDefinitionType = connectionDefinitions({
 			name: 'ActionPointStatuses',
-			nodeType: this.actionPointStatusType,
+			nodeType: ActionPointStatus.singleType,
 			connectionFields: {
 				totalCount: {
 					type: GraphQLInt,
@@ -63,9 +34,7 @@ class ActionPointStatusTypeResolver {
 		});
 	}
 
-	getType = () => this.actionPointStatusType;
+	getType = () => ActionPointStatus.singleType;
 
-	getConnectionDefinitionType = () => this.actionPointStatusConnectionType;
+	getConnectionDefinitionType = () => ActionPointStatus.connectionDefinitionType;
 }
-
-export { getActionPointStatusFields, getActionPointStatusType, getActionPointStatusConnectionType, ActionPointStatusTypeResolver };

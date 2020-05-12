@@ -52,53 +52,32 @@ type Department implements Node {
   id: ID!
   name: String!
   description: String
-  manufacturer: Department_ManufacturerProperties!
-  employee(id: ID!): DepartmentTypeResolver_EmployeeProperties
-  employees(after: String, first: Int, before: String, last: Int, ids: [ID!], employeeReference: String, position: String, mobile: String, userId: ID, reportingToEmployeeId: ID, sortingOptions: [SortingOptionPair!]): DepartmentTypeResolver_Connection_EmployeePropertiesConnection
-  msops(after: String, first: Int, before: String, last: Int, ids: [ID!], meetingName: String, durationId: ID, frequencyId: ID, meetingDayId: ID, chairPersonEmployeeId: ID, actionLogSecretaryEmployeeId: ID, attendeeId: ID, sortingOptions: [SortingOptionPair!]): MSOPsPropertiesConnection
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], assigneeId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
+  manufacturer: Manufacturer!
+  employee(id: ID!): Employee
+  employees(after: String, first: Int, before: String, last: Int, ids: [ID!], employeeReference: String, position: String, mobile: String, userId: ID, reportingToEmployeeId: ID, sortingOptions: [SortingOptionPair!]): EmployeesConnection
+  msops(after: String, first: Int, before: String, last: Int, ids: [ID!], meetingName: String, durationId: ID, frequencyId: ID, meetingDayId: ID, chairPersonEmployeeId: ID, actionLogSecretaryEmployeeId: ID, attendeeId: ID, sortingOptions: [SortingOptionPair!]): MSOPsConnection
+  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], assigneeId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsConnection
 }
 
-type Department_ManufacturerProperties implements Node {
-  id: ID!
-  name: String!
-}
-
-type DepartmentTypeResolver_EmployeeProperties implements Node {
+type Employee implements Node {
   id: ID!
   employeeReference: String
   position: String
   mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-  reportingToEmployee: DepartmentTypeResolver_EmployeeProperties_ReportingEmployeeProperties
-}
-
-type Employee_RegisteredUserProperties implements Node {
-  id: ID!
-  email: String!
-}
-
-type Employee_ManufacturerProperties implements Node {
-  id: ID!
-  name: String!
-}
-
-type Employee_DepartmentProperties implements Node {
-  id: ID!
-  name: String!
-  description: String
+  user: RegisteredUser!
+  manufacturer: Manufacturer!
+  departments: [Department]!
+  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsConnection
+  reportingToEmployee: Employee
 }
 
 """A connection to a list of items."""
-type ActionPointsPropertiesConnection {
+type ActionPointsConnection {
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """A list of edges."""
-  edges: [ActionPointsPropertiesEdge]
+  edges: [ActionPointsEdge]
 
   """Total number of action points"""
   totalCount: Int
@@ -120,25 +99,59 @@ type PageInfo {
 }
 
 """An edge in a connection."""
-type ActionPointsPropertiesEdge {
+type ActionPointsEdge {
   """The item at the end of the edge"""
-  node: ActionPointProperties
+  node: ActionPoint
 
   """A cursor for use in pagination"""
   cursor: String!
 }
 
-type ActionPointProperties implements Node {
+type ActionPoint implements Node {
   id: ID!
   assignedDate: String!
   dueDate: String
   comments: String
-  manufacturer: ActionPoint_ManufacturerProperties!
+  manufacturer: Manufacturer!
+  msop: MSOP
+  assignee: Employee
+  department: Department!
+  priority: ActionPointPriority
+  status: ActionPointStatus
+  references: [ActionPointReference]!
 }
 
-type ActionPoint_ManufacturerProperties implements Node {
+type MSOP implements Node {
+  id: ID!
+  meetingName: String!
+  agendas: String
+  manufacturer: Manufacturer!
+  duration: MeetingDuration!
+  frequency: MeetingFrequency!
+  meetingDays: [MeetingDay]!
+  department: Department!
+  chairPersonEmployee: Employee!
+  actionLogSecretaryEmployee: Employee!
+  attendees: [Employee!]!
+  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], assigneeId: ID, departmentId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsConnection
+}
+
+type MeetingDuration implements Node {
   id: ID!
   name: String!
+  manufacturer: Manufacturer!
+}
+
+type MeetingFrequency implements Node {
+  id: ID!
+  name: String!
+  manufacturer: Manufacturer!
+}
+
+type MeetingDay implements Node {
+  id: ID!
+  name: String!
+  manufacturer: Manufacturer!
 }
 
 input SortingOptionPair {
@@ -151,136 +164,22 @@ enum SortingDirection {
   Descending
 }
 
-type DepartmentTypeResolver_EmployeeProperties_ReportingEmployeeProperties implements Node {
-  id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-}
-
-"""A connection to a list of items."""
-type DepartmentTypeResolver_Connection_EmployeePropertiesConnection {
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """A list of edges."""
-  edges: [DepartmentTypeResolver_Connection_EmployeePropertiesEdge]
-
-  """Total number of employees"""
-  totalCount: Int
-}
-
-"""An edge in a connection."""
-type DepartmentTypeResolver_Connection_EmployeePropertiesEdge {
-  """The item at the end of the edge"""
-  node: Connection_EmployeeProperties
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type Connection_EmployeeProperties implements Node {
-  id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-  reportingToEmployee: Connection_EmployeeProperties_ReportingEmployeeProperties
-}
-
-type Connection_EmployeeProperties_ReportingEmployeeProperties implements Node {
-  id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-}
-
-"""A connection to a list of items."""
-type MSOPsPropertiesConnection {
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """A list of edges."""
-  edges: [MSOPsPropertiesEdge]
-
-  """Total number of MSOPs"""
-  totalCount: Int
-}
-
-"""An edge in a connection."""
-type MSOPsPropertiesEdge {
-  """The item at the end of the edge"""
-  node: MSOPProperties
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type MSOPProperties implements Node {
-  id: ID!
-  meetingName: String!
-  agendas: String
-  manufacturer: MSOP_ManufacturerProperties!
-}
-
-type MSOP_ManufacturerProperties implements Node {
+type ActionPointPriority implements Node {
   id: ID!
   name: String!
+  manufacturer: Manufacturer!
 }
 
-"""A connection to a list of items."""
-type DepartmentsConnection {
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """A list of edges."""
-  edges: [DepartmentsEdge]
-
-  """Total number of departments"""
-  totalCount: Int
-}
-
-"""An edge in a connection."""
-type DepartmentsEdge {
-  """The item at the end of the edge"""
-  node: Department
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type Employee implements Node {
+type ActionPointStatus implements Node {
   id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-  reportingToEmployee: EmployeeTypeResolver_ReportingEmployeeProperties
+  name: String!
+  manufacturer: Manufacturer!
 }
 
-type EmployeeTypeResolver_ReportingEmployeeProperties implements Node {
+type ActionPointReference implements Node {
   id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
+  name: String!
+  manufacturer: Manufacturer!
 }
 
 """A connection to a list of items."""
@@ -304,84 +203,6 @@ type EmployeesEdge {
   cursor: String!
 }
 
-type MSOP implements Node {
-  id: ID!
-  meetingName: String!
-  agendas: String
-  manufacturer: MSOP_ManufacturerProperties!
-  duration: MeetingDurationProperties!
-  frequency: MeetingFrequencyProperties!
-  meetingDays: [MeetingDayProperties]!
-  department: DepartmentProperties!
-  chairPersonEmployee: MSOPTypeResolver_EmployeeProperties!
-  actionLogSecretaryEmployee: MSOPTypeResolver_EmployeeProperties!
-  attendees: [MSOPTypeResolver_EmployeeProperties!]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], assigneeId: ID, departmentId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-}
-
-type MeetingDurationProperties implements Node {
-  id: ID!
-  name: String!
-  manufacturer: MeetingDuration_ManufacturerProperties!
-}
-
-type MeetingDuration_ManufacturerProperties implements Node {
-  id: ID!
-  name: String!
-}
-
-type MeetingFrequencyProperties implements Node {
-  id: ID!
-  name: String!
-  manufacturer: MeetingFrequency_ManufacturerProperties!
-}
-
-type MeetingFrequency_ManufacturerProperties implements Node {
-  id: ID!
-  name: String!
-}
-
-type MeetingDayProperties implements Node {
-  id: ID!
-  name: String!
-  manufacturer: MeetingDay_ManufacturerProperties!
-}
-
-type MeetingDay_ManufacturerProperties implements Node {
-  id: ID!
-  name: String!
-}
-
-type DepartmentProperties implements Node {
-  id: ID!
-  name: String!
-  description: String
-  manufacturer: Department_ManufacturerProperties!
-}
-
-type MSOPTypeResolver_EmployeeProperties implements Node {
-  id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-  reportingToEmployee: MSOPTypeResolver_EmployeeProperties_ReportingEmployeeProperties
-}
-
-type MSOPTypeResolver_EmployeeProperties_ReportingEmployeeProperties implements Node {
-  id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-}
-
 """A connection to a list of items."""
 type MSOPsConnection {
   """Information to aid in pagination."""
@@ -403,15 +224,25 @@ type MSOPsEdge {
   cursor: String!
 }
 
-type ActionPointPriority implements Node {
-  id: ID!
-  name: String!
-  manufacturer: ActionPointPriority_ManufacturerProperties!
+"""A connection to a list of items."""
+type DepartmentsConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [DepartmentsEdge]
+
+  """Total number of departments"""
+  totalCount: Int
 }
 
-type ActionPointPriority_ManufacturerProperties implements Node {
-  id: ID!
-  name: String!
+"""An edge in a connection."""
+type DepartmentsEdge {
+  """The item at the end of the edge"""
+  node: Department
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }
 
 """A connection to a list of items."""
@@ -435,17 +266,6 @@ type ActionPointPrioritiesEdge {
   cursor: String!
 }
 
-type ActionPointReference implements Node {
-  id: ID!
-  name: String!
-  manufacturer: ActionPointReference_ManufacturerProperties!
-}
-
-type ActionPointReference_ManufacturerProperties implements Node {
-  id: ID!
-  name: String!
-}
-
 """A connection to a list of items."""
 type ActionPointReferencesConnection {
   """Information to aid in pagination."""
@@ -465,17 +285,6 @@ type ActionPointReferencesEdge {
 
   """A cursor for use in pagination"""
   cursor: String!
-}
-
-type ActionPointStatus implements Node {
-  id: ID!
-  name: String!
-  manufacturer: ActionPointStatus_ManufacturerProperties!
-}
-
-type ActionPointStatus_ManufacturerProperties implements Node {
-  id: ID!
-  name: String!
 }
 
 """A connection to a list of items."""
@@ -499,88 +308,6 @@ type ActionPointStatusesEdge {
   cursor: String!
 }
 
-type ActionPoint implements Node {
-  id: ID!
-  assignedDate: String!
-  dueDate: String
-  comments: String
-  manufacturer: ActionPoint_ManufacturerProperties!
-  msop: MSOP
-  assignee: ActionPointTypeResolver_EmployeeProperties
-  department: DepartmentProperties!
-  priority: ActionPointPriorityProperties
-  status: ActionPointStatusProperties
-  references: [ActionPointReferenceProperties]!
-}
-
-type ActionPointTypeResolver_EmployeeProperties implements Node {
-  id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-  reportingToEmployee: ActionPointTypeResolver_EmployeeProperties_ReportingEmployeeProperties
-}
-
-type ActionPointTypeResolver_EmployeeProperties_ReportingEmployeeProperties implements Node {
-  id: ID!
-  employeeReference: String
-  position: String
-  mobile: String
-  user: Employee_RegisteredUserProperties!
-  manufacturer: Employee_ManufacturerProperties!
-  departments: [Employee_DepartmentProperties]!
-  actionPoints(after: String, first: Int, before: String, last: Int, ids: [ID!], departmentId: ID, msopId: ID, assignedDate: String, dueDate: String, priorityId: ID, statusId: ID, referenceId: ID, sortingOptions: [SortingOptionPair!]): ActionPointsPropertiesConnection
-}
-
-type ActionPointPriorityProperties implements Node {
-  id: ID!
-  name: String!
-  manufacturer: ActionPointPriority_ManufacturerProperties!
-}
-
-type ActionPointStatusProperties implements Node {
-  id: ID!
-  name: String!
-  manufacturer: ActionPointStatus_ManufacturerProperties!
-}
-
-type ActionPointReferenceProperties implements Node {
-  id: ID!
-  name: String!
-  manufacturer: ActionPointReference_ManufacturerProperties!
-}
-
-"""A connection to a list of items."""
-type ActionPointsConnection {
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """A list of edges."""
-  edges: [ActionPointsEdge]
-
-  """Total number of action points"""
-  totalCount: Int
-}
-
-"""An edge in a connection."""
-type ActionPointsEdge {
-  """The item at the end of the edge"""
-  node: ActionPoint
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type MeetingDay implements Node {
-  id: ID!
-  name: String!
-  manufacturer: MeetingDay_ManufacturerProperties!
-}
-
 """A connection to a list of items."""
 type MeetingDaysConnection {
   """Information to aid in pagination."""
@@ -602,12 +329,6 @@ type MeetingDaysEdge {
   cursor: String!
 }
 
-type MeetingDuration implements Node {
-  id: ID!
-  name: String!
-  manufacturer: MeetingDuration_ManufacturerProperties!
-}
-
 """A connection to a list of items."""
 type MeetingDurationsConnection {
   """Information to aid in pagination."""
@@ -627,12 +348,6 @@ type MeetingDurationsEdge {
 
   """A cursor for use in pagination"""
   cursor: String!
-}
-
-type MeetingFrequency implements Node {
-  id: ID!
-  name: String!
-  manufacturer: MeetingFrequency_ManufacturerProperties!
 }
 
 """A connection to a list of items."""

@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const updateMeetingFrequency = ({ actionPointPriorityTypeResolver, actionPointPriorityBusinessService, actionPointPriorityDataLoader }) =>
+const updateMeetingFrequency = ({ actionPointPriority, actionPointPriorityBusinessService, actionPointPriorityDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateMeetingFrequency',
 		inputFields: {
@@ -11,7 +11,7 @@ const updateMeetingFrequency = ({ actionPointPriorityTypeResolver, actionPointPr
 		},
 		outputFields: {
 			actionPointPriority: {
-				type: actionPointPriorityTypeResolver.getConnectionDefinitionType().edgeType,
+				type: actionPointPriority.getConnectionDefinitionType().edgeType,
 				resolve: async ({ id }) => ({
 					cursor: id,
 					node: await actionPointPriorityDataLoader.getMeetingFrequencyLoaderById().load(id),

@@ -1,7 +1,7 @@
 import { GraphQLNonNull, GraphQLID, GraphQLString } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
-const updateActionPointPriority = ({ actionPointPriorityTypeResolver, actionPointPriorityBusinessService, actionPointPriorityDataLoader }) =>
+const updateActionPointPriority = ({ actionPointPriority, actionPointPriorityBusinessService, actionPointPriorityDataLoader }) =>
 	mutationWithClientMutationId({
 		name: 'UpdateActionPointPriority',
 		inputFields: {
@@ -11,7 +11,7 @@ const updateActionPointPriority = ({ actionPointPriorityTypeResolver, actionPoin
 		},
 		outputFields: {
 			actionPointPriority: {
-				type: actionPointPriorityTypeResolver.getConnectionDefinitionType().edgeType,
+				type: actionPointPriority.getConnectionDefinitionType().edgeType,
 				resolve: async ({ id }) => ({
 					cursor: id,
 					node: await actionPointPriorityDataLoader.getActionPointPriorityLoaderById().load(id),
